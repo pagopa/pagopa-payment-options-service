@@ -1,4 +1,4 @@
-package it.gov.pagopa.quarkustemplate.models;
+package it.gov.pagopa.payment.options.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
