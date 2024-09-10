@@ -83,8 +83,8 @@ microservice-chart:
     WEBSITE_SITE_NAME: 'payment-options-service' # required to show cloud role name in application insights
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
-    APICONFIG_CACHE_URL: 'TBD'
-    CACHE_EVT_HOST: 'TBD'
+    APICONFIG_CACHE_URL: 'https://api.uat.platform.pagopa.it/api-config-cache/o/v1'
+    CACHE_EVT_HOST: 'pagopa-u-weu-core-evh-ns04.servicebus.windows.net'
     CACHE_EVT_TOPIC: 'nodo-dei-pagamenti-cache'
   envSecret:
     # required
