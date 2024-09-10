@@ -6,9 +6,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class ConfigCacheUpdatesConsumer {
+
+  private final Logger logger = LoggerFactory.getLogger(ConfigCacheUpdatesConsumer.class);
 
   @Inject
   public ConfigCacheService configCacheService;
@@ -16,7 +20,16 @@ public class ConfigCacheUpdatesConsumer {
   @Incoming("nodo-dei-pagamenti-cache")
   @Transactional
   public void consume(CacheUpdateEvent event) {
-    configCacheService.checkAndUpdateCache(event);
+
+    logger.info("[Payment Options] Received update event with cacheVersion {}"
+        + " and version {}", event.getCacheVersion(), event.getVersion());
+    try {
+      configCacheService.checkAndUpdateCache(event);
+    } catch (Exception e) {
+      logger.error("[Payment Options] Error occurred during cache update: {}", e.getMessage());
+      throw e;
+    }
+
   }
 
 }
