@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  APP_NAME: print-payment-notice-service
+  APP_NAME: payment-options
 
 
 permissions:

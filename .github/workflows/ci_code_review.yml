@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_KEY: pagopa_pagopa-print-payment-notice-service
+  PROJECT_KEY: pagopa_pagopa-payment-options
 
 permissions:
   id-token: write
