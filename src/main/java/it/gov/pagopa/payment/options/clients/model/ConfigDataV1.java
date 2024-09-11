@@ -26,19 +26,19 @@ public class ConfigDataV1 {
 
   @JsonProperty("creditorInstitutions")
   @Valid
-  private Map<String, CreditorInstitution> creditorInstitutions = new HashMap<String, CreditorInstitution>();
+  private Map<String, CreditorInstitution> creditorInstitutions = new HashMap<>();
 
   @JsonProperty("stations")
   @Valid
-  private Map<String, Station> stations = new HashMap<String, Station>();
+  private Map<String, Station> stations = new HashMap<>();
 
-//  @JsonProperty("creditorInstitutionBrokers")
-//  @Valid
-//  private Map<String, BrokerCreditorInstitution> creditorInstitutionBrokers = new HashMap<String, BrokerCreditorInstitution>();
-//
-//  @JsonProperty("creditorInstitutionStations")
-//  @Valid
-//  private Map<String, StationCreditorInstitution> creditorInstitutionStations = new HashMap<String, StationCreditorInstitution>();
+  @JsonProperty("creditorInstitutionBrokers")
+  @Valid
+  private Map<String, BrokerCreditorInstitution> creditorInstitutionBrokers = new HashMap<>();
+
+  @JsonProperty("creditorInstitutionStations")
+  @Valid
+  private Map<String, StationCreditorInstitution> creditorInstitutionStations = new HashMap<>();
 //
 //  @JsonProperty("encodings")
 //  @Valid
