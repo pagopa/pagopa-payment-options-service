@@ -21,6 +21,7 @@ import java.util.Map;
 public class ConfigDataV1 {
 
   @JsonProperty("version")
+  @Builder.Default
   private String version = null;
 
   @JsonProperty("creditorInstitutions")

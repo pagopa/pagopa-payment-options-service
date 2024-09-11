@@ -26,7 +26,6 @@ public class ConfigCacheUpdatesConsumer {
    * @param event cache update event
    */
   @Incoming("nodo-dei-pagamenti-cache")
-  @Transactional
   public void consume(CacheUpdateEvent event) {
 
     logger.info("[Payment Options] Received update event with cacheVersion {}"

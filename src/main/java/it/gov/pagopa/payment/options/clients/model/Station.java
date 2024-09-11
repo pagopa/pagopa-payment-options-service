@@ -33,8 +33,6 @@ public class Station {
   private Connection connection = null;
 
   @JsonProperty("connection_mod4")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Connection connectionMod4 = null;
 
   @JsonProperty("password")
@@ -44,26 +42,18 @@ public class Station {
   private Redirect redirect = null;
 
   @JsonProperty("service")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Service service = null;
 
   @JsonProperty("service_pof")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Service servicePof = null;
 
   @JsonProperty("service_mod4")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Service serviceMod4 = null;
 
   @JsonProperty("broker_code")
   private String brokerCode = null;
 
   @JsonProperty("proxy")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Proxy proxy = null;
 
   @JsonProperty("thread_number")
@@ -79,8 +69,6 @@ public class Station {
   private Integer primitiveVersion = null;
 
   @JsonProperty("flag_standin")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Boolean flagStandin = null;
 
 }

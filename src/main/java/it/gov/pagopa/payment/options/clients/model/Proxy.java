@@ -18,23 +18,15 @@ import lombok.Setter;
 public class Proxy {
 
   @JsonProperty("proxy_host")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private String proxyHost = null;
 
   @JsonProperty("proxy_port")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private Long proxyPort = null;
 
   @JsonProperty("proxy_username")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private String proxyUsername = null;
 
   @JsonProperty("proxy_password")
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private String proxyPassword = null;
 
 }
