@@ -47,7 +47,7 @@ class ConfigCacheServiceTest {
         ConfigDataV1.builder().version("2").build()
     );
     configCacheService.checkAndUpdateCache(null);
-    ConfigCacheData configCacheData = configCacheService.getConfigCacheData();
+    ConfigDataV1 configCacheData = configCacheService.getConfigCacheData();
     assertNotNull(configCacheData);
     assertEquals(configCacheData.getVersion(), "2");
     configCacheService.checkAndUpdateCache(CacheUpdateEvent.builder()

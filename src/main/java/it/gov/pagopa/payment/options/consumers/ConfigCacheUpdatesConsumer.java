@@ -9,6 +9,10 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Consumer for events coming from the nodo-dei-pagamenti-cache topic, triggering
+ * the process for local cache-config update
+ */
 @ApplicationScoped
 public class ConfigCacheUpdatesConsumer {
 
@@ -17,6 +21,10 @@ public class ConfigCacheUpdatesConsumer {
   @Inject
   public ConfigCacheService configCacheService;
 
+  /**
+   * Consume method, containing the trigger of the local cache config update
+   * @param event cache update event
+   */
   @Incoming("nodo-dei-pagamenti-cache")
   @Transactional
   public void consume(CacheUpdateEvent event) {

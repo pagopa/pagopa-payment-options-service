@@ -9,6 +9,10 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import java.util.List;
 
+/**
+ * Service to manage local instance of the config cache, to contain and update
+ * based on retrieved data
+ */
 @ApplicationScoped
 public class ConfigCacheService {
 
@@ -18,11 +22,27 @@ public class ConfigCacheService {
 
   private ConfigCacheData configCacheData;
 
-  public ConfigCacheData getConfigCacheData() {
-    return this.configCacheData != null ?
-        this.configCacheData : checkAndUpdateCache(null);
+  /**
+   * Provides instance of the local cache data, if not yet provided,
+   * it will call the checkAndUpdate method
+   * @return local instance of the configCacheData
+   */
+  public ConfigDataV1 getConfigCacheData() {
+    return this.configCacheData != null || this.configCacheData.getConfigDataV1() == null ?
+        this.configCacheData.getConfigDataV1() :
+        checkAndUpdateCache(null).getConfigDataV1();
   }
 
+  /**
+   * Executes a check and update process based on the update event (if provided). If the
+   * input event is null it will always execute a call using the client instance
+   *
+   * If the event is provided, it will check if the version is obsolete, and will execute
+   * the update only when a new cache version is passed through the update event
+   *
+   * @param cacheUpdateEvent contains version of the update event
+   * @return instance of the configCacheData
+   */
   public ConfigCacheData checkAndUpdateCache(CacheUpdateEvent cacheUpdateEvent) {
 
     if (configCacheData == null || cacheUpdateEvent == null ||
