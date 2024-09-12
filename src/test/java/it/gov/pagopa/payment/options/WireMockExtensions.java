@@ -5,6 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import lombok.SneakyThrows;
 
@@ -25,7 +26,8 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
         wireMockServer.start(); 
 
         wireMockServer.stubFor(
-            get(urlEqualTo("/extensions?id=io.quarkus:quarkus-rest-client"))
+            get(urlEqualTo(
+                "/payment-options/organizations/77777777777/notices/311111111112222222"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
@@ -36,9 +38,24 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
                 )
         );
 
+        wireMockServer.stubFor(
+            get(urlEqualTo(
+                "/payment-options/organizations/87777777777/notices/311111111112222222"))
+                .willReturn(aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withStatus(500)
+                    .withBody(
+                        objectMapper.writeValueAsString(
+                            ErrorResponse.builder().build()
+                        )
+                    )
+                )
+        );
+
         return Map.of(
-            "quarkus.rest-client.\"org.acme.rest.client.ExtensionsService\".url",
-            wireMockServer.baseUrl()
+            "CreditorInstitutionRestClient.apimEndpoint",
+            wireMockServer.baseUrl(),
+            "CreditorInstitutionRestClient.ocpSubKey", "test"
         );
     }
 
