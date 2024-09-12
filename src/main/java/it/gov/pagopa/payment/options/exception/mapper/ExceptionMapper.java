@@ -59,30 +59,30 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-    public Response mapNotFoundException(NotFoundException exception) {
-        logger.error(exception.getMessage(), exception);
-        return Response.status(NOT_FOUND).entity(
-                buildErrorResponse(Status.NOT_FOUND, AppErrorCodeEnum.ODP_SINTASSI,
-                        "Invalid parameters on request")).build();
-    }
+  public Response mapNotFoundException(NotFoundException exception) {
+      logger.error(exception.getMessage(), exception);
+      return Response.status(NOT_FOUND).entity(
+              buildErrorResponse(Status.NOT_FOUND, AppErrorCodeEnum.ODP_SINTASSI,
+                      "Invalid parameters on request")).build();
+  }
 
-    @ServerExceptionMapper
-    public Response mapPaymentNoticeException(PaymentOptionsException exception) {
-        logger.error(exception.getMessage(), exception);
-        Response.Status status = getHttpStatus(exception);
-        return Response.status(status).entity(buildErrorResponse(status,
-                exception.getErrorCode(), exception.getMessage())).build();
-    }
+  @ServerExceptionMapper
+  public Response mapPaymentNoticeException(PaymentOptionsException exception) {
+      logger.error(exception.getMessage(), exception);
+      Response.Status status = getHttpStatus(exception);
+      return Response.status(status).entity(buildErrorResponse(status,
+              exception.getErrorCode(), exception.getMessage())).build();
+  }
 
-    @ServerExceptionMapper
-    public Response mapGenericException(Exception exception) {
-        logger.error(exception.getMessage(), exception);
-        return Response.status(INTERNAL_SERVER_ERROR)
-                .entity(buildErrorResponse(
-                        Response.Status.INTERNAL_SERVER_ERROR,
-                        AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-                        "Unexpected Error"))
-                .build();
-    }
+  @ServerExceptionMapper
+  public Response mapGenericException(Exception exception) {
+      logger.error(exception.getMessage(), exception);
+      return Response.status(INTERNAL_SERVER_ERROR)
+              .entity(buildErrorResponse(
+                      Response.Status.INTERNAL_SERVER_ERROR,
+                      AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+                      "Unexpected Error"))
+              .build();
+  }
 
 }
