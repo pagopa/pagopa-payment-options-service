@@ -2,7 +2,7 @@ package it.gov.pagopa.payment.options.consumers;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.payment.options.models.CacheUpdateEvent;
+import it.gov.pagopa.payment.options.models.events.CacheUpdateEvent;
 import it.gov.pagopa.payment.options.models.ConfigCacheData;
 import it.gov.pagopa.payment.options.services.ConfigCacheService;
 import jakarta.inject.Inject;

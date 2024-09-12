@@ -1,4 +1,4 @@
-package it.gov.pagopa.payment.options.models;
+package it.gov.pagopa.payment.options.models.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
 package it.gov.pagopa.payment.options.clients;
 
-import it.gov.pagopa.payment.options.clients.model.ConfigDataV1;
+import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;

@@ -1,6 +1,6 @@
 package it.gov.pagopa.payment.options.models;
 
-import it.gov.pagopa.payment.options.clients.model.ConfigDataV1;
+import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
