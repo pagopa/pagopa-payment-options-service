@@ -1,6 +1,5 @@
 package it.gov.pagopa.payment.options.models;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,19 +12,25 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-@JsonPropertyOrder({"title", "status", "detail", "instance"})
 @RegisterForReflection
 public class ErrorResponse {
 
-    @Schema(example = "Internal Server Error")
-    private String title;
-
     @Schema(example = "500")
-    private int status;
+    private int httpStatusCode;
+
+    @Schema(example = "Internal Server Error")
+    private String httpStatusDescription;
 
     @Schema(example = "An unexpected error has occurred. Please contact support.")
-    private String detail;
+    private String errorMessage;
 
-    @Schema(example = "PN-500")
-    private String instance;
+    @Schema(example = "ODP-<ERR_ID>")
+    private String appErrorCode;
+
+    @Schema(example = "1724425035")
+    private Long timestamp;
+
+    @Schema(example = "2024-08-23T14:57:15.635528")
+    private String dateTime;
+
 }

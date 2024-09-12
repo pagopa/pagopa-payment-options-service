@@ -1,20 +1,22 @@
 package it.gov.pagopa.payment.options.exception.mapper;
 
+import static it.gov.pagopa.payment.options.exception.PaymentOptionsException.getHttpStatus;
+import static org.jboss.resteasy.reactive.RestResponse.Status.NOT_FOUND;
+import static org.jboss.resteasy.reactive.RestResponse.StatusCode.INTERNAL_SERVER_ERROR;
+
 import io.smallrye.mutiny.CompositeException;
+import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import java.time.Instant;
+import java.util.List;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-
-import static it.gov.pagopa.payment.options.exception.PaymentOptionsException.getHttpStatus;
-import static org.jboss.resteasy.reactive.RestResponse.Status.BAD_REQUEST;
-import static org.jboss.resteasy.reactive.RestResponse.StatusCode.INTERNAL_SERVER_ERROR;
 
 public class ExceptionMapper {
 
@@ -22,10 +24,11 @@ public class ExceptionMapper {
 
     private ErrorResponse buildErrorResponse(Response.Status status, AppErrorCodeEnum errorCode, String message) {
         return ErrorResponse.builder()
-                .title(status.getReasonPhrase())
-                .status(status.getStatusCode())
-                .detail(message)
-                .instance(errorCode.getErrorCode())
+                .httpStatusCode(status.getStatusCode())
+                .httpStatusDescription(status.getReasonPhrase())
+                .appErrorCode(errorCode.getErrorCode())
+                .errorMessage(errorCode.getErrorMessage())
+                .timestamp(Instant.now().getEpochSecond())
                 .build();
     }
 
@@ -39,18 +42,27 @@ public class ExceptionMapper {
         if(composedException instanceof NotFoundException ex) {
             return mapNotFoundException(ex);
         } else if(composedException instanceof PaymentOptionsException paymentNoticeException) {
-            return mapPaymentNoticeException(paymentNoticeException);
+          return mapPaymentNoticeException(paymentNoticeException);
+        } else if(composedException instanceof CreditorInstitutionException creditorInstitutionException) {
+          return mapCreditorInstitutionException(creditorInstitutionException);
         } else {
             return mapGenericException(exception);
         }
 
     }
 
-    @ServerExceptionMapper
+  @ServerExceptionMapper
+  private Response mapCreditorInstitutionException(CreditorInstitutionException creditorInstitutionException) {
+    logger.error(creditorInstitutionException.getMessage(), creditorInstitutionException);
+    return Response.status(creditorInstitutionException.getErrorResponse().getHttpStatusCode())
+        .entity(creditorInstitutionException.getErrorResponse()).build();
+  }
+
+  @ServerExceptionMapper
     public Response mapNotFoundException(NotFoundException exception) {
         logger.error(exception.getMessage(), exception);
-        return Response.status(BAD_REQUEST).entity(
-                buildErrorResponse(Response.Status.BAD_REQUEST, AppErrorCodeEnum.ERRORE_SINTASSI_INPUT,
+        return Response.status(NOT_FOUND).entity(
+                buildErrorResponse(Status.NOT_FOUND, AppErrorCodeEnum.ODP_SINTASSI,
                         "Invalid parameters on request")).build();
     }
 
@@ -68,7 +80,7 @@ public class ExceptionMapper {
         return Response.status(INTERNAL_SERVER_ERROR)
                 .entity(buildErrorResponse(
                         Response.Status.INTERNAL_SERVER_ERROR,
-                        AppErrorCodeEnum.SYSTEM_ERROR,
+                        AppErrorCodeEnum.ODP_SYSTEM_ERROR,
                         "Unexpected Error"))
                 .build();
     }

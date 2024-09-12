@@ -4,9 +4,7 @@ import it.gov.pagopa.payment.options.clients.CreditorInstitutionRestClient;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.clients.cache.Connection.ProtocolEnum;
 import it.gov.pagopa.payment.options.models.clients.cache.Station;
-import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsRequest;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
-import it.gov.pagopa.payment.options.models.clients.creditorInstitution.QrCode;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,13 +19,13 @@ public class CreditorInstitutionService {
 
   String APIM_FORWARDER_ENDPOINT = "";
 
-  static String PAYMENT_OPTIONS_SERVICE_SUFFIX = "/payment-options";
+  static String PAYMENT_OPTIONS_SERVICE_SUFFIX = "/payment-options/organizations/%s/notices/%s";
 
   @Inject
   CreditorInstitutionRestClient creditorInstitutionRestClient;
 
   public PaymentOptionsResponse getPaymentOptions(
-      String idPsp, String idBrokerPsp, String idChannel,
+      String idPsp, String idBrokerPsp, String idStazione,
       String noticeNumber, String fiscalCode, Station station) {
 
     if (station.getConnection().getIp() == null ||
@@ -51,25 +49,17 @@ public class CreditorInstitutionService {
         Long.parseLong(hostSplit[1]) :
         verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase()) ?
           443L : 80L;
-    String targetPath = verifyEndpointParts[3].concat(PAYMENT_OPTIONS_SERVICE_SUFFIX);
+    String targetPath = verifyEndpointParts[3].concat(
+        String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber));
 
-    PaymentOptionsRequest paymentOptionsRequest =
-        PaymentOptionsRequest.builder()
-            .idPSP(idPsp)
-            .idBrokerPSP(idBrokerPsp)
-            .idChannel(idChannel)
-            .qrCode(QrCode.builder()
-                .fiscalCode(fiscalCode)
-                .noticeNumber(noticeNumber)
-                .build()
-            ).build();
 
     try {
       return creditorInstitutionRestClient.callEcPaymentOptionsVerify(
           endpoint,
           station.getProxy() != null ? station.getProxy().getProxyHost() : null,
           station.getProxy() != null ? station.getProxy().getProxyPort() : null,
-          targetHost, targetPort, targetPath, paymentOptionsRequest
+          targetHost, targetPort, targetPath,
+          idPsp, idBrokerPsp, idStazione, fiscalCode, noticeNumber
       );
     } catch (MalformedURLException e) {
       logger.error("[Payment Options] Malformed URL: {}", e.getMessage());
