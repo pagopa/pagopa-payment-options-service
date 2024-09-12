@@ -9,6 +9,7 @@ import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.MalformedURLException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,8 @@ public class CreditorInstitutionService {
 
   private final Logger logger = LoggerFactory.getLogger(CreditorInstitutionService.class);
 
-  String APIM_FORWARDER_ENDPOINT = "";
+  @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
+  String APIM_FORWARDER_ENDPOINT;
 
   static String PAYMENT_OPTIONS_SERVICE_SUFFIX = "/payment-options/organizations/%s/notices/%s";
 
