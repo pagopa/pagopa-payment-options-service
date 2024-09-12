@@ -33,14 +33,14 @@ public class CreditorInstitutionService {
     if (station.getConnection().getIp() == null ||
         !station.getConnection().getIp().contains(APIM_FORWARDER_ENDPOINT)) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
-          "Station not configured to pass through the APIM Forwarder");
+          "[Payment Options] Station not configured to pass through the APIM Forwarder");
     }
 
     String endpoint = getEndpoint(station);
 
     if (station.getVerifyPaymentOptionEndpoint() == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
-          "Station new verify endpoint not provided");
+          "[Payment Options] Station new verify endpoint not provided");
     }
 
     String[] verifyEndpointParts =

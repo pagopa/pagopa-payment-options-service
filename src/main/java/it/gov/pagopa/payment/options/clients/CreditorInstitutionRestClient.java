@@ -48,7 +48,7 @@ public class CreditorInstitutionRestClient {
            ErrorResponse errorResponse = objectMapper.readValue(
                response.readEntity(String.class), ErrorResponse.class);
            throw new CreditorInstitutionException(errorResponse,
-               "Encountered a managed error calling the station REST endpoint");
+               "[Payment Options] Encountered a managed error calling the station REST endpoint");
         } catch (Exception e) {
           logger.error("[Payment Options] Unable to call the station due to error: {}",
               e.getMessage());
