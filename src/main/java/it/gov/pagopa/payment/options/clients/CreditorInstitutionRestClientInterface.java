@@ -11,7 +11,7 @@ import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 
 public interface CreditorInstitutionRestClientInterface {
 
-  @GET()
+  @GET
   @Path("/payment-options/organizations/{fiscal-code}/notices/{notice-number}")
   @ClientHeaderParam(name = "Ocp-Apim-Subscription-Key", value = "${EcRestClient.ocpSubKey}")
   Response verifyPaymentOptions(
