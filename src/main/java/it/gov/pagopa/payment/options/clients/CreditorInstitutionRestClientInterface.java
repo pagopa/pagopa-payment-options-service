@@ -1,6 +1,5 @@
 package it.gov.pagopa.payment.options.clients;
 
-import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
@@ -9,6 +8,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 
+/**
+ * Template for the creditor institution REST client
+ */
 public interface CreditorInstitutionRestClientInterface {
 
   @GET

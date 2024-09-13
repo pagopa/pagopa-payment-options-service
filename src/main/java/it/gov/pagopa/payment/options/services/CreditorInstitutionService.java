@@ -13,6 +13,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service containing methods to manage call to the creditor institution REST service
+ */
 @ApplicationScoped
 public class CreditorInstitutionService {
 
@@ -26,6 +29,20 @@ public class CreditorInstitutionService {
   @Inject
   CreditorInstitutionRestClient creditorInstitutionRestClient;
 
+  /**
+   * Using the provided input attempts to call the creditor institution service
+   * to obtain the list paymentOptions related to the input
+   *
+   * The method contains checks regarding the endpoint to use, and attempts to
+   * extract the REST target params
+   *
+   * @param idPsp psp identifier
+   * @param idBrokerPsp broker psp identifier
+   * @param noticeNumber input notice number
+   * @param fiscalCode input fiscal code
+   * @param station station containing the connection config to use
+   * @return
+   */
   public PaymentOptionsResponse getPaymentOptions(
       String idPsp, String idBrokerPsp,
       String noticeNumber, String fiscalCode, Station station) {
