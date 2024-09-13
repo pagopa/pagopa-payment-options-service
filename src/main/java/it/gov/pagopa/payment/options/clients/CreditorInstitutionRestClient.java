@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Rest Client for Creditor Institution services
+ */
 @ApplicationScoped
 public class CreditorInstitutionRestClient {
 
@@ -24,6 +27,23 @@ public class CreditorInstitutionRestClient {
   @Inject
   ObjectMapper objectMapper;
 
+  /**
+   *
+   * @param endpoint endpoint to use for the call (should be equivalent to the forwader(
+   * @param proxyHost proxy host, optional
+   * @param proxyPort proxy port, optional
+   * @param targetHost verify service host
+   * @param targetPort verify service port
+   * @param targetPath verify service path
+   * @param idPsp psp id to be used as parameter for the call
+   * @param idBrokerPsp broker id to be used as parameter for the call
+   * @param idStazione station id to be used for the call
+   * @param fiscalCode fiscal code to be used as input for the call
+   * @param noticeNumber notice number to be used as input for the call
+   * @return PaymentOptionResponse
+   * @throws MalformedURLException
+   * @throws PaymentOptionsException
+   */
   public PaymentOptionsResponse callEcPaymentOptionsVerify(
       String endpoint, String proxyHost, Long proxyPort,
       String targetHost, Long targetPort, String targetPath,
