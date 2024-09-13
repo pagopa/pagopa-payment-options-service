@@ -39,11 +39,11 @@ class CreditorInstitutionServiceTest {
   @Test
   void getPaymentOptionsShouldReturnData() throws MalformedURLException {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        any(), any(), any(), any(), any(), any(), any(), any())
     ).thenReturn(PaymentOptionsResponse.builder().build());
     PaymentOptionsResponse paymentOptionsResponse =
         assertDoesNotThrow(() -> creditorInstitutionService.getPaymentOptions(
-        "000001","000001","12345","322334",
+        "000001","000001",
         Station.builder().stationCode("000001_01")
             .connection(
                 Connection.builder()
@@ -58,17 +58,17 @@ class CreditorInstitutionServiceTest {
     ));
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient).callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        any(), any(), any(), any(), any(), any(), any(), any());
   }
 
   @Test
   void getPaymentOptionsShouldReturnExceptionOnMalformed() throws MalformedURLException {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+        any(), any(), any(), any(), any(), any(), any(), any())
     ).thenThrow(new MalformedURLException());
     PaymentOptionsException paymentOptionsException =
         assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001","12345","322334",
+            "000001","000001",
             Station.builder().stationCode("000001_01")
                 .connection(
                     Connection.builder()
@@ -84,14 +84,15 @@ class CreditorInstitutionServiceTest {
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_SEMANTICA);
     verify(creditorInstitutionRestClient).callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+        any(), any(), any(), any(), any(), any(), any(), any()
+    );
   }
 
   @Test
   void getPaymentOptionsShouldReturnExceptionOnMissingEndpoint() throws MalformedURLException {
     PaymentOptionsException paymentOptionsException =
         assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001","12345","322334",
+            "000001","000001",
             Station.builder().stationCode("000001_01")
                 .connection(
                     Connection.builder()
@@ -113,7 +114,7 @@ class CreditorInstitutionServiceTest {
   void getPaymentOptionsShouldReturnExceptionOnBrokerServiceUrl() throws MalformedURLException {
     PaymentOptionsException paymentOptionsException =
         assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001","12345","322334",
+            "000001","000001",
             Station.builder().stationCode("000001_01")
                 .connection(
                     Connection.builder()

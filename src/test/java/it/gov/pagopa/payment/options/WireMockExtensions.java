@@ -27,8 +27,7 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
 
         wireMockServer.stubFor(
             get(urlEqualTo(
-                "/payment-options/organizations/77777777777/notices/311111111112222222"
-                    + "?idPA=88888888888&idBrokerPA=88888888888&idStation=88888888888_01"))
+                "/payment-options/organizations/77777777777/notices/311111111112222222"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withResponseBody(
@@ -41,8 +40,7 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
 
         wireMockServer.stubFor(
             get(urlEqualTo(
-                "/payment-options/organizations/87777777777/notices/311111111112222222"
-                    + "?idPA=88888888888&idBrokerPA=88888888888&idStation=88888888888_01"))
+                "/payment-options/organizations/87777777777/notices/311111111112222222"))
                 .willReturn(aResponse()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(412)

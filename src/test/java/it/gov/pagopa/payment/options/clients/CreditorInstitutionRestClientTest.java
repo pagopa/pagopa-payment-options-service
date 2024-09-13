@@ -35,8 +35,7 @@ class CreditorInstitutionRestClientTest {
         assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
         wiremockUrl, null, null,
         "http://externalService", 443L, "/externalPath",
-          "88888888888", "88888888888", "88888888888_01",
-        "77777777777", "311111111112222222"));
+          "88888888888", "88888888888"));
     assertNotNull(paymentOptionsResponse);
   }
 
@@ -47,8 +46,7 @@ class CreditorInstitutionRestClientTest {
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
             wiremockUrl, null, null,
             "http://externalService", 443L, "/externalPath",
-            "88888888888", "88888888888", "88888888888_01",
-            "87777777777", "311111111112222222"));
+            "88888888888", "88888888888"));
     assertNotNull(exception);
     assertEquals(exception.getErrorResponse().getHttpStatusCode(), 500);
   }
@@ -60,8 +58,7 @@ class CreditorInstitutionRestClientTest {
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                 wiremockUrl, null, null,
                 "http://externalService", 443L, "/externalPath",
-                "08888888888", "88888888888", "88888888888_01",
-                "87777777777", "311111111112222222"));
+                "08888888888", "88888888888"));
     assertNotNull(exception);
     assertEquals(exception.getErrorCode(), AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE);
   }
@@ -73,8 +70,7 @@ class CreditorInstitutionRestClientTest {
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                 "AAAAAAA", null, null,
                 "http://externalService", 443L, "/externalPath",
-                "88888888888", "88888888888", "88888888888_01",
-                "87777777777", "311111111112222222"));
+                "88888888888", "88888888888"));
   }
 
 

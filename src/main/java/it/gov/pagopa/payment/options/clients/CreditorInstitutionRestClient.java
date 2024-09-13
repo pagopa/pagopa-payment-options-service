@@ -35,9 +35,6 @@ public class CreditorInstitutionRestClient {
    * @param targetHost verify service host
    * @param targetPort verify service port
    * @param targetPath verify service path
-   * @param idPsp psp id to be used as parameter for the call
-   * @param idBrokerPsp broker id to be used as parameter for the call
-   * @param idStazione station id to be used for the call
    * @param fiscalCode fiscal code to be used as input for the call
    * @param noticeNumber notice number to be used as input for the call
    * @return PaymentOptionResponse
@@ -47,8 +44,8 @@ public class CreditorInstitutionRestClient {
   public PaymentOptionsResponse callEcPaymentOptionsVerify(
       String endpoint, String proxyHost, Long proxyPort,
       String targetHost, Long targetPort, String targetPath,
-      String idPsp, String idBrokerPsp,
-      String idStazione, String fiscalCode, String noticeNumber)
+//      String idPA, String idBrokerPA, String idStazione,
+      String fiscalCode, String noticeNumber)
       throws MalformedURLException {
 
     RestClientBuilder builder =
@@ -60,8 +57,10 @@ public class CreditorInstitutionRestClient {
         CreditorInstitutionRestClientInterface.class);
 
     try (Response response = ecRestClientInterface.verifyPaymentOptions(
-        fiscalCode, noticeNumber, idPsp, idBrokerPsp, idStazione,
-        targetHost, targetPort.intValue(), targetPath)) {
+        fiscalCode, noticeNumber,
+//        idPA, idBrokerPA, idStazione,
+        targetHost, targetPort.intValue(),
+        targetPath)) {
 
       if (response.getStatus() != 200) {
         manageErrorResponse(response);

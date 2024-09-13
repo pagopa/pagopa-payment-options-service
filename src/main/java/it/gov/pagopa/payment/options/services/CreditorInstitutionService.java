@@ -36,15 +36,15 @@ public class CreditorInstitutionService {
    * The method contains checks regarding the endpoint to use, and attempts to
    * extract the REST target params
    *
-   * @param idPsp psp identifier
-   * @param idBrokerPsp broker psp identifier
+//   * @param idPA pa identifier
+//   * @param idBrokerPA broker pa identifier
    * @param noticeNumber input notice number
    * @param fiscalCode input fiscal code
    * @param station station containing the connection config to use
    * @return
    */
   public PaymentOptionsResponse getPaymentOptions(
-      String idPsp, String idBrokerPsp,
+      //String idPA, String idBrokerPA,
       String noticeNumber, String fiscalCode, Station station) {
 
     if (station.getConnection().getIp() == null ||
@@ -85,7 +85,7 @@ public class CreditorInstitutionService {
           station.getProxy() != null ? station.getProxy().getProxyHost() : null,
           station.getProxy() != null ? station.getProxy().getProxyPort() : null,
           targetHost, targetPort, targetPath,
-          idPsp, idBrokerPsp, station.getStationCode(), fiscalCode, noticeNumber
+          fiscalCode, noticeNumber
       );
     } catch (MalformedURLException e) {
       logger.error("[Payment Options] Malformed URL: {}", e.getMessage());
