@@ -71,7 +71,7 @@ public class Station {
   @JsonProperty("verify_payment_option_enabled")
   private Boolean verifyPaymentOptionEnabled = false;
 
-  @JsonProperty("verify_payment_option_endpoint")
-  private String verifyPaymentOptionEndpoint;
+  @JsonProperty("rest_endpoint")
+  private String restEndpoint;
 
 }

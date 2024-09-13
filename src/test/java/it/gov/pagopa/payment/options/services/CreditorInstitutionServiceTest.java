@@ -52,7 +52,7 @@ class CreditorInstitutionServiceTest {
                     .port(8082L)
                     .build()
             )
-            .verifyPaymentOptionEndpoint("http://localhost:8080/test")
+            .restEndpoint("http://localhost:8080/test")
             .verifyPaymentOptionEnabled(true)
             .build()
     ));
@@ -77,7 +77,7 @@ class CreditorInstitutionServiceTest {
                         .port(8082L)
                         .build()
                 )
-                .verifyPaymentOptionEndpoint("http://localhost:8080/test")
+                .restEndpoint("http://localhost:8080/test")
                 .verifyPaymentOptionEnabled(true)
                 .build()
         ));
@@ -101,7 +101,7 @@ class CreditorInstitutionServiceTest {
                         .port(8082L)
                         .build()
                 )
-                .verifyPaymentOptionEndpoint(null)
+                .restEndpoint(null)
                 .verifyPaymentOptionEnabled(true)
                 .build()
         ));
@@ -123,7 +123,7 @@ class CreditorInstitutionServiceTest {
                         .port(8082L)
                         .build()
                 )
-                .verifyPaymentOptionEndpoint(":8080")
+                .restEndpoint(":8080")
                 .verifyPaymentOptionEnabled(true)
                 .build()
         ));

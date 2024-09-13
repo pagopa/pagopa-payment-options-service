@@ -55,7 +55,7 @@ public class CreditorInstitutionService {
 
     String endpoint = getEndpoint(station);
 
-    if (station.getVerifyPaymentOptionEndpoint() == null) {
+    if (station.getRestEndpoint() == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
           "[Payment Options] Station new verify endpoint not provided");
     }
@@ -65,7 +65,7 @@ public class CreditorInstitutionService {
     String targetPath;
     try {
       String[] verifyEndpointParts =
-          station.getVerifyPaymentOptionEndpoint().split("/", 4);
+          station.getRestEndpoint().split("/", 4);
       targetHost = verifyEndpointParts[0] + verifyEndpointParts[2];
       String[] hostSplit = verifyEndpointParts[2].split(":");
       targetPort = hostSplit.length > 1 ?
