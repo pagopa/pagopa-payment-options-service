@@ -13,7 +13,7 @@ public interface CreditorInstitutionRestClientInterface {
 
   @GET
   @Path("/payment-options/organizations/{fiscal-code}/notices/{notice-number}")
-  @ClientHeaderParam(name = "Ocp-Apim-Subscription-Key", value = "${EcRestClient.ocpSubKey}")
+  @ClientHeaderParam(name = "Ocp-Apim-Subscription-Key", value = "${CreditorInstitutionRestClient.ocpSubKey}")
   Response verifyPaymentOptions(
       @PathParam("fiscal-code") String fiscalCode,
       @PathParam("notice-number") String noticeNumber,

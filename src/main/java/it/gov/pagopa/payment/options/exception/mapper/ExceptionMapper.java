@@ -52,7 +52,7 @@ public class ExceptionMapper {
     }
 
   @ServerExceptionMapper
-  private Response mapCreditorInstitutionException(CreditorInstitutionException creditorInstitutionException) {
+  public Response mapCreditorInstitutionException(CreditorInstitutionException creditorInstitutionException) {
     logger.error(creditorInstitutionException.getMessage(), creditorInstitutionException);
     return Response.status(creditorInstitutionException.getErrorResponse().getHttpStatusCode())
         .entity(creditorInstitutionException.getErrorResponse()).build();
