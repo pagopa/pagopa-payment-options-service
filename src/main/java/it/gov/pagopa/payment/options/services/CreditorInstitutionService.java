@@ -27,11 +27,11 @@ public class CreditorInstitutionService {
   CreditorInstitutionRestClient creditorInstitutionRestClient;
 
   public PaymentOptionsResponse getPaymentOptions(
-      String idPsp, String idBrokerPsp, String idStazione,
+      String idPsp, String idBrokerPsp,
       String noticeNumber, String fiscalCode, Station station) {
 
     if (station.getConnection().getIp() == null ||
-        !station.getConnection().getIp().contains(APIM_FORWARDER_ENDPOINT)) {
+        !APIM_FORWARDER_ENDPOINT.contains(station.getConnection().getIp())) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
           "[Payment Options] Station not configured to pass through the APIM Forwarder");
     }
@@ -43,17 +43,24 @@ public class CreditorInstitutionService {
           "[Payment Options] Station new verify endpoint not provided");
     }
 
-    String[] verifyEndpointParts =
-        station.getVerifyPaymentOptionEndpoint().split("/",4);
-    String targetHost = verifyEndpointParts[0] + verifyEndpointParts[2];
-    String[] hostSplit = verifyEndpointParts[2].split(":");
-    Long targetPort = hostSplit.length > 1 ?
-        Long.parseLong(hostSplit[1]) :
-        verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase()) ?
-          443L : 80L;
-    String targetPath = verifyEndpointParts[3].concat(
-        String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber));
-
+    String targetHost;
+    long targetPort;
+    String targetPath;
+    try {
+      String[] verifyEndpointParts =
+          station.getVerifyPaymentOptionEndpoint().split("/", 4);
+      targetHost = verifyEndpointParts[0] + verifyEndpointParts[2];
+      String[] hostSplit = verifyEndpointParts[2].split(":");
+      targetPort = hostSplit.length > 1 ?
+          Long.parseLong(hostSplit[1]) :
+          verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase()) ?
+              443L : 80L;
+      targetPath = verifyEndpointParts[3].concat(
+          String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber));
+    } catch (Exception e) {
+      logger.error("[Payment Options] Malformed Target URL: {}", e.getMessage());
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
+    }
 
     try {
       return creditorInstitutionRestClient.callEcPaymentOptionsVerify(
@@ -61,7 +68,7 @@ public class CreditorInstitutionService {
           station.getProxy() != null ? station.getProxy().getProxyHost() : null,
           station.getProxy() != null ? station.getProxy().getProxyPort() : null,
           targetHost, targetPort, targetPath,
-          idPsp, idBrokerPsp, idStazione, fiscalCode, noticeNumber
+          idPsp, idBrokerPsp, station.getStationCode(), fiscalCode, noticeNumber
       );
     } catch (MalformedURLException e) {
       logger.error("[Payment Options] Malformed URL: {}", e.getMessage());
