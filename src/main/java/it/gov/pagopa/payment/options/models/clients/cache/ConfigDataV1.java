@@ -39,6 +39,15 @@ public class ConfigDataV1 {
   @JsonProperty("creditorInstitutionStations")
   @Valid
   private Map<String, StationCreditorInstitution> creditorInstitutionStations = new HashMap<>();
+
+  @JsonProperty("psps")
+  @Valid
+  private Map<String, PaymentServiceProvider> psps = new HashMap<>();
+
+  @JsonProperty("pspBrokers")
+  @Valid
+  private Map<String, BrokerPsp> pspBrokers = new HashMap<>();
+
 //
 //  @JsonProperty("encodings")
 //  @Valid
@@ -56,9 +65,6 @@ public class ConfigDataV1 {
 //  @Valid
 //  private Map<String, CreditorInstitutionInformation> creditorInstitutionInformations = new HashMap<String, CreditorInstitutionInformation>();
 //
-//  @JsonProperty("psps")
-//  @Valid
-//  private Map<String, PaymentServiceProvider> psps = new HashMap<String, PaymentServiceProvider>();
 //
 //  @JsonProperty("pspBrokers")
 //  @Valid

@@ -36,15 +36,12 @@ public class CreditorInstitutionService {
    * The method contains checks regarding the endpoint to use, and attempts to
    * extract the REST target params
    *
-//   * @param idPA pa identifier
-//   * @param idBrokerPA broker pa identifier
    * @param noticeNumber input notice number
    * @param fiscalCode input fiscal code
    * @param station station containing the connection config to use
    * @return
    */
   public PaymentOptionsResponse getPaymentOptions(
-      //String idPA, String idBrokerPA,
       String noticeNumber, String fiscalCode, Station station) {
 
     if (station.getConnection().getIp() == null ||
