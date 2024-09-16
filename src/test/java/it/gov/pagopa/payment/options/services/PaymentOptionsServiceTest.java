@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.util.Assert;
 
 import java.util.Map;
 
@@ -46,12 +45,15 @@ class PaymentOptionsServiceTest {
     when(configCacheService.getConfigCacheData()).thenReturn(ConfigDataV1
         .builder()
             .psps(Map.of("00001", PaymentServiceProvider.builder().enabled(true).build()))
-            .stations(Map.of("00001", Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()))
-            .creditorInstitutions(Map.of("00001", CreditorInstitution.builder().enabled(true).build()))
+            .stations(Map.of("00001",
+                Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()))
+            .creditorInstitutions(Map.of("00001",
+                CreditorInstitution.builder()
+                    .creditorInstitutionCode("00001").enabled(true).build()))
             .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
             .creditorInstitutionStations(Map.of("00001",
                 StationCreditorInstitution.builder()
-                    .creditorInstitutionCode("00001").stationCode("00001")
+                    .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
                     .build())
             )
             .creditorInstitutionBrokers(

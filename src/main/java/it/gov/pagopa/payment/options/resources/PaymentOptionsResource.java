@@ -10,6 +10,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response.Status;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/payment-options")
@@ -21,6 +25,20 @@ public class PaymentOptionsResource {
 
   @GET
   @Path("/organizations/{fiscal-code}/notices/{notice-number}")
+  @Operation(
+      summary = "Get payment options",
+      description =
+          "Retrieve the payment options related to the provided input"
+  )
+  @APIResponses(
+      value = {
+          @APIResponse(
+              responseCode = "200",
+              description = "Success",
+              content = @Content(mediaType = "application/json")
+          )
+      }
+  )
   public RestResponse<PaymentOptionsResponse> getPaymentOptions(
       @PathParam("fiscal-code") String fiscalCode,
       @PathParam("notice-number") String noticeNumber,
