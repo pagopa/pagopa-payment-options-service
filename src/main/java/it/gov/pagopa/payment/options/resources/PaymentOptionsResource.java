@@ -16,6 +16,9 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.resteasy.reactive.RestResponse;
 
+/**
+ * Exposes REST interfaces for the payment options services
+ */
 @Path("/payment-options")
 @Produces(value = MediaType.APPLICATION_JSON)
 public class PaymentOptionsResource {
@@ -23,6 +26,17 @@ public class PaymentOptionsResource {
   @Inject
   public PaymentOptionsService paymentOptionsService;
 
+  /**
+   * Provides the service method to execute payment options verify process, attempting
+   * to use the extracted station config data to contact the exposed creditor institution
+   * Rest client
+   * @param idPsp input id PSP
+   * @param idBrokerPsp input id Broker PSP
+   * @param fiscalCode EC fiscal code
+   * @param noticeNumber input notice number
+   * @return instance of extracted PaymentOptions, obtained from the external creditor institution
+   * REST api
+   */
   @GET
   @Path("/organizations/{fiscal-code}/notices/{notice-number}")
   @Operation(
@@ -32,6 +46,9 @@ public class PaymentOptionsResource {
   )
   @APIResponses(
       value = {
+          @APIResponse(ref = "#/components/responses/ErrorResponse500"),
+          @APIResponse(ref = "#/components/responses/ErrorResponse400"),
+          @APIResponse(ref = "#/components/responses/ErrorResponse404"),
           @APIResponse(
               responseCode = "200",
               description = "Success",

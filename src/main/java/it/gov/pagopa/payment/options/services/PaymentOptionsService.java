@@ -16,6 +16,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Contains services to manage payment options
+ */
 @ApplicationScoped
 public class PaymentOptionsService {
 
@@ -27,8 +30,42 @@ public class PaymentOptionsService {
   @Inject
   CreditorInstitutionService creditorInstitutionService;
 
+  /**
+   * Provides the service method to execute payment options verify process, attempting
+   * to use the extracted station config data to contact the exposed creditor institution
+   * Rest client
+   * @param idPsp input id PSP
+   * @param idBrokerPsp input id Broker PSP
+   * @param fiscalCode EC fiscal code
+   * @param noticeNumber input notice number
+   * @return instance of extracted PaymentOptions, obtained from the external creditor institution
+   * REST api
+   */
   public PaymentOptionsResponse getPaymentOptions(
       String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber) {
+
+    if (idPsp == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input idPsp");
+    }
+    if (idBrokerPsp == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input idBrokerPsp");
+    }
+    if (fiscalCode == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input fiscalCode");
+    }
+    if (noticeNumber == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input noticeNumber");
+    }
+
+    long auxDigit = Long.parseLong(noticeNumber.substring(0, 1));
+    if (auxDigit != 3) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU,
+          "Notice number contains a nav not valid for the OdP service");
+    }
 
     ConfigDataV1 configCacheData;
     try {
@@ -91,12 +128,6 @@ public class PaymentOptionsService {
           "PSP Broker with id " + idBrokerPsp + " not found");
     }
 
-    long auxDigit = Long.parseLong(noticeNumber.substring(0, 1));
-    if (auxDigit != 3) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU,
-          "Notice number contains a nav not valid for the OdP service");
-    }
-
     Map<String, StationCreditorInstitution> stationCreditorInstitutionMap =
         configCacheData.getCreditorInstitutionStations();
     if (stationCreditorInstitutionMap == null) {
@@ -122,7 +153,7 @@ public class PaymentOptionsService {
 
     Station station = stationMap.get(stationCreditorInstitution.getStationCode());
     if (station == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
           "Station not found using station code " + stationCreditorInstitution.getStationCode());
     } else if (!station.getEnabled()) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
