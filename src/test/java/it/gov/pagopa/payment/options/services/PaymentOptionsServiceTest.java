@@ -38,6 +38,9 @@ class PaymentOptionsServiceTest {
   @InjectMock
   public ConfigCacheService configCacheService;
 
+  @InjectMock
+  EventService eventService;
+
   @Inject
   public PaymentOptionsService paymentOptionsService;
 
@@ -113,7 +116,8 @@ class PaymentOptionsServiceTest {
     assertNotNull(creditorInstitutionException);
     verify(configCacheService).getConfigCacheData();
     verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -145,7 +149,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -177,7 +182,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -209,7 +215,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -239,7 +246,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SYSTEM_ERROR);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -269,7 +277,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -294,7 +303,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SYSTEM_ERROR);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -319,7 +329,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -344,7 +355,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -369,7 +381,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -394,7 +407,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -419,7 +433,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_DISABILITATO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -444,7 +459,8 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -456,7 +472,8 @@ class PaymentOptionsServiceTest {
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
 }
