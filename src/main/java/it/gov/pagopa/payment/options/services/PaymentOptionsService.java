@@ -1,7 +1,10 @@
 package it.gov.pagopa.payment.options.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
+import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.cache.BrokerPsp;
 import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
 import it.gov.pagopa.payment.options.models.clients.cache.CreditorInstitution;
@@ -10,6 +13,8 @@ import it.gov.pagopa.payment.options.models.clients.cache.Station;
 import it.gov.pagopa.payment.options.models.clients.cache.StationCreditorInstitution;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
+import it.gov.pagopa.payment.options.models.events.odpRe.Esito;
+import it.gov.pagopa.payment.options.models.events.odpRe.SottoTipoEvento;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -28,9 +33,11 @@ public class PaymentOptionsService {
 
   private final Logger logger = LoggerFactory.getLogger(PaymentOptionsService.class);
 
-  DateTimeFormatter formatter = DateTimeFormatter
+  private final DateTimeFormatter formatter = DateTimeFormatter
       .ofPattern("YYYY-MM-DD'T'hh:mm'Z'")
       .withZone(ZoneOffset.systemDefault());
+
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Inject
   ConfigCacheService configCacheService;
@@ -53,29 +60,14 @@ public class PaymentOptionsService {
    * REST api
    */
   public PaymentOptionsResponse getPaymentOptions(
-      String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber) {
+      String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber, String sessionId) {
 
     Station station = null;
     StationCreditorInstitution stationCreditorInstitution = null;
-    Instant instant = Instant.now();
 
     try {
-      if (idPsp == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
-            "Missing input idPsp");
-      }
-      if (idBrokerPsp == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
-            "Missing input idBrokerPsp");
-      }
-      if (fiscalCode == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
-            "Missing input fiscalCode");
-      }
-      if (noticeNumber == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
-            "Missing input noticeNumber");
-      }
+
+      validateInput(idPsp, idBrokerPsp, fiscalCode, noticeNumber);
 
       long auxDigit = Long.parseLong(noticeNumber.substring(0, 1));
       if (auxDigit != 3) {
@@ -83,82 +75,10 @@ public class PaymentOptionsService {
             "Notice number contains a nav not valid for the OdP service");
       }
 
-      ConfigDataV1 configCacheData;
-      try {
-        configCacheData = configCacheService.getConfigCacheData();
-      } catch (Exception e) {
-        logger.error("[Payment Options] Unexpected error recovering configuration data: {}",
-            e.getMessage());
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-            "Configuration data currently not available");
-      }
+      ConfigDataV1 configCacheData = getConfigData();
 
-      if (configCacheData == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-            "Configuration data currently not available");
-      }
-
-      Map<String, PaymentServiceProvider> paymentOptionsServiceMap = configCacheData.getPsps();
-      if (paymentOptionsServiceMap == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-            "Configuration data currently not available");
-      }
-
-      PaymentServiceProvider paymentServiceProvider = paymentOptionsServiceMap.get(idPsp);
-      if (paymentServiceProvider == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO,
-            "PSP with id " + idPsp + " not found");
-      } else if (!paymentServiceProvider.isEnabled()) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_DISABILITATO,
-            "PSP with id " + idPsp + " disabled");
-      }
-
-      Map<String, BrokerPsp> pspBrokers = configCacheData.getPspBrokers();
-      if (pspBrokers == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-            "Configuration data currently not available");
-      }
-
-      BrokerPsp brokerPsp = pspBrokers.get(idBrokerPsp);
-      if (brokerPsp == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO,
-            "PSP Broker with id " + idBrokerPsp + " not found");
-      } else if (!brokerPsp.isEnabled()) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_DISABILITATO,
-            "PSP Broker with id " + idBrokerPsp + " disabled");
-      }
-
-      Map<String, CreditorInstitution> creditorInstitutionMap =
-          configCacheData.getCreditorInstitutions();
-      if (creditorInstitutionMap == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-            "Configuration data currently not available");
-      }
-
-      CreditorInstitution creditorInstitution = creditorInstitutionMap.get(fiscalCode);
-      if (creditorInstitution == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
-            "PSP Broker with id " + idBrokerPsp + " not found");
-      } else if (!creditorInstitution.getEnabled()) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
-            "PSP Broker with id " + idBrokerPsp + " not found");
-      }
-
-      Map<String, StationCreditorInstitution> stationCreditorInstitutionMap =
-          configCacheData.getCreditorInstitutionStations();
-      if (stationCreditorInstitutionMap == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-            "Configuration data currently not available");
-      }
-
-      stationCreditorInstitution =
-          stationCreditorInstitutionMap.values().stream().filter(item ->
-          item.getAuxDigit().equals(auxDigit) &&
-          item.getCreditorInstitutionCode().equals(creditorInstitution.getCreditorInstitutionCode()))
-          .findFirst().orElseThrow(() ->
-                  new PaymentOptionsException(
-                      AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
-                      "Station related to the creditor institution not found"));
+      stationCreditorInstitution = getStationCreditorInstitution(idPsp, idBrokerPsp, fiscalCode,
+          auxDigit, configCacheData);
 
       Map<String, Station> stationMap = configCacheData.getStations();
       if (stationMap == null) {
@@ -175,15 +95,78 @@ public class PaymentOptionsService {
             "Station found using station code " +
                 stationCreditorInstitution.getStationCode() + " disabled");
       } else if (!station.getVerifyPaymentOptionEnabled()) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
+        throw new PaymentOptionsException(
+            AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
             "Station found using station code " +
                 stationCreditorInstitution.getStationCode() + "has the OdP verify service disabled."
                 + " Use the standard verification flow");
       }
 
-      return creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
+    } catch (PaymentOptionsException e) {
+      Instant instantForPspReq = Instant.now();
+      sendKoEvent(idPsp, idBrokerPsp, fiscalCode, noticeNumber, station, stationCreditorInstitution,
+          instantForPspReq, e);
+      eventService.sendOdpRePspEvent(
+          idPsp, noticeNumber, fiscalCode,
+          station != null ? station.getStationCode() : null,
+          sessionId, LocalDateTime
+              .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
+              .format(formatter),
+          Esito.RICEVUTA_KO, SottoTipoEvento.REQ, null
+      );
+      throw e;
+    }
+
+    try {
+
+      Instant instantForPspReq = Instant.now();
+      eventService.sendOdpRePspEvent(
+          idPsp, noticeNumber, fiscalCode,
+          station.getStationCode(), sessionId, LocalDateTime
+              .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
+              .format(formatter),
+          Esito.RICEVUTA, SottoTipoEvento.REQ, null
+      );
+
+      Instant instantForEcReq = Instant.now();
+      eventService.sendOdpRePspEvent(
+          idPsp, noticeNumber, fiscalCode,
+          station.getStationCode(), sessionId, LocalDateTime
+              .ofInstant(instantForEcReq, ZoneOffset.systemDefault())
+              .format(formatter),
+          Esito.INVIATA, SottoTipoEvento.REQ, null
+      );
+
+      PaymentOptionsResponse paymentOptionsResponse =
+          creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
+
+      Instant instantForPspRes = Instant.now();
+      eventService.sendOdpRePspEvent(
+          idPsp, noticeNumber, fiscalCode,
+          station.getStationCode(), sessionId, LocalDateTime
+              .ofInstant(instantForPspRes, ZoneOffset.systemDefault())
+              .format(formatter),
+          Esito.INVIATA, SottoTipoEvento.RES,
+          objectMapper.writeValueAsString(paymentOptionsResponse)
+      );
+
+      return paymentOptionsResponse;
+
     } catch (CreditorInstitutionException e) {
       logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
+      Instant instant = Instant.now();
+      try {
+        eventService.sendOdpReEcEvent(
+            idPsp, noticeNumber, fiscalCode,
+            station.getStationCode(), sessionId, LocalDateTime
+                .ofInstant(instant, ZoneOffset.systemDefault())
+                .format(formatter),
+            Esito.RICEVUTA_KO, SottoTipoEvento.RES,
+            objectMapper.writeValueAsString(e.getErrorResponse())
+        );
+      } catch (JsonProcessingException ex) {
+        throw new RuntimeException(ex);
+      }
       eventService.sendVerifyKoEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station != null ? station.getStationCode() : null,
@@ -198,23 +181,174 @@ public class PaymentOptionsService {
       throw e;
     } catch (PaymentOptionsException e) {
       logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
-      eventService.sendVerifyKoEvent(
-          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
-          station != null ? station.getStationCode() : null,
-          stationCreditorInstitution != null ?
-              stationCreditorInstitution.getCreditorInstitutionCode() : null,
-          e.getErrorCode().getErrorCode(),
-          e.getErrorCode().getErrorMessage(),
-          instant.getEpochSecond(),
-          LocalDateTime
+      Instant instant = Instant.now();
+      eventService.sendOdpReEcEvent(
+          idPsp, noticeNumber, fiscalCode,
+          station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instant, ZoneOffset.systemDefault())
-              .format(formatter));
+              .format(formatter),
+          Esito.INVIATA_KO, SottoTipoEvento.REQ,
+          null
+      );
+      sendKoEvent(idPsp, idBrokerPsp, fiscalCode, noticeNumber, station, stationCreditorInstitution,
+          instant, e);
       throw e;
     } catch (Exception e) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-          "Encountered an unmanaged error during payment option retrieval");
+      logger.error("[Payment Options] encountered an unexpected error: {}", e.getMessage());
+      Instant instantForEcRes = Instant.now();
+      PaymentOptionsException paymentOptionsException =
+          new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+              "Encountered an unmanaged error during payment option retrieval");
+      try {
+        eventService.sendOdpReEcEvent(
+            idPsp, noticeNumber, fiscalCode,
+            station.getStationCode(), sessionId, LocalDateTime
+                .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
+                .format(formatter),
+            Esito.INVIATA_KO, SottoTipoEvento.REQ,
+            objectMapper.writeValueAsString(
+                ErrorResponse.builder()
+                  .appErrorCode(paymentOptionsException.getErrorCode().getErrorCode())
+                  .errorMessage(paymentOptionsException.getErrorCode().getErrorMessage())
+                  .httpStatusCode(paymentOptionsException.getErrorCode().getStatus().getStatusCode())
+                    .timestamp(instantForEcRes.getEpochSecond())
+                    .dateTime(LocalDateTime
+                        .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
+                        .format(formatter))
+                .build()
+            )
+        );
+      } catch (JsonProcessingException ex) {
+        throw new RuntimeException(ex);
+      }
+      sendKoEvent(idPsp, idBrokerPsp, fiscalCode, noticeNumber, station, stationCreditorInstitution,
+          instantForEcRes, paymentOptionsException);
+      throw paymentOptionsException;
     }
 
+  }
+
+  private static StationCreditorInstitution getStationCreditorInstitution(String idPsp,
+      String idBrokerPsp, String fiscalCode,
+      long auxDigit, ConfigDataV1 configCacheData) {
+    Map<String, PaymentServiceProvider> paymentOptionsServiceMap = configCacheData.getPsps();
+    if (paymentOptionsServiceMap == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+          "Configuration data currently not available");
+    }
+
+    PaymentServiceProvider paymentServiceProvider = paymentOptionsServiceMap.get(idPsp);
+    if (paymentServiceProvider == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO,
+          "PSP with id " + idPsp + " not found");
+    } else if (!paymentServiceProvider.isEnabled()) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_DISABILITATO,
+          "PSP with id " + idPsp + " disabled");
+    }
+
+    Map<String, BrokerPsp> pspBrokers = configCacheData.getPspBrokers();
+    if (pspBrokers == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+          "Configuration data currently not available");
+    }
+
+    BrokerPsp brokerPsp = pspBrokers.get(idBrokerPsp);
+    if (brokerPsp == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO,
+          "PSP Broker with id " + idBrokerPsp + " not found");
+    } else if (!brokerPsp.isEnabled()) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_DISABILITATO,
+          "PSP Broker with id " + idBrokerPsp + " disabled");
+    }
+
+    Map<String, CreditorInstitution> creditorInstitutionMap =
+        configCacheData.getCreditorInstitutions();
+    if (creditorInstitutionMap == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+          "Configuration data currently not available");
+    }
+
+    CreditorInstitution creditorInstitution = creditorInstitutionMap.get(fiscalCode);
+    if (creditorInstitution == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
+          "PSP Broker with id " + idBrokerPsp + " not found");
+    } else if (!creditorInstitution.getEnabled()) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
+          "PSP Broker with id " + idBrokerPsp + " not found");
+    }
+
+    Map<String, StationCreditorInstitution> stationCreditorInstitutionMap =
+        configCacheData.getCreditorInstitutionStations();
+    if (stationCreditorInstitutionMap == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+          "Configuration data currently not available");
+    }
+
+    StationCreditorInstitution stationCreditorInstitution = stationCreditorInstitutionMap.values()
+        .stream().filter(item ->
+            item.getAuxDigit().equals(auxDigit) &&
+                item.getCreditorInstitutionCode()
+                    .equals(creditorInstitution.getCreditorInstitutionCode()))
+        .findFirst().orElseThrow(() ->
+            new PaymentOptionsException(
+                AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
+                "Station related to the creditor institution not found"));
+    return stationCreditorInstitution;
+  }
+
+  private ConfigDataV1 getConfigData() {
+    ConfigDataV1 configCacheData;
+    try {
+      configCacheData = configCacheService.getConfigCacheData();
+    } catch (Exception e) {
+      logger.error("[Payment Options] Unexpected error recovering configuration data: {}",
+          e.getMessage());
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+          "Configuration data currently not available");
+    }
+    if (configCacheData == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+          "Configuration data currently not available");
+    }
+    return configCacheData;
+  }
+
+  private static void validateInput(String idPsp, String idBrokerPsp, String fiscalCode,
+      String noticeNumber) {
+    if (idPsp == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input idPsp");
+    }
+    if (idBrokerPsp == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input idBrokerPsp");
+    }
+    if (fiscalCode == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input fiscalCode");
+    }
+    if (noticeNumber == null) {
+      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
+          "Missing input noticeNumber");
+    }
+  }
+
+  private void sendKoEvent(String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber,
+      Station station, StationCreditorInstitution stationCreditorInstitution, Instant instant,
+      PaymentOptionsException e) {
+    logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
+    String formattedDateTime = LocalDateTime
+        .ofInstant(instant, ZoneOffset.systemDefault())
+        .format(formatter);
+    eventService.sendVerifyKoEvent(
+        idPsp, idBrokerPsp, noticeNumber, fiscalCode,
+        station != null ? station.getStationCode() : null,
+        stationCreditorInstitution != null ?
+            stationCreditorInstitution.getCreditorInstitutionCode() : null,
+        e.getErrorCode().getErrorCode(),
+        e.getErrorCode().getErrorMessage(),
+        instant.getEpochSecond(),
+        formattedDateTime);
   }
 
 }

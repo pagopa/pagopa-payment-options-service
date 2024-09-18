@@ -76,7 +76,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsResponse paymentOptionsResponse = assertDoesNotThrow(() ->
         paymentOptionsService.getPaymentOptions(
-        "00001", "00001", "00001", "3000000000"));
+        "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsResponse);
     verify(configCacheService).getConfigCacheData();
     verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
@@ -112,7 +112,7 @@ class PaymentOptionsServiceTest {
 
     CreditorInstitutionException creditorInstitutionException = assertThrows(
         CreditorInstitutionException.class, () -> paymentOptionsService.getPaymentOptions(
-        "00001", "00001", "00001", "3000000000"));
+        "00001", "00001", "00001", "3000000000", null));
     assertNotNull(creditorInstitutionException);
     verify(configCacheService).getConfigCacheData();
     verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
@@ -144,7 +144,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -177,7 +177,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -210,7 +210,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -241,7 +241,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -272,7 +272,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -298,7 +298,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -324,7 +324,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -350,7 +350,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -376,7 +376,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -402,7 +402,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -428,7 +428,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -454,7 +454,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
@@ -468,7 +468,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "0000000000"));
+            "00001", "00001", "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU);
