@@ -18,6 +18,9 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service managing sending of events for Payment Options
+ */
 @ApplicationScoped
 public class EventService {
 
@@ -38,6 +41,19 @@ public class EventService {
   @Channel("opzioni-di-pagamento-re")
   Emitter<OdpVerifyRe> odpVerifyReEmitter;
 
+  /**
+   * Sending an event to the verify-ko event
+   * @param idPsp input PSP
+   * @param idBrokerPsp input Broker PSP
+   * @param noticeNumber input Notice Number
+   * @param fiscalCode input Fiscal Code
+   * @param idStation extracted station code
+   * @param idBrokerPA extracted brokerPA
+   * @param appErrorCode error code to notify
+   * @param errorMessage error code to notify
+   * @param timestamp event timestamp
+   * @param dateTime event dateTime
+   */
   public void sendVerifyKoEvent(
       /* Input Request **/
       String idPsp, String idBrokerPsp, String noticeNumber, String fiscalCode,
@@ -75,6 +91,18 @@ public class EventService {
 
   }
 
+  /**
+   * Produces an event to the payment-options-re regarding the PSP interface
+   * @param idPsp input PSP
+   * @param noticeNumber input notice number
+   * @param fiscalCode input fiscalCode
+   * @param idStation extracted idStation
+   * @param sessionId sessionId to trace events
+   * @param dateTime event date-time
+   * @param esito event outcome
+   * @param sottoTipoEvento outcome subType
+   * @param payload payload for the event (if existing)
+   */
   public void sendOdpRePspEvent(
       /* Input Request **/
       String idPsp, String noticeNumber, String fiscalCode,
