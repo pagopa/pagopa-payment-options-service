@@ -38,6 +38,7 @@
         "tags" : [ "Payment Options Resource" ],
         "summary" : "Get payment options",
         "description" : "Retrieve the payment options related to the provided input",
+        "operationId" : "getPaymentOptions",
         "parameters" : [ {
           "name" : "fiscal-code",
           "in" : "path",
