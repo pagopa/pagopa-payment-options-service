@@ -35,7 +35,7 @@ class CreditorInstitutionRestClientTest {
         assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
         wiremockUrl, null, null,
         "http://externalService", 443L, "/externalPath",
-          "88888888888", "88888888888"));
+          "77777777777", "311111111112222222"));
     assertNotNull(paymentOptionsResponse);
   }
 
@@ -46,7 +46,7 @@ class CreditorInstitutionRestClientTest {
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
             wiremockUrl, null, null,
             "http://externalService", 443L, "/externalPath",
-            "88888888888", "88888888888"));
+            "87777777777", "311111111112222222"));
     assertNotNull(exception);
     assertEquals(exception.getErrorResponse().getHttpStatusCode(), 500);
   }
