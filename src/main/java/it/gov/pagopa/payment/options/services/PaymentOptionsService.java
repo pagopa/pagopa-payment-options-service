@@ -272,10 +272,10 @@ public class PaymentOptionsService {
     CreditorInstitution creditorInstitution = creditorInstitutionMap.get(fiscalCode);
     if (creditorInstitution == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
-          "PSP Broker with id " + idBrokerPsp + " not found");
+          "Creditor institution with id " + fiscalCode + " not found");
     } else if (!creditorInstitution.getEnabled()) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
-          "PSP Broker with id " + idBrokerPsp + " not found");
+          "Creditor institution with id " + fiscalCode + " disabled");
     }
 
     Map<String, StationCreditorInstitution> stationCreditorInstitutionMap =
@@ -285,7 +285,7 @@ public class PaymentOptionsService {
           "Configuration data currently not available");
     }
 
-    StationCreditorInstitution stationCreditorInstitution = stationCreditorInstitutionMap.values()
+    return stationCreditorInstitutionMap.values()
         .stream().filter(item ->
             item.getSegregationCode().equals(segregationCode) &&
                 item.getCreditorInstitutionCode()
@@ -294,7 +294,6 @@ public class PaymentOptionsService {
             new PaymentOptionsException(
                 AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
                 "Station related to the creditor institution not found"));
-    return stationCreditorInstitution;
   }
 
   private ConfigDataV1 getConfigData() {

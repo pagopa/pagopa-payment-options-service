@@ -2,7 +2,7 @@ package it.gov.pagopa.payment.options.services;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.payment.options.KafkaTestResourceLifecycleManager;
+import it.gov.pagopa.payment.options.test.extensions.KafkaTestResourceLifecycleManager;
 import it.gov.pagopa.payment.options.models.events.odpRe.Esito;
 import it.gov.pagopa.payment.options.models.events.odpRe.SottoTipoEvento;
 import jakarta.inject.Inject;

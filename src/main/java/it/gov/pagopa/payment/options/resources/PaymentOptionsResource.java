@@ -16,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.resteasy.reactive.RestResponse;
+import java.util.UUID;
 
 /**
  * Exposes REST interfaces for the payment options services
@@ -65,7 +66,8 @@ public class PaymentOptionsResource {
       @HeaderParam("X-Session-Id") String sessionId
   ) {
     PaymentOptionsResponse paymentOptionsResponse =
-        paymentOptionsService.getPaymentOptions(idPsp, idBrokerPsp, fiscalCode, noticeNumber, sessionId);
+        paymentOptionsService.getPaymentOptions(idPsp, idBrokerPsp, fiscalCode, noticeNumber,
+            sessionId != null ? sessionId : UUID.randomUUID().toString());
     return RestResponse.status(Status.OK, paymentOptionsResponse);
   }
 

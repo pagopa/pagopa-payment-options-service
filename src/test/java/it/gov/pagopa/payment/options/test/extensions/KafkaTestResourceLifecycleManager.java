@@ -1,4 +1,4 @@
-package it.gov.pagopa.payment.options;
+package it.gov.pagopa.payment.options.test.extensions;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;

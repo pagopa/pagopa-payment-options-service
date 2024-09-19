@@ -2,17 +2,13 @@ package it.gov.pagopa.payment.options.clients;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.payment.options.WireMockExtensions;
+import it.gov.pagopa.payment.options.test.extensions.WireMockExtensions;
 import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
-import it.gov.pagopa.payment.options.models.clients.cache.Connection;
-import it.gov.pagopa.payment.options.models.clients.cache.Connection.ProtocolEnum;
-import it.gov.pagopa.payment.options.models.clients.cache.Station;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
