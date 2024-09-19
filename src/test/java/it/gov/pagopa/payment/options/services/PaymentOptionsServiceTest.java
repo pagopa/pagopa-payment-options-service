@@ -63,7 +63,7 @@ class PaymentOptionsServiceTest {
             .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
             .creditorInstitutionStations(Map.of("00001",
                 StationCreditorInstitution.builder()
-                    .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                    .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                     .build())
             )
             .creditorInstitutionBrokers(
@@ -97,7 +97,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -134,7 +134,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -167,7 +167,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -200,7 +200,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -231,7 +231,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -262,7 +262,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(0L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(0L).segregationCode(1L)
                 .build())
         )
         .creditorInstitutionBrokers(

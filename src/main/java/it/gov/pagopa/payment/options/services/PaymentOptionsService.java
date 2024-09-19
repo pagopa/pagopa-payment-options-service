@@ -75,10 +75,12 @@ public class PaymentOptionsService {
             "Notice number contains a nav not valid for the OdP service");
       }
 
+      long segregationCode = Long.parseLong(noticeNumber.substring(1, 3));
+
       ConfigDataV1 configCacheData = getConfigData();
 
       stationCreditorInstitution = getStationCreditorInstitution(idPsp, idBrokerPsp, fiscalCode,
-          auxDigit, configCacheData);
+          segregationCode, configCacheData);
 
       Map<String, Station> stationMap = configCacheData.getStations();
       if (stationMap == null) {
@@ -169,9 +171,8 @@ public class PaymentOptionsService {
       }
       eventService.sendVerifyKoEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
-          station != null ? station.getStationCode() : null,
-          stationCreditorInstitution != null ?
-              stationCreditorInstitution.getCreditorInstitutionCode() : null,
+          station.getStationCode(),
+          stationCreditorInstitution.getCreditorInstitutionCode(),
           e.getErrorResponse().getAppErrorCode(),
           e.getErrorResponse().getErrorMessage(),
           instant.getEpochSecond(),
@@ -230,7 +231,7 @@ public class PaymentOptionsService {
 
   private static StationCreditorInstitution getStationCreditorInstitution(String idPsp,
       String idBrokerPsp, String fiscalCode,
-      long auxDigit, ConfigDataV1 configCacheData) {
+      long segregationCode, ConfigDataV1 configCacheData) {
     Map<String, PaymentServiceProvider> paymentOptionsServiceMap = configCacheData.getPsps();
     if (paymentOptionsServiceMap == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
@@ -286,7 +287,7 @@ public class PaymentOptionsService {
 
     StationCreditorInstitution stationCreditorInstitution = stationCreditorInstitutionMap.values()
         .stream().filter(item ->
-            item.getAuxDigit().equals(auxDigit) &&
+            item.getSegregationCode().equals(segregationCode) &&
                 item.getCreditorInstitutionCode()
                     .equals(creditorInstitution.getCreditorInstitutionCode()))
         .findFirst().orElseThrow(() ->
