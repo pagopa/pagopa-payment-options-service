@@ -57,8 +57,6 @@ jobs:
           export SUBKEY=${{ secrets.SUBKEY }}
           export CANARY=${{ inputs.canary }}
           export CUCUMBER_PUBLISH_TOKEN=${{ secrets.CUCUMBER_PUBLISH_TOKEN }}
-          export GPD_API_SUBSCRIPTION_KEY=${{ secrets.SUBKEY }}
-          export GPD_PULL_API_SUBSCRIPTION_KEY=${{ secrets.SUBKEY }}
 
           cd ./integration-test
           chmod +x ./run_integration_test.sh
