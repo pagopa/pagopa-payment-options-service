@@ -5,7 +5,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-1-PPANTT-83-feat-update-log-format-to-ecs</version>
 
   <properties>
     <compiler-plugin.version>3.13.0</compiler-plugin.version>
