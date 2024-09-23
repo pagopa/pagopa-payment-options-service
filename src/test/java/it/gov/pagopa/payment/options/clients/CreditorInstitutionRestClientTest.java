@@ -73,6 +73,15 @@ class CreditorInstitutionRestClientTest {
                 "88888888888", "88888888888"));
   }
 
+  @Test
+  void callEcPaymentOptionsVerifyShouldReturnExceptionOnWrongProxy() {
+    assertThrows(Exception.class,
+        () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+            "AAAAAAA", "AAAAAAA%%%", 8081L,
+            "http://externalService", 443L, "/externalPath",
+            "88888888888", "88888888888"));
+  }
+
 
 
 
