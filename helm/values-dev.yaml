@@ -1,7 +1,7 @@
 microservice-chart:
-  namespace: "paymentoptions"
+  namespace: "payopt"
   nameOverride: ""
-  fullnameOverride: "print-payment-options-service"
+  fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options
     tag: "0.4.2"

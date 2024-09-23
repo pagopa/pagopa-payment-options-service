@@ -1,11 +1,11 @@
 locals {
   github = {
     org        = "pagopa"
-    repository = "pagopa-print-payment-options"
+    repository = "pagopa-payment-options-service"
   }
 
   prefix         = "pagopa"
-  domain         = "printit"
+  domain         = "payopt"
   location_short = "itn"
   product        = "${var.prefix}-${var.env_short}"
 

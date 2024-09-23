@@ -1,7 +1,7 @@
 microservice-chart:
-  namespace: "printit"
+  namespace: "payopt"
   nameOverride: ""
-  fullnameOverride: "print-payment-notice-generator"
+  fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-print-payment-notice-generator
     tag: "0.4.2"
