@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-print-payment-notice-generator
-    tag: "0.4.2"
+    tag: "0.0.1-1-PPANTT-83-feat-update-log-format-to-ecs"
     pullPolicy: Always
   livenessProbe:
     httpGet:
