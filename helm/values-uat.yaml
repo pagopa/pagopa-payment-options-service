@@ -1,0 +1,125 @@
+microservice-chart:
+  namespace: "printit"
+  nameOverride: ""
+  fullnameOverride: "print-payment-notice-generator"
+  image:
+    repository: ghcr.io/pagopa/pagopa-print-payment-notice-generator
+    tag: "0.4.2"
+    pullPolicy: Always
+  livenessProbe:
+    httpGet:
+      path: /q/health/live
+      port: 8080
+    initialDelaySeconds: 90
+    failureThreshold: 6
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /q/health/ready
+      port: 8080
+    initialDelaySeconds: 90
+    failureThreshold: 6
+    periodSeconds: 10
+  deployment:
+    create: true
+  service:
+    create: true
+    type: ClusterIP
+    ports:
+      - 8080
+  ingress:
+    create: true
+    host: "printit.itn.internal.uat.platform.pagopa.it"
+    path: /pagopa-print-payment-notice-generator/(.*)
+    servicePort: 8080
+  serviceAccount:
+    create: false
+    annotations: {}
+    name: ""
+  podAnnotations: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: true
+    capabilities:
+      drop:
+        - all
+  tmpVolumeMount:
+    create: true
+    mounts:
+      - name: temp
+        mountPath: /temp
+      - name: logs
+        mountPath: /logs
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "0.25"
+    limits:
+      memory: "728Mi"
+      cpu: "1.5"
+  autoscaling:
+    enable: true
+    minReplica: 3
+    maxReplica: 10
+    pollingInterval: 30 # seconds
+    cooldownPeriod: 300 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "75"
+      - type: memory
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "70"
+  envConfig:
+    APP_NAME: "payment-options-service"
+    APP_ENVIRONMENT: "uat"
+    WEBSITE_SITE_NAME: 'payment-options-service' # required to show cloud role name in application insights
+    APP_LOGGING_LEVEL: 'DEBUG'
+    DEFAULT_LOGGING_LEVEL: 'INFO'
+    APICONFIG_CACHE_URL: 'https://api.uat.platform.pagopa.it/api-config-cache/o/v1'
+    CACHE_EVT_HOST: 'pagopa-u-weu-core-evh-ns04.servicebus.windows.net'
+    CACHE_EVT_TOPIC: 'nodo-dei-pagamenti-cache'
+  envSecret:
+    # required
+    APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
+    KAFKA_EH_CACHE_JAAS_CONFIG: "ehub-u-nodo-pagamenti-cache-jaas-config"
+  keyvault:
+    name: "pagopa-u-itn-paymentoptions-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+  canaryDelivery:
+    create: false
+    ingress:
+      create: true
+      canary:
+        type: header
+        headerName: X-Canary
+        headerValue: canary
+        weightPercent: 0
+    service:
+      create: true
+    deployment:
+      create: true
+      image:
+        repository: ghcr.io/pagopa/pagopa-print-payment-notice-generator
+        tag: "0.0.0"
+        pullPolicy: Always
+      envConfig: {}
+      envSecret: {}

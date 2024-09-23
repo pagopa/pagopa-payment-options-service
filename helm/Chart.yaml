@@ -1,0 +1,10 @@
+apiVersion: v2
+name: pagopa-payment-options
+description: Microservice that handles services for payment options
+type: application
+version: 0.45.0
+appVersion: 0.4.2
+dependencies:
+  - name: microservice-chart
+    version: 5.9.0
+    repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
