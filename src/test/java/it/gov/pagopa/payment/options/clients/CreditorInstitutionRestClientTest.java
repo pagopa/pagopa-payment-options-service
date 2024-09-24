@@ -26,6 +26,10 @@ class CreditorInstitutionRestClientTest {
   @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
   private String wiremockUrl;
 
+  @ConfigProperty(name = "wiremock.port")
+  private String wiremockPort;
+
+
   @Inject
   CreditorInstitutionRestClient creditorInstitutionRestClient;
 
@@ -52,6 +56,17 @@ class CreditorInstitutionRestClientTest {
   }
 
   @Test
+  void callEcPaymentOptionsVerifyShouldReturnErrorOnUnexpectedContent() {
+    PaymentOptionsException exception =
+        assertThrows(PaymentOptionsException.class,
+            () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+                wiremockUrl, null, null,
+                "http://externalService", 443L, "/externalPath",
+                "97777777777", "311111111112222222"));
+    assertNotNull(exception);
+  }
+
+  @Test
   void callEcPaymentOptionsVerifyShouldReturnUnreachableKOWithoutErrorResponse() {
     PaymentOptionsException exception =
         assertThrows(PaymentOptionsException.class,
@@ -71,6 +86,15 @@ class CreditorInstitutionRestClientTest {
                 "AAAAAAA", null, null,
                 "http://externalService", 443L, "/externalPath",
                 "88888888888", "88888888888"));
+  }
+
+  @Test
+  void callEcPaymentOptionsVerifyShouldReturnExceptionOnWrongProxy() {
+    assertThrows(Exception.class,
+        () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+            "AAAAAAA", "AAAAAAA%%%", 8081L,
+            "http://externalService", 443L, "/externalPath",
+            "88888888888", "88888888888"));
   }
 
 

@@ -38,6 +38,15 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
                 )
         );
 
+      wireMockServer.stubFor(
+          get(urlEqualTo(
+              "/payment-options/organizations/97777777777/notices/311111111112222222"))
+              .willReturn(aResponse()
+                  .withHeader("Content-Type", "application/json")
+                  .withBody("AAAAAAAA")
+              )
+      );
+
         wireMockServer.stubFor(
             get(urlEqualTo(
                 "/payment-options/organizations/87777777777/notices/311111111112222222"))
@@ -60,7 +69,8 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
         return Map.of(
             "CreditorInstitutionRestClient.apimEndpoint",
             wireMockServer.baseUrl(),
-            "CreditorInstitutionRestClient.ocpSubKey", "test"
+            "CreditorInstitutionRestClient.ocpSubKey", "test",
+            "wiremock.port", String.valueOf(wireMockServer.port())
         );
     }
 
