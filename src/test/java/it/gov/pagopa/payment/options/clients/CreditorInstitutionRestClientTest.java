@@ -47,7 +47,7 @@ class CreditorInstitutionRestClientTest {
   void callEcPaymentOptionsVerifyShouldReturnDataWithProxy() {
     PaymentOptionsResponse paymentOptionsResponse =
         assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-            wiremockUrl, "http://localhost", Long.valueOf(wiremockPort),
+            wiremockUrl, wiremockUrl.split(":",2)[0], Long.valueOf(wiremockPort),
             "http://externalService", 443L, "/externalPath",
             "77777777777", "311111111112222222"));
     assertNotNull(paymentOptionsResponse);
