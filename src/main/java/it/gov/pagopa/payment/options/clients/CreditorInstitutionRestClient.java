@@ -44,7 +44,6 @@ public class CreditorInstitutionRestClient {
   public PaymentOptionsResponse callEcPaymentOptionsVerify(
       String endpoint, String proxyHost, Long proxyPort,
       String targetHost, Long targetPort, String targetPath,
-//      String idPA, String idBrokerPA, String idStazione,
       String fiscalCode, String noticeNumber)
       throws MalformedURLException {
 
