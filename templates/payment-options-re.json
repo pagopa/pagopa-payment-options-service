@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "payment-options-re event schema",
+  "type": "object",
+  "properties": {
+    "body": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "insertedTimestamp": {
+          "type": "string",
+          "description": "Data inserimento evento su kafka",
+          "examples": ["2024-09-23T17:27:04.1696470"]
+        },
+        "eventType": {
+          "type": "string",
+          "enum": ["REQ","RES","INTERNAL"]
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Id dell’EC"
+        },
+        "stationId": {
+          "type": "string",
+          "description": "Id della stazione"
+        },
+        "pspId": {
+          "type": "string",
+          "description": "Id del PSP"
+        },
+        "brokerId": {
+          "type": "string",
+          "description": "Id del broker"
+        },
+        "iuv": {
+          "type": "string"
+        },
+        "noticeNumber": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["OK","KO"]
+        },
+        "errorStatusDesc": {
+          "type": "string"
+        },
+        "errorStatusCode": {
+          "type": "string"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "string"
+        },
+        "eventTimestamp": {
+          "type": "string",
+          "description": "Data e ora dell’evento",
+          "examples": ["2024-09-23T17:27:04.1690000"]
+        },
+        "version": {
+          "type": "string",
+          "description": "Versione dell’evento"
+        }
+      },
+      "required": [
+        "id",
+        "insertedTimestamp",
+        "eventType",
+        "organizationId",
+        "stationId",
+        "pspId",
+        "brokerId",
+        "iuv",
+        "noticeNumber",
+        "status",
+        "errorStatusDesc",
+        "errorStatusCode",
+        "sessionId",
+        "payload",
+        "eventTimestamp",
+        "version"
+      ]
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "serviceIdentifier": {
+          "type": "string",
+          "enum": ["ODP"]
+        }
+      },
+      "required": [
+        "serviceIdentifier"
+      ]
+    }
+  },
+  "required": [
+    "body",
+    "properties"
+  ]
+}
