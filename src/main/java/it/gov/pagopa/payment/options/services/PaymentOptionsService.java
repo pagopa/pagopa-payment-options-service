@@ -34,7 +34,7 @@ public class PaymentOptionsService {
   private final Logger logger = LoggerFactory.getLogger(PaymentOptionsService.class);
 
   private final DateTimeFormatter formatter = DateTimeFormatter
-      .ofPattern("YYYY-MM-DD'T'hh:mm'Z'")
+      .ofPattern("yyyy-MM-dd'T'hh:mm'Z'")
       .withZone(ZoneOffset.systemDefault());
 
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -131,7 +131,7 @@ public class PaymentOptionsService {
       );
 
       Instant instantForEcReq = Instant.now();
-      eventService.sendOdpRePspEvent(
+      eventService.sendOdpReEcEvent(
           idPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForEcReq, ZoneOffset.systemDefault())
@@ -141,6 +141,16 @@ public class PaymentOptionsService {
 
       PaymentOptionsResponse paymentOptionsResponse =
           creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
+
+
+      Instant instantForEcRes = Instant.now();
+      eventService.sendOdpReEcEvent(
+          idPsp, noticeNumber, fiscalCode,
+          station.getStationCode(), sessionId, LocalDateTime
+              .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
+              .format(formatter),
+          Esito.RICEVUTA, SottoTipoEvento.RES,
+          objectMapper.writeValueAsString(paymentOptionsResponse));
 
       Instant instantForPspRes = Instant.now();
       eventService.sendOdpRePspEvent(
@@ -313,8 +323,8 @@ public class PaymentOptionsService {
     return configCacheData;
   }
 
-  private static void validateInput(String idPsp, String idBrokerPsp, String fiscalCode,
-      String noticeNumber) {
+  private static void validateInput(
+      String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber) {
     if (idPsp == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
           "Missing input idPsp");

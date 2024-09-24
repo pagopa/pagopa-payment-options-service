@@ -41,3 +41,10 @@ package-lock.json
 /helm/charts/*
 **/.terraform/
 **/*.hcl
+
+# IntelliJ
+.idea
+*.iml
+
+
+

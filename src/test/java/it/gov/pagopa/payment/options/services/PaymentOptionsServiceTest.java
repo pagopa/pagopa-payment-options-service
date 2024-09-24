@@ -476,4 +476,67 @@ class PaymentOptionsServiceTest {
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
+  @Test
+  void getPaymentOptionsShouldReturnKoOnMissingIdPsp() {
+
+    PaymentOptionsException paymentOptionsException = assertThrows(
+        PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
+            null, "00001", "00001", "0000000000", null));
+    assertNotNull(paymentOptionsException);
+    assertEquals(paymentOptionsException.getErrorCode(),
+        AppErrorCodeEnum.ODP_SINTASSI);
+
+  }
+
+  @Test
+  void getPaymentOptionsShouldReturnKoOnMissingIdBrokerPsp() {
+
+    PaymentOptionsException paymentOptionsException = assertThrows(
+        PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
+            "00001", null, "00001", "0000000000", null));
+    assertNotNull(paymentOptionsException);
+    assertEquals(paymentOptionsException.getErrorCode(),
+        AppErrorCodeEnum.ODP_SINTASSI);
+
+  }
+
+  @Test
+  void getPaymentOptionsShouldReturnKoOnMissingFiscalCode() {
+
+    PaymentOptionsException paymentOptionsException = assertThrows(
+        PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
+            "00001", "00001", null, "0000000000", null));
+    assertNotNull(paymentOptionsException);
+    assertEquals(paymentOptionsException.getErrorCode(),
+        AppErrorCodeEnum.ODP_SINTASSI);
+
+  }
+
+  @Test
+  void getPaymentOptionsShouldReturnKoOnMissingNoticeNumber() {
+
+    PaymentOptionsException paymentOptionsException = assertThrows(
+        PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
+            "00001", "00001", "00001", null, null));
+    assertNotNull(paymentOptionsException);
+    assertEquals(paymentOptionsException.getErrorCode(),
+        AppErrorCodeEnum.ODP_SINTASSI);
+
+  }
+
+  @Test
+  void getPaymentOptionsShouldReturnKoOnCacheConfigError() {
+
+    when(configCacheService.getConfigCacheData()).thenThrow(new RuntimeException("Error"));
+
+    PaymentOptionsException paymentOptionsException = assertThrows(
+        PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
+            "00001", "00001", "00001", "3000000000", null));
+    assertNotNull(paymentOptionsException);
+    verify(configCacheService).getConfigCacheData();
+    assertEquals(paymentOptionsException.getErrorCode(),
+        AppErrorCodeEnum.ODP_SYSTEM_ERROR);
+
+  }
+
 }
