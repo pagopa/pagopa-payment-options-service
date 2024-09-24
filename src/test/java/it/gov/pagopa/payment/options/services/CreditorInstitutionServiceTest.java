@@ -62,6 +62,31 @@ class CreditorInstitutionServiceTest {
   }
 
   @Test
+  void getPaymentOptionsShouldReturnDataWithDefaultPort() throws MalformedURLException {
+    when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+        any(), any(), any(), any(), any(), any(), any(), any())
+    ).thenReturn(PaymentOptionsResponse.builder().build());
+    PaymentOptionsResponse paymentOptionsResponse =
+        assertDoesNotThrow(() -> creditorInstitutionService.getPaymentOptions(
+            "000001","000001",
+            Station.builder().stationCode("000001_01")
+                .connection(
+                    Connection.builder()
+                        .ip("localhost")
+                        .protocol(ProtocolEnum.HTTP)
+                        .port(8082L)
+                        .build()
+                )
+                .restEndpoint("http://localhost/test")
+                .verifyPaymentOptionEnabled(true)
+                .build()
+        ));
+    assertNotNull(paymentOptionsResponse);
+    verify(creditorInstitutionRestClient).callEcPaymentOptionsVerify(
+        any(), any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
   void getPaymentOptionsShouldReturnExceptionOnMalformed() throws MalformedURLException {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
         any(), any(), any(), any(), any(), any(), any(), any())
@@ -129,6 +154,26 @@ class CreditorInstitutionServiceTest {
         ));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_SEMANTICA);
+  }
+
+  @Test
+  void getPaymentOptionsShouldReturnExceptionOnMissingConnection() throws MalformedURLException {
+    PaymentOptionsException paymentOptionsException =
+        assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
+            "000001","000001",
+            Station.builder().stationCode("000001_01")
+                .connection(
+                    Connection.builder()
+                        .protocol(ProtocolEnum.HTTP)
+                        .port(8082L)
+                        .build()
+                )
+                .restEndpoint(":8080")
+                .verifyPaymentOptionEnabled(true)
+                .build()
+        ));
+    assertNotNull(paymentOptionsException);
+    assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE);
   }
 
 
