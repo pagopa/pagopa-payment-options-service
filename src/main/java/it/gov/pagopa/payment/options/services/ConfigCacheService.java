@@ -34,7 +34,7 @@ public class ConfigCacheService {
    * @return local instance of the configCacheData
    */
   public ConfigDataV1 getConfigCacheData() {
-    return this.configCacheData != null || this.configCacheData.getConfigDataV1() == null ?
+    return this.configCacheData != null && this.configCacheData.getConfigDataV1() != null ?
         this.configCacheData.getConfigDataV1() :
         checkAndUpdateCache(null).getConfigDataV1();
   }
@@ -72,7 +72,11 @@ public class ConfigCacheService {
       }
 
       ConfigDataV1 configDataV1 = apiConfigCacheClient.getCache(
-          List.of(new String[]{"stations", "creditorInstitutions"})
+          List.of(new String[]{
+              "stations", "creditorInstitutions",
+              "psps", "creditorInstitutionStations",
+              "pspBrokers"
+          })
       );
 
       logger.debug("[Payment Options] Retrieved data {}",

@@ -4,6 +4,7 @@ import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentO
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -15,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.resteasy.reactive.RestResponse;
+import java.util.UUID;
 
 /**
  * Exposes REST interfaces for the payment options services
@@ -60,11 +62,12 @@ public class PaymentOptionsResource {
       @PathParam("fiscal-code") String fiscalCode,
       @PathParam("notice-number") String noticeNumber,
       @QueryParam("idPsp") String idPsp,
-      @QueryParam("idBrokerPsp") String idBrokerPsp
+      @QueryParam("idBrokerPsp") String idBrokerPsp,
+      @HeaderParam("X-Session-Id") String sessionId
   ) {
     PaymentOptionsResponse paymentOptionsResponse =
-        paymentOptionsService.getPaymentOptions(idPsp, idBrokerPsp, fiscalCode, noticeNumber);
-
+        paymentOptionsService.getPaymentOptions(idPsp, idBrokerPsp, fiscalCode, noticeNumber,
+            sessionId != null ? sessionId : UUID.randomUUID().toString());
     return RestResponse.status(Status.OK, paymentOptionsResponse);
   }
 

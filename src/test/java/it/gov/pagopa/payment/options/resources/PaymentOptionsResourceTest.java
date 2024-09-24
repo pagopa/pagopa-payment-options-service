@@ -35,32 +35,32 @@ class PaymentOptionsResourceTest {
 
   @Test
   void getPaymentOptionsShouldReturnOk() {
-    when(paymentOptionsService.getPaymentOptions(any(), any(), any(), any())).thenReturn(
+    when(paymentOptionsService.getPaymentOptions(any(), any(), any(), any(), any())).thenReturn(
         PaymentOptionsResponse.builder().build());
     RestResponse<PaymentOptionsResponse> paymentOptionsResponse = assertDoesNotThrow(
         () -> paymentOptionsResource.getPaymentOptions(
-        "00001", "300000001", "00001", "00001"));
+        "00001", "300000001", "00001", "00001", null));
     assertNotNull(paymentOptionsResponse);
     assertNotNull(paymentOptionsResponse.getEntity());
   }
 
   @Test
   void getPaymentOptionsShouldReturnExceptionOnCreditorInstitutionException() {
-    when(paymentOptionsService.getPaymentOptions(any(), any(), any(), any())).thenThrow(
+    when(paymentOptionsService.getPaymentOptions(any(), any(), any(), any(), any())).thenThrow(
         new CreditorInstitutionException(ErrorResponse.builder().build(), "message"));
     CreditorInstitutionException creditorInstitutionException = assertThrows(
         CreditorInstitutionException.class, () -> paymentOptionsResource.getPaymentOptions(
-        "00001", "300000001", "00001", "00001"));
+        "00001", "300000001", "00001", "00001", null));
     assertNotNull(creditorInstitutionException);
   }
 
   @Test
   void getPaymentOptionsShouldReturnExceptionOnPaymentOptionsException() {
-    when(paymentOptionsService.getPaymentOptions(any(), any(), any(), any())).thenThrow(
+    when(paymentOptionsService.getPaymentOptions(any(), any(), any(), any(), any())).thenThrow(
         new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR, "message"));
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsResource.getPaymentOptions(
-            "00001", "300000001", "00001", "00001"));
+            "00001", "300000001", "00001", "00001", null));
     assertNotNull(paymentOptionsException);
   }
 
