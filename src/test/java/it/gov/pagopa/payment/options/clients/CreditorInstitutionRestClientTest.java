@@ -26,6 +26,10 @@ class CreditorInstitutionRestClientTest {
   @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
   private String wiremockUrl;
 
+  @ConfigProperty(name = "wiremock.port")
+  private String wiremockPort;
+
+
   @Inject
   CreditorInstitutionRestClient creditorInstitutionRestClient;
 
@@ -38,6 +42,17 @@ class CreditorInstitutionRestClientTest {
           "77777777777", "311111111112222222"));
     assertNotNull(paymentOptionsResponse);
   }
+
+  @Test
+  void callEcPaymentOptionsVerifyShouldReturnDataWithProxy() {
+    PaymentOptionsResponse paymentOptionsResponse =
+        assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+            wiremockUrl, "http://localhost", Long.valueOf(wiremockPort),
+            "http://externalService", 443L, "/externalPath",
+            "77777777777", "311111111112222222"));
+    assertNotNull(paymentOptionsResponse);
+  }
+
 
   @Test
   void callEcPaymentOptionsVerifyShouldReturnErrorResponse() {

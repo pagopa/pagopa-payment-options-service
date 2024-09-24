@@ -62,10 +62,6 @@ public class CreditorInstitutionRestClient {
         targetHost, targetPort.intValue(),
         targetPath)) {
 
-      if (response.getStatus() != 200) {
-        manageErrorResponse(response);
-      }
-
       return objectMapper.readValue(
           response.readEntity(String.class), PaymentOptionsResponse.class);
 
