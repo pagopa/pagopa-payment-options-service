@@ -1,4 +1,4 @@
-package it.gov.pagopa.payment.options.clients.model;
+package it.gov.pagopa.payment.options.models.clients.cache;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;

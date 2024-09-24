@@ -1,9 +1,6 @@
-package it.gov.pagopa.payment.options.clients.model;
+package it.gov.pagopa.payment.options.models.clients.cache;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -70,5 +67,11 @@ public class Station {
 
   @JsonProperty("flag_standin")
   private Boolean flagStandin = null;
+
+  @JsonProperty("verify_payment_option_enabled")
+  private Boolean verifyPaymentOptionEnabled = false;
+
+  @JsonProperty("rest_endpoint")
+  private String restEndpoint;
 
 }

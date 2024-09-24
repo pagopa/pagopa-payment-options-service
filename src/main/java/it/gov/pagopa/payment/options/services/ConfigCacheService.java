@@ -2,9 +2,8 @@ package it.gov.pagopa.payment.options.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.payment.options.clients.ApiConfigCacheClient;
-import it.gov.pagopa.payment.options.clients.model.ConfigDataV1;
-import it.gov.pagopa.payment.options.consumers.ConfigCacheUpdatesConsumer;
-import it.gov.pagopa.payment.options.models.CacheUpdateEvent;
+import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
+import it.gov.pagopa.payment.options.models.events.CacheUpdateEvent;
 import it.gov.pagopa.payment.options.models.ConfigCacheData;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

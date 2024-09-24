@@ -1,33 +1,26 @@
-package it.gov.pagopa.payment.options.clients.model;
+package it.gov.pagopa.payment.options.models.clients.cache;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
-
-/**
- * Redirect
- */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Redirect {
+public class Connection {
 
   /**
    * Gets or Sets protocol
    */
   public enum ProtocolEnum {
     HTTPS("HTTPS"),
-    
+
     HTTP("HTTP");
 
     private String value;
@@ -59,13 +52,7 @@ public class Redirect {
   @JsonProperty("ip")
   private String ip = null;
 
-  @JsonProperty("path")
-  private String path = null;
-
   @JsonProperty("port")
   private Long port = null;
-
-  @JsonProperty("query_string")
-  private String queryString = null;
 
 }
