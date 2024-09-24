@@ -34,7 +34,7 @@ public class PaymentOptionsService {
   private final Logger logger = LoggerFactory.getLogger(PaymentOptionsService.class);
 
   private final DateTimeFormatter formatter = DateTimeFormatter
-      .ofPattern("YYYY-MM-DD'T'hh:mm'Z'")
+      .ofPattern("yyyy-MM-dd'T'hh:mm'Z'")
       .withZone(ZoneOffset.systemDefault());
 
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -131,7 +131,7 @@ public class PaymentOptionsService {
       );
 
       Instant instantForEcReq = Instant.now();
-      eventService.sendOdpRePspEvent(
+      eventService.sendOdpReEcEvent(
           idPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForEcReq, ZoneOffset.systemDefault())
@@ -142,8 +142,8 @@ public class PaymentOptionsService {
       PaymentOptionsResponse paymentOptionsResponse =
           creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
 
-      Instant instantForEcRes = Instant.now();
 
+      Instant instantForEcRes = Instant.now();
       eventService.sendOdpReEcEvent(
           idPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
