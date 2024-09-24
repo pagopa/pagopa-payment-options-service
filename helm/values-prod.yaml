@@ -84,12 +84,21 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     APICONFIG_CACHE_URL: 'https://api.platform.pagopa.it/api-config-cache/o/v1'
-    CACHE_EVT_HOST: 'pagopa-è-weu-core-evh-ns04.servicebus.windows.net'
+    CACHE_EVT_HOST: 'pagopa-p-weu-core-evh-ns04.servicebus.windows.net'
     CACHE_EVT_TOPIC: 'nodo-dei-pagamenti-cache'
+    VERIFY_KO_EVT_HOST: 'pagopa-p-weu-core-evh-ns03.servicebus.windows.net'
+    VERIFY_KO_EVT_TOPIC: 'nodo-dei-pagamenti-verify-ko'
+    VERIFY_RE_EVT_HOST: 'pagopa-p-itn-payopt-evh.servicebus.windows.net'
+    VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
+
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
     KAFKA_EH_CACHE_JAAS_CONFIG: "ehub-p-nodo-pagamenti-cache-jaas-config"
+    KAFKA_VERIFY_KO_JAAS_CONFIG: "ehub-p-nodo-dei-pagamenti-verify-ko-jaas-config"
+    KAFKA_EH_RE_JAAS_CONFIG: "ehub-p-payment-options-re-jaas-config"
+    APICONFIG_SUBKEY: "api-config-sub-key"
+    EC_APIM_SUBKEY: "forwarder-sub-key"
   keyvault:
     name: "pagopa-p-itn-paymentoptions-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
