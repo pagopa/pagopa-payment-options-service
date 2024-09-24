@@ -138,6 +138,7 @@ public class EventService {
                .stazione(idStation)
                .payload(payload != null ?
                    Base64.getMimeEncoder().encodeToString(payload.getBytes()) : null)
+              .version("1")
           .build());
     } catch (Exception e) {
       logger.error(
@@ -182,6 +183,7 @@ public class EventService {
               .stazione(idStation)
               .payload(payload != null ?
                   Base64.getMimeEncoder().encodeToString(payload.getBytes()) : null)
+              .version("1")
               .build());
     } catch (Exception e) {
       logger.error(
