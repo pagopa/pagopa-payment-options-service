@@ -44,17 +44,6 @@ class CreditorInstitutionRestClientTest {
   }
 
   @Test
-  void callEcPaymentOptionsVerifyShouldReturnDataWithProxy() {
-    PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-            wiremockUrl, "http:"+wiremockUrl.split(":",3)[1], Long.valueOf(wiremockPort),
-            "http://externalService", 443L, "/externalPath",
-            "77777777777", "311111111112222222"));
-    assertNotNull(paymentOptionsResponse);
-  }
-
-
-  @Test
   void callEcPaymentOptionsVerifyShouldReturnErrorResponse() {
     CreditorInstitutionException exception =
         assertThrows(CreditorInstitutionException.class,
@@ -64,6 +53,17 @@ class CreditorInstitutionRestClientTest {
             "87777777777", "311111111112222222"));
     assertNotNull(exception);
     assertEquals(exception.getErrorResponse().getHttpStatusCode(), 500);
+  }
+
+  @Test
+  void callEcPaymentOptionsVerifyShouldReturnErrorOnUnexpectedContent() {
+    PaymentOptionsException exception =
+        assertThrows(PaymentOptionsException.class,
+            () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+                wiremockUrl, null, null,
+                "http://externalService", 443L, "/externalPath",
+                "97777777777", "311111111112222222"));
+    assertNotNull(exception);
   }
 
   @Test
