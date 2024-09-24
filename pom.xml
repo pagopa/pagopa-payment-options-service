@@ -5,7 +5,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 
   <properties>
     <jacoco.version>0.8.7</jacoco.version>
