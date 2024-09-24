@@ -27,7 +27,7 @@ public class ExceptionMapper {
                 .httpStatusCode(status.getStatusCode())
                 .httpStatusDescription(status.getReasonPhrase())
                 .appErrorCode(errorCode.getErrorCode())
-                .errorMessage(errorCode.getErrorMessage())
+                .errorMessage(message)
                 .timestamp(Instant.now().getEpochSecond())
                 .build();
     }

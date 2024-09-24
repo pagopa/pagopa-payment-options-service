@@ -42,6 +42,7 @@ public class PaymentOptionsResource {
   @GET
   @Path("/organizations/{fiscal-code}/notices/{notice-number}")
   @Operation(
+      operationId="getPaymentOptions",
       summary = "Get payment options",
       description =
           "Retrieve the payment options related to the provided input"

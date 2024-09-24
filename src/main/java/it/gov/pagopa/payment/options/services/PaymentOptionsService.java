@@ -142,15 +142,15 @@ public class PaymentOptionsService {
       PaymentOptionsResponse paymentOptionsResponse =
           creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
 
+
       Instant instantForEcRes = Instant.now();
       eventService.sendOdpReEcEvent(
           idPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.INVIATA, SottoTipoEvento.RES,
-          objectMapper.writeValueAsString(paymentOptionsResponse)
-      );
+          Esito.RICEVUTA, SottoTipoEvento.RES,
+          objectMapper.writeValueAsString(paymentOptionsResponse));
 
       Instant instantForPspRes = Instant.now();
       eventService.sendOdpRePspEvent(
@@ -323,8 +323,8 @@ public class PaymentOptionsService {
     return configCacheData;
   }
 
-  private static void validateInput(String idPsp, String idBrokerPsp, String fiscalCode,
-      String noticeNumber) {
+  private static void validateInput(
+      String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber) {
     if (idPsp == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SINTASSI,
           "Missing input idPsp");

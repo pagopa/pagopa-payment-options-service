@@ -34,8 +34,8 @@ module "apim_payment_options_api_v1" {
   name                  = format("%s-payment-options-service-api", var.env_short)
   api_management_name   = local.apim.name
   resource_group_name   = local.apim.rg
-  product_ids           = [local.apim.gpd_payments_pull_product_id]
-  subscription_required = local.api_payment_options_service.subscription_required
+  product_ids           = [local.apim.payments_options_product_id]
+  subscription_required = local.apim_payment_options.subscription_required
   version_set_id        = azurerm_api_management_api_version_set.api_payment_options_service.id
   api_version           = "v1"
 
@@ -51,5 +51,14 @@ module "apim_payment_options_api_v1" {
   xml_content = templatefile("./policy/_base_policy.xml", {
     hostname = local.hostname
   })
+
+  api_operation_policies = [
+    {
+      operation_id = "getPaymentOptions",
+      xml_content = templatefile("./policy/_get_payment_options_policy.xml", {
+        hostname = local.hostname
+      })
+    },
+  ]
 
 }
