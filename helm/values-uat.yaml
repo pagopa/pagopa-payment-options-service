@@ -99,7 +99,7 @@ microservice-chart:
     APICONFIG_SUBKEY: "api-config-sub-key"
     EC_APIM_SUBKEY: "forwarder-sub-key"
   keyvault:
-    name: "pagopa-u-itn-paymentoptions-kv"
+    name: "pagopa-u-itn-payopt-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: {}
   tolerations: []
