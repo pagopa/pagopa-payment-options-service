@@ -12,4 +12,4 @@ tags = {
 
 apim_dns_zone_prefix = "uat.platform"
 external_domain      = "pagopa.it"
-hostname             = "paymentoptions.itn.internal.uat.platform.pagopa.it"
+hostname             = "payopt.itn.internal.uat.platform.pagopa.it"
