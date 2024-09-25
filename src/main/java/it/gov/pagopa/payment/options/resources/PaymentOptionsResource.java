@@ -1,5 +1,6 @@
 package it.gov.pagopa.payment.options.resources;
 
+import io.vertx.core.cli.annotations.Hidden;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.inject.Inject;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -63,7 +65,7 @@ public class PaymentOptionsResource {
       @PathParam("fiscal-code") String fiscalCode,
       @PathParam("notice-number") String noticeNumber,
       @QueryParam("idPsp") String idPsp,
-      @QueryParam("idBrokerPsp") String idBrokerPsp,
+      @Parameter(hidden = true) @QueryParam("idBrokerPsp") String idBrokerPsp,
       @HeaderParam("X-Session-Id") String sessionId
   ) {
     PaymentOptionsResponse paymentOptionsResponse =
