@@ -5,6 +5,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
+  <name>Payment Options Service</name>
   <version>0.4.1-4-updated-helm-charts</version>
 
   <properties>
