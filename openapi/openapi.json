@@ -4,7 +4,7 @@
     "title": "PagoPa Payment Options (TEST)",
     "description": "PagoPa Payment Options description",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.4.1-10-updated-helm-charts"
+    "version": "0.4.1-11-updated-helm-charts"
   },
   "servers": [
     {
