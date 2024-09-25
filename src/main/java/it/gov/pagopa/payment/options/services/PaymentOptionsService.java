@@ -297,7 +297,9 @@ public class PaymentOptionsService {
 
     return stationCreditorInstitutionMap.values()
         .stream().filter(item ->
-            item.getSegregationCode().equals(segregationCode) &&
+            item.getSegregationCode() != null &&
+                item.getSegregationCode().equals(segregationCode) &&
+            item.getCreditorInstitutionCode() != null &&
                 item.getCreditorInstitutionCode()
                     .equals(creditorInstitution.getCreditorInstitutionCode()))
         .findFirst().orElseThrow(() ->
