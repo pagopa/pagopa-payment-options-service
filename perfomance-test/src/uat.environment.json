@@ -1,0 +1,8 @@
+{
+  "environment": [
+    {
+      "env": "uat",
+      "paymentOptionsServiceURIBasePath": "https://api.uat.platform.pagopa.it/payment-options/v1" // TODO
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "environment": [
+    {
+      "env": "dev",
+      "paymentOptionsServiceURIBasePath": "https://api.dev.platform.pagopa.it/payment-options/v1" // TODO
+    }
+  ]
+}
