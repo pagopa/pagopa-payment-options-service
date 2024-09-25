@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-print-payment-notice-generator
-    tag: "0.4.1"
+    tag: "0.4.1-1-updated-helm-charts"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -90,7 +90,6 @@ microservice-chart:
     VERIFY_KO_EVT_TOPIC: 'nodo-dei-pagamenti-verify-ko'
     VERIFY_RE_EVT_HOST: 'pagopa-p-itn-payopt-evh.servicebus.windows.net'
     VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
-
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'

@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-print-payment-notice-generator
-    tag: "0.4.1"
+    tag: "0.4.1-1-updated-helm-charts"
     pullPolicy: Always
   livenessProbe:
     httpGet:
