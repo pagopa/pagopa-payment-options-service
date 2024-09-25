@@ -30,7 +30,7 @@ microservice-chart:
   ingress:
     create: true
     host: "payopt.itn.internal.dev.platform.pagopa.it"
-    path: /pagopa-payment-options-service/(.*)
+    path: /payment-options-service/(.*)
     servicePort: 8080
   serviceAccount:
     create: false
