@@ -13,12 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Properties {
 
-  private String primitive;
-  private String sessionId;
-  private String idCanale;
-  private String diagnosticId;
-  private String partialLog;
-  private String actorClassId;
   private String serviceIdentifier;
 
 }

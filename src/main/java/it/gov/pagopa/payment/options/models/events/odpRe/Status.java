@@ -1,8 +1,7 @@
 package it.gov.pagopa.payment.options.models.events.odpRe;
 
-public enum SottoTipoEvento {
+public enum Status {
 
-  REQ,
-  RES
+  OK, KO
 
 }

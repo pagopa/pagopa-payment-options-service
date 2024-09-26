@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
-import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.cache.BrokerPsp;
 import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
 import it.gov.pagopa.payment.options.models.clients.cache.CreditorInstitution;
@@ -13,8 +12,8 @@ import it.gov.pagopa.payment.options.models.clients.cache.Station;
 import it.gov.pagopa.payment.options.models.clients.cache.StationCreditorInstitution;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
-import it.gov.pagopa.payment.options.models.events.odpRe.Esito;
-import it.gov.pagopa.payment.options.models.events.odpRe.SottoTipoEvento;
+import it.gov.pagopa.payment.options.models.events.odpRe.EventType;
+import it.gov.pagopa.payment.options.models.events.odpRe.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -100,7 +99,7 @@ public class PaymentOptionsService {
         throw new PaymentOptionsException(
             AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
             "Station found using station code " +
-                stationCreditorInstitution.getStationCode() + "has the OdP verify service disabled."
+                stationCreditorInstitution.getStationCode() + " has the OdP verify service disabled."
                 + " Use the standard verification flow");
       }
 
@@ -108,13 +107,13 @@ public class PaymentOptionsService {
       Instant instantForPspReq = Instant.now();
       sendKoEvent(idPsp, idBrokerPsp, fiscalCode, noticeNumber, station, stationCreditorInstitution,
           instantForPspReq, e);
-      eventService.sendOdpRePspEvent(
-          idPsp, noticeNumber, fiscalCode,
-          station != null ? station.getStationCode() : null,
-          sessionId, LocalDateTime
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
+          station != null ? station.getStationCode() : null, sessionId, LocalDateTime
               .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.RICEVUTA_KO, SottoTipoEvento.REQ, null
+          Status.OK, EventType.REQ, null,
+          e.getErrorCode().getErrorCode(), e.getMessage()
       );
       throw e;
     }
@@ -122,21 +121,23 @@ public class PaymentOptionsService {
     try {
 
       Instant instantForPspReq = Instant.now();
-      eventService.sendOdpRePspEvent(
-          idPsp, noticeNumber, fiscalCode,
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.RICEVUTA, SottoTipoEvento.REQ, null
+          Status.OK, EventType.REQ,
+          null, null, null
       );
 
       Instant instantForEcReq = Instant.now();
-      eventService.sendOdpReEcEvent(
-          idPsp, noticeNumber, fiscalCode,
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForEcReq, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.INVIATA, SottoTipoEvento.REQ, null
+          Status.OK, EventType.REQ,
+          null, null, null
       );
 
       PaymentOptionsResponse paymentOptionsResponse =
@@ -144,22 +145,24 @@ public class PaymentOptionsService {
 
 
       Instant instantForEcRes = Instant.now();
-      eventService.sendOdpReEcEvent(
-          idPsp, noticeNumber, fiscalCode,
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.RICEVUTA, SottoTipoEvento.RES,
-          objectMapper.writeValueAsString(paymentOptionsResponse));
+          Status.OK, EventType.RES,
+          objectMapper.writeValueAsString(paymentOptionsResponse)
+          , null, null);
 
       Instant instantForPspRes = Instant.now();
-      eventService.sendOdpRePspEvent(
-          idPsp, noticeNumber, fiscalCode,
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instantForPspRes, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.INVIATA, SottoTipoEvento.RES,
-          objectMapper.writeValueAsString(paymentOptionsResponse)
+          Status.OK, EventType.RES,
+          objectMapper.writeValueAsString(paymentOptionsResponse),
+          null, null
       );
 
       return paymentOptionsResponse;
@@ -168,13 +171,15 @@ public class PaymentOptionsService {
       logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
       Instant instant = Instant.now();
       try {
-        eventService.sendOdpReEcEvent(
-            idPsp, noticeNumber, fiscalCode,
+        eventService.sendEvent(
+            idPsp, idBrokerPsp, noticeNumber, fiscalCode,
             station.getStationCode(), sessionId, LocalDateTime
                 .ofInstant(instant, ZoneOffset.systemDefault())
                 .format(formatter),
-            Esito.RICEVUTA_KO, SottoTipoEvento.RES,
-            objectMapper.writeValueAsString(e.getErrorResponse())
+            Status.KO, EventType.RES,
+            objectMapper.writeValueAsString(e.getErrorResponse()),
+            e.getErrorResponse().getAppErrorCode(),
+            e.getMessage()
         );
       } catch (JsonProcessingException ex) {
         throw new RuntimeException(ex);
@@ -193,13 +198,13 @@ public class PaymentOptionsService {
     } catch (PaymentOptionsException e) {
       logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
       Instant instant = Instant.now();
-      eventService.sendOdpReEcEvent(
-          idPsp, noticeNumber, fiscalCode,
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
               .ofInstant(instant, ZoneOffset.systemDefault())
               .format(formatter),
-          Esito.INVIATA_KO, SottoTipoEvento.REQ,
-          null
+          Status.KO, EventType.REQ,
+          null, e.getErrorCode().getErrorCode(), e.getMessage()
       );
       sendKoEvent(idPsp, idBrokerPsp, fiscalCode, noticeNumber, station, stationCreditorInstitution,
           instant, e);
@@ -210,28 +215,15 @@ public class PaymentOptionsService {
       PaymentOptionsException paymentOptionsException =
           new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
               "Encountered an unmanaged error during payment option retrieval");
-      try {
-        eventService.sendOdpReEcEvent(
-            idPsp, noticeNumber, fiscalCode,
-            station.getStationCode(), sessionId, LocalDateTime
-                .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
-                .format(formatter),
-            Esito.INVIATA_KO, SottoTipoEvento.REQ,
-            objectMapper.writeValueAsString(
-                ErrorResponse.builder()
-                  .appErrorCode(paymentOptionsException.getErrorCode().getErrorCode())
-                  .errorMessage(paymentOptionsException.getErrorCode().getErrorMessage())
-                  .httpStatusCode(paymentOptionsException.getErrorCode().getStatus().getStatusCode())
-                    .timestamp(instantForEcRes.getEpochSecond())
-                    .dateTime(LocalDateTime
-                        .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
-                        .format(formatter))
-                .build()
-            )
-        );
-      } catch (JsonProcessingException ex) {
-        throw new RuntimeException(ex);
-      }
+      eventService.sendEvent(
+          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
+          station.getStationCode(), sessionId, LocalDateTime
+              .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
+              .format(formatter),
+          Status.KO, EventType.REQ, null,
+          paymentOptionsException.getErrorCode().getErrorCode(),
+          paymentOptionsException.getMessage()
+      );
       sendKoEvent(idPsp, idBrokerPsp, fiscalCode, noticeNumber, station, stationCreditorInstitution,
           instantForEcRes, paymentOptionsException);
       throw paymentOptionsException;

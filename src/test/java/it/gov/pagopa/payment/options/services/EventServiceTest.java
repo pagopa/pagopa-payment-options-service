@@ -2,9 +2,9 @@ package it.gov.pagopa.payment.options.services;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import it.gov.pagopa.payment.options.models.events.odpRe.EventType;
 import it.gov.pagopa.payment.options.test.extensions.KafkaTestResourceLifecycleManager;
-import it.gov.pagopa.payment.options.models.events.odpRe.Esito;
-import it.gov.pagopa.payment.options.models.events.odpRe.SottoTipoEvento;
+import it.gov.pagopa.payment.options.models.events.odpRe.Status;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -30,17 +30,21 @@ class EventServiceTest {
 
   @Test
   void sendOdpRePspEvent() {
-    assertDoesNotThrow(() -> eventService.sendOdpRePspEvent(
-        "0001", "0001", "0000001", "00001", "00001",
-        null, Esito.RICEVUTA, SottoTipoEvento.RES, null
+    assertDoesNotThrow(() -> eventService.sendEvent(
+        "0001", "0001", "0001",
+        "0000001", "00001", null,
+        "12131313", Status.OK, EventType.RES, null,
+        null, null
     ));
   }
 
   @Test
   void sendOdpReECEvent() {
-    assertDoesNotThrow(() -> eventService.sendOdpRePspEvent(
-        "0001", "0001", "0000001", "00001", "00001",
-        null, Esito.RICEVUTA, SottoTipoEvento.REQ, null
+    assertDoesNotThrow(() -> eventService.sendEvent(
+        "0001", "0001", "0001",
+        "0000001", "00001", null,
+        "12131313", Status.KO, EventType.REQ, null,
+        null, null
     ));
   }
 
