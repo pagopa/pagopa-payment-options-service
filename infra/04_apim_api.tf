@@ -3,7 +3,7 @@ locals {
     // GPD Payments Pull
     display_name          = "Payments Options"
     description           = "API for Payments Options"
-    path                  = "/payment-options/service"
+    path                  = "payment-options/service"
     subscription_required = true
     service_url           = null
   }

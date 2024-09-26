@@ -1,8 +1,9 @@
 package it.gov.pagopa.payment.options.models.events.odpRe;
 
-public enum CategoriaEvento {
+public enum EventType {
 
-  INTERFACCIA,
-  INTERNO
+  REQ,
+  RES,
+  INTERNAL
 
 }

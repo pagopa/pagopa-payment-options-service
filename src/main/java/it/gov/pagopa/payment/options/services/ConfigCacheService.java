@@ -1,11 +1,13 @@
 package it.gov.pagopa.payment.options.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.runtime.StartupEvent;
 import it.gov.pagopa.payment.options.clients.ApiConfigCacheClient;
 import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
 import it.gov.pagopa.payment.options.models.events.CacheUpdateEvent;
 import it.gov.pagopa.payment.options.models.ConfigCacheData;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -27,6 +29,14 @@ public class ConfigCacheService {
   public ApiConfigCacheClient apiConfigCacheClient;
 
   private ConfigCacheData configCacheData;
+
+  void onStart(@Observes StartupEvent ev) {
+    try {
+      getConfigCacheData();
+    } catch (Exception e) {
+      logger.error("Encountered error on first cache data retrival: {}", e.getMessage());
+    }
+  }
 
   /**
    * Provides instance of the local cache data, if not yet provided,

@@ -7,13 +7,12 @@
 
     <!-- Calling Authorizer's fragment -->
     <set-variable name="application_domain" value="payment_options" />
-    <choose>
-        <set-variable name="authorization_entity" value="@(context.Request.Url.Query["idPsp"])" />
-        <include-fragment fragment-id="authorizer" />
-        <set-query-parameter name="idBrokerPsp" exists-action="override">
-          <value>@(context.User?.FirstName)</value>
-        </set-query-parameter>
-    </choose>
+    <set-variable name="authorization_entity" value="@(context.Request.Url.Query.GetValueOrDefault("idPsp"))" />
+    <include-fragment fragment-id="authorizer" />
+    <set-query-parameter name="idBrokerPsp" exists-action="override">
+      <value>@(context.User?.FirstName)</value>
+    </set-query-parameter>
+
   </inbound>
   <outbound>
     <base />

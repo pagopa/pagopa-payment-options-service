@@ -8,8 +8,6 @@ WORKDIR /code
 RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
 COPY src /code/src
 COPY agent /code/agent
-ARG QUARKUS_PROFILE
-ARG APP_NAME
 
 USER root
 RUN echo $(ls -1 /code/src)
@@ -23,7 +21,7 @@ RUN cd /code && \
     curl -o 'applicationinsights-agent.jar' -L 'https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.17/applicationinsights-agent-3.4.17.jar'
 
 # build the application
-RUN ./mvnw package -DskipTests=true -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE
+RUN ./mvnw package -DskipTests=true
 
 RUN mkdir -p /code/target/otel && \
     chmod 777 /code/opentelemetry-javaagent.jar && \
@@ -39,7 +37,7 @@ RUN mkdir -p /code/target/jmx && \
 RUN chmod 777 /code/jmx_prometheus_javaagent-0.19.0.jar && \
     cp /code/jmx_prometheus_javaagent-0.19.0.jar /code/target/jmx/jmx_prometheus_javaagent-0.19.0.jar
 
-FROM registry.access.redhat.com/ubi8/openjdk-17:1.14
+FROM registry.access.redhat.com/ubi8/openjdk-17:1.19
 
 ENV LANGUAGE='en_US:en'
 
@@ -56,8 +54,5 @@ EXPOSE 8080
 EXPOSE 12345
 USER 185
 
-ARG QUARKUS_PROFILE
-ARG APP_NAME
-
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"

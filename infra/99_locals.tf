@@ -4,7 +4,7 @@ locals {
   apim = {
     name                   = "${local.product}-apim"
     rg                     = "${local.product}-api-rg"
-    payments_options_product_id = "payment-options"
+    payments_options_product_id = "pagopa_payment_options"
   }
 }
 
