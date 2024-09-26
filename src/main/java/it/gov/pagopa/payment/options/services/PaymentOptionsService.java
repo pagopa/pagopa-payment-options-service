@@ -112,7 +112,7 @@ public class PaymentOptionsService {
           station != null ? station.getStationCode() : null, sessionId, LocalDateTime
               .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
               .format(formatter),
-          Status.OK, EventType.REQ, null,
+          Status.KO, EventType.REQ, null,
           e.getErrorCode().getErrorCode(), e.getMessage()
       );
       throw e;
