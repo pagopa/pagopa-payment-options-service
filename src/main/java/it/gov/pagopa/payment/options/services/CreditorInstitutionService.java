@@ -52,6 +52,7 @@ public class CreditorInstitutionService {
 
     String endpoint = getEndpoint(station);
 
+
     if (station.getRestEndpoint() == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
           "[Payment Options] Station new verify endpoint not provided");
@@ -98,8 +99,7 @@ public class CreditorInstitutionService {
         station.getConnection().getProtocol().name().toLowerCase()) +
             "://" + station.getConnection().getIp() + ":" +
             (station.getConnection().getPort() != null ?
-                String.valueOf(station.getConnection().getPort()) : "80") +
-        PAYMENT_OPTIONS_SERVICE_SUFFIX;
+                String.valueOf(station.getConnection().getPort()) : "80");
   }
 
 }

@@ -38,6 +38,9 @@ class PaymentOptionsServiceTest {
   @InjectMock
   public ConfigCacheService configCacheService;
 
+  @InjectMock
+  EventService eventService;
+
   @Inject
   public PaymentOptionsService paymentOptionsService;
 
@@ -60,7 +63,7 @@ class PaymentOptionsServiceTest {
             .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
             .creditorInstitutionStations(Map.of("00001",
                 StationCreditorInstitution.builder()
-                    .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                    .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                     .build())
             )
             .creditorInstitutionBrokers(
@@ -73,7 +76,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsResponse paymentOptionsResponse = assertDoesNotThrow(() ->
         paymentOptionsService.getPaymentOptions(
-        "00001", "00001", "00001", "3000000000"));
+        "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsResponse);
     verify(configCacheService).getConfigCacheData();
     verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
@@ -94,7 +97,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -109,11 +112,12 @@ class PaymentOptionsServiceTest {
 
     CreditorInstitutionException creditorInstitutionException = assertThrows(
         CreditorInstitutionException.class, () -> paymentOptionsService.getPaymentOptions(
-        "00001", "00001", "00001", "3000000000"));
+        "00001", "00001", "00001", "3000000000", null));
     assertNotNull(creditorInstitutionException);
     verify(configCacheService).getConfigCacheData();
     verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -130,7 +134,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -140,12 +144,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -162,7 +167,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -172,12 +177,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -194,7 +200,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -204,12 +210,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -224,7 +231,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(3L).segregationCode(0L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -234,12 +241,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SYSTEM_ERROR);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -254,7 +262,7 @@ class PaymentOptionsServiceTest {
         .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
         .creditorInstitutionStations(Map.of("00001",
             StationCreditorInstitution.builder()
-                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(0L)
+                .creditorInstitutionCode("00001").stationCode("00001").auxDigit(0L).segregationCode(1L)
                 .build())
         )
         .creditorInstitutionBrokers(
@@ -264,12 +272,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -289,12 +298,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SYSTEM_ERROR);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -314,12 +324,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -339,12 +350,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -364,12 +376,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -389,12 +402,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -414,12 +428,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_DISABILITATO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -439,12 +454,13 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -452,11 +468,12 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "0000000000"));
+            "00001", "00001", "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU);
-
+    verify(eventService).sendVerifyKoEvent(
+        any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
 
   @Test
@@ -464,7 +481,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            null, "00001", "00001", "0000000000"));
+            null, "00001", "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SINTASSI);
@@ -476,7 +493,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", null, "00001", "0000000000"));
+            "00001", null, "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SINTASSI);
@@ -488,7 +505,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", null, "0000000000"));
+            "00001", "00001", null, "0000000000", null));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SINTASSI);
@@ -500,7 +517,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", null));
+            "00001", "00001", "00001", null, null));
     assertNotNull(paymentOptionsException);
     assertEquals(paymentOptionsException.getErrorCode(),
         AppErrorCodeEnum.ODP_SINTASSI);
@@ -514,7 +531,7 @@ class PaymentOptionsServiceTest {
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
-            "00001", "00001", "00001", "3000000000"));
+            "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
     assertEquals(paymentOptionsException.getErrorCode(),

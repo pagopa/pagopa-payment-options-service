@@ -6,6 +6,6 @@ tags = {
   CreatedBy   = "Terraform"
   Environment = "Prod"
   Owner       = "pagoPA"
-  Source      = "https://github.com/pagopa/pagopa-print-payment-notice-service"
+  Source      = "https://github.com/pagopa/pagopa-payment-options-service"
   CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
 }

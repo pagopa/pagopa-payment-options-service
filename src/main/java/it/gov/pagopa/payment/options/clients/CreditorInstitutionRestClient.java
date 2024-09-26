@@ -48,7 +48,8 @@ public class CreditorInstitutionRestClient {
       throws MalformedURLException {
 
     RestClientBuilder builder =
-        RestClientBuilder.newBuilder().baseUrl(new URL(endpoint));
+        RestClientBuilder.newBuilder().baseUrl(
+            new URL(String.format(endpoint, fiscalCode, noticeNumber)));
     if (proxyHost != null && proxyPort != null) {
       builder = builder.proxyAddress(proxyHost, proxyPort.intValue());
     }
@@ -57,7 +58,6 @@ public class CreditorInstitutionRestClient {
 
     try (Response response = ecRestClientInterface.verifyPaymentOptions(
         fiscalCode, noticeNumber,
-//        idPA, idBrokerPA, idStazione,
         targetHost, targetPort.intValue(),
         targetPath)) {
 

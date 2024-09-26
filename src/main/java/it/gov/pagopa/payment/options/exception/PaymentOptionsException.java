@@ -3,6 +3,7 @@ package it.gov.pagopa.payment.options.exception;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.ws.rs.core.Response;
 import lombok.Getter;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -20,6 +21,8 @@ public class PaymentOptionsException extends RuntimeException {
      */
     private final AppErrorCodeEnum errorCode;
 
+    private final Long timestamp;
+
     /**
      * Constructs new exception with provided error code and message
      *
@@ -29,6 +32,7 @@ public class PaymentOptionsException extends RuntimeException {
     public PaymentOptionsException(AppErrorCodeEnum errorCode, String message) {
         super(message);
         this.errorCode = Objects.requireNonNull(errorCode);
+        this.timestamp = Instant.now().getEpochSecond();
     }
 
     /**
@@ -41,6 +45,7 @@ public class PaymentOptionsException extends RuntimeException {
     public PaymentOptionsException(AppErrorCodeEnum errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = Objects.requireNonNull(errorCode);
+        this.timestamp = Instant.now().getEpochSecond();
     }
 
     public static Response.Status getHttpStatus(PaymentOptionsException e) {
