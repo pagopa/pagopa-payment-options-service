@@ -5,7 +5,7 @@ const API_TIMEOUT = process.env.API_TIMEOUT;
 
 async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
 
-    if (dueDate) {
+    if (idPsp) {
         params.idPsp = idPsp;
     }
 

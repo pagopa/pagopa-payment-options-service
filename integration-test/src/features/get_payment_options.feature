@@ -26,7 +26,7 @@ Feature: Get Payment Options
     And payments option n 0 has 1 installments
 
   Scenario: Retrieve Payment Options (Opzione Unica + Unico Piano Rateale)
-    When an Http GET request is sent to recover payment options for taxCode "77777777777" with noticeNumber "singleAndMultiple" and idPsp "valid"
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "singleAndMultiple" and idPsp "valid"
     Then response has a 200 Http status
     And payments options has size 2
     And payments option n 0 has 1 installments
