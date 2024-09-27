@@ -5,7 +5,8 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
-  <version>0.4.1</version>
+  <name>Payment Options Service</name>
+  <version>0.4.2</version>
 
   <properties>
     <jacoco.version>0.8.7</jacoco.version>
@@ -39,6 +40,10 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

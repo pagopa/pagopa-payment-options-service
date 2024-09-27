@@ -1,9 +1,10 @@
 package it.gov.pagopa.payment.options.services;
 
-import it.gov.pagopa.payment.options.models.events.odpRe.CategoriaEvento;
-import it.gov.pagopa.payment.options.models.events.odpRe.Esito;
+import it.gov.pagopa.payment.options.models.events.odpRe.Body;
+import it.gov.pagopa.payment.options.models.events.odpRe.EventType;
 import it.gov.pagopa.payment.options.models.events.odpRe.OdpVerifyRe;
-import it.gov.pagopa.payment.options.models.events.odpRe.SottoTipoEvento;
+import it.gov.pagopa.payment.options.models.events.odpRe.Properties;
+import it.gov.pagopa.payment.options.models.events.odpRe.Status;
 import it.gov.pagopa.payment.options.models.events.verifyKo.Creditor;
 import it.gov.pagopa.payment.options.models.events.verifyKo.DebtorPosition;
 import it.gov.pagopa.payment.options.models.events.verifyKo.FaultBean;
@@ -26,12 +27,7 @@ public class EventService {
 
   private final Logger logger = LoggerFactory.getLogger(EventService.class);
 
-  private String SERVICE_IDENTIFIER = "ODP_SERV_001";
-  private String EROGATORE = "PaymentOptionsService";
-
-  private String PSP_BUSINESS_PROCESS = "verifyOdpPaymentOptions";
-
-  private String COMPONENTE = "FESP";
+  private String SERVICE_IDENTIFIER = "ODP";
 
   @Inject
   @Channel("nodo-dei-pagamenti-verify-ko")
@@ -100,91 +96,51 @@ public class EventService {
    * @param sessionId sessionId to trace events
    * @param dateTime event date-time
    * @param esito event outcome
-   * @param sottoTipoEvento outcome subType
+   * @param eventType outcome eventType
    * @param payload payload for the event (if existing)
    */
-  public void sendOdpRePspEvent(
+  public void sendEvent(
       /* Input Request **/
-      String idPsp, String noticeNumber, String fiscalCode,
+      String idPsp, String idBrokerPsp,
+      String noticeNumber, String fiscalCode,
       /* Extracted data */
       String idStation,
       /* Meta content */
       String sessionId, String dateTime,
-      Esito esito, SottoTipoEvento sottoTipoEvento,
+      Status esito, EventType eventType,
       /* Response Content */
-      String payload
+      String payload, String errorCode, String errorDescription
 
   ) {
     try {
       odpVerifyReEmitter.send(
           OdpVerifyRe.builder()
-               .uniqueId(UUID.randomUUID().toString())
-               .insertedTimestamp(dateTime)
-               .dataOraEvento(dateTime)
-               .businessProcess(PSP_BUSINESS_PROCESS)
-               .tipoEvento(PSP_BUSINESS_PROCESS)
-               .componente(COMPONENTE)
-               .categoriaEvento(CategoriaEvento.INTERFACCIA)
-               .sottoTipoEvento(sottoTipoEvento)
-               .esito(esito)
-               .serviceIdentifier(SERVICE_IDENTIFIER)
-               .erogatore(EROGATORE)
-               .erogatoreDescr(EROGATORE)
-               .businessProcess(PSP_BUSINESS_PROCESS)
-               .sessionId(sessionId)
-               .psp(idPsp)
-               .idDominio(fiscalCode)
-               .noticeNumber(noticeNumber)
-               .stazione(idStation)
-               .payload(payload != null ?
-                   Base64.getMimeEncoder().encodeToString(payload.getBytes()) : null)
-              .version("1")
-          .build());
-    } catch (Exception e) {
-      logger.error(
-          "[Payment Options] error encountered while sending event for Odp res topic: {}",
-          e.getMessage());
-    }
-  }
-
-  public void sendOdpReEcEvent(
-      /* Input Request **/
-      String idPsp, String noticeNumber, String fiscalCode,
-      /* Extracted data */
-      String idStation,
-      /* Meta content */
-      String sessionId, String dateTime,
-      Esito esito, SottoTipoEvento sottoTipoEvento,
-      /* Response Content */
-      String payload
-
-  ) {
-    try {
-      odpVerifyReEmitter.send(
-          OdpVerifyRe.builder()
-              .uniqueId(UUID.randomUUID().toString())
-              .sessionId(sessionId)
-              .insertedTimestamp(dateTime)
-              .dataOraEvento(dateTime)
-              .businessProcess(PSP_BUSINESS_PROCESS)
-              .tipoEvento(PSP_BUSINESS_PROCESS)
-              .componente(COMPONENTE)
-              .categoriaEvento(CategoriaEvento.INTERFACCIA)
-              .sottoTipoEvento(sottoTipoEvento)
-              .esito(esito)
-              .serviceIdentifier(SERVICE_IDENTIFIER)
-              .erogatore(idStation)
-              .erogatoreDescr(idStation)
-              .businessProcess(PSP_BUSINESS_PROCESS)
-              .sessionId(sessionId)
-              .psp(idPsp)
-              .idDominio(fiscalCode)
-              .noticeNumber(noticeNumber)
-              .stazione(idStation)
-              .payload(payload != null ?
-                  Base64.getMimeEncoder().encodeToString(payload.getBytes()) : null)
-              .version("1")
-              .build());
+              .body(
+                  Body.builder()
+                  .id(UUID.randomUUID().toString())
+                  .sessionId(sessionId)
+                  .insertedTimestamp(dateTime)
+                  .eventTimestamp(dateTime)
+                  .status(esito)
+                  .eventType(eventType)
+                  .stationId(idStation)
+                  .sessionId(sessionId)
+                  .pspId(idPsp)
+                  .brokerId(idBrokerPsp)
+                  .organizationId(fiscalCode)
+                  .noticeNumber(noticeNumber)
+                  .errorStatusCode(errorCode)
+                  .errorStatusDesc(errorDescription)
+                  .payload(payload != null ?
+                      Base64.getMimeEncoder().encodeToString(payload.getBytes()) : null)
+                  .version("1")
+                .build()
+              )
+              .properties(Properties.builder()
+                  .serviceIdentifier(SERVICE_IDENTIFIER)
+                  .build())
+              .build()
+      );
     } catch (Exception e) {
       logger.error(
           "[Payment Options] error encountered while sending event for Odp res topic: {}",
