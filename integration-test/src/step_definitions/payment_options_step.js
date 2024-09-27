@@ -98,6 +98,12 @@ Then('response has a {int} Http status', function (expectedStatus) {
     assert.strictEqual(this.response.status, expectedStatus);
 });
 
+
+Then('response has an http status that contains {string}', function (expectedStatus) {
+    assert.strictEqual(true, this.response.status.startsWith(expectedStatus));
+});
+
+
 Then('has error code {string}', function (expectedCode) {
     assert.strictEqual(this.response?.data?.appErrorCode, expectedCode);
 });

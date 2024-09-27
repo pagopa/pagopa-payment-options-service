@@ -1,6 +1,5 @@
 package it.gov.pagopa.payment.options.resources;
 
-import io.vertx.core.cli.annotations.Hidden;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.inject.Inject;
