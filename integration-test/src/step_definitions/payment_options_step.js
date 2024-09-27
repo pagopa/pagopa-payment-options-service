@@ -83,8 +83,6 @@ When('an Http GET request is sent to recover payment options for taxCode {string
         this.response = await getPaymentOptions(
         selectedTaxCode, selectedNoticeNumber, selectedPsp);
 
-        console.log(this.response);
-
    });
 
 Then('payments options has size {int}', function (expectedSize) {
