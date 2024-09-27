@@ -1,6 +1,5 @@
 package it.gov.pagopa.payment.options.resources;
 
-import io.vertx.core.cli.annotations.Hidden;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.inject.Inject;
@@ -18,6 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.resteasy.reactive.RestResponse;
+
 import java.util.UUID;
 
 /**
