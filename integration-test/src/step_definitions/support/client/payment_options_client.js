@@ -5,6 +5,8 @@ const API_TIMEOUT = process.env.API_TIMEOUT;
 
 async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
 
+    let params = {};
+
     if (idPsp) {
         params.idPsp = idPsp;
     }
@@ -18,6 +20,7 @@ async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
             "Content-Type": "application/json"
         }
     });
+
     return data;
 }
 
