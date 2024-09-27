@@ -3,13 +3,9 @@ const axios = require("axios");
 function get(url, config) {
     return axios.get(url, config)
         .then(res => {
-            console.log("RESPONSE");
-            console.log(res);
             return res;
         })
         .catch(error => {
-            console.log("ERROR");
-            console.log(error);
             return error.response;
         });
 }
