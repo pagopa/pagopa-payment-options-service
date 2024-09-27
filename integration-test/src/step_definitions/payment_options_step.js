@@ -10,6 +10,7 @@ const singleOptAndManyMultiNoticeNumber = process.env.SINGLE_AND_MULTI_OPT_NOTIC
 const coOptNoticeNumber = process.env.SINGLE_AND_CO_OPT_NOTICE_NUMBER;
 const invalidStationNoticeNumber = process.env.INVALID_NOTICE_NUMBER;
 const disabledStationNoticeNumber = process.env.DISABLED_STATION_NOTICE_NUMBER;
+const disabledOdpStationNoticeNumber = process.env.DISABLED_STATION_ODP_NOTICE_NUMBER;
 const missingStationNoticeNumber = process.env.MISSING_STATION_NOTICE_NUMBER;
 const invalidPsp = process.env.UNAUTHORIZED_PSP;
 const validPsp = process.env.VALID_PSP;
@@ -51,8 +52,8 @@ When('an Http GET request is sent to recover payment options for taxCode {string
           case "invalid":
             selectedNoticeNumber = invalidStationNoticeNumber;
             break;
-          case "disabled":
-            selectedNoticeNumber = disabledStationNoticeNumber;
+          case "disabledOdp":
+            selectedNoticeNumber = disabledOdpStationNoticeNumber;
             break;
           case "missing":
             selectedNoticeNumber = missingStationNoticeNumber;
