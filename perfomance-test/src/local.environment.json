@@ -2,7 +2,7 @@
   "environment": [
     {
       "env": "local",
-      "paymentOptionsServiceURIBasePath": "http://localhost:8080" // TODO
+      "paymentOptionsServiceURIBasePath": "http://localhost:8080"
     }
   ]
 }

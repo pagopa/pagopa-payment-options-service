@@ -18,12 +18,16 @@ parameters:
       - "stress"
       - "constant"
     default: "constant"
-  - name: "SCRIPT"
-    displayName: "Script name"
+  - name: "NOTICE_TYPE"
+    displayName: "Notice type"
     type: string
     values:
-      - "payment_options_service_test"
-    default: "payment_options_service_test"
+      - "single_opt"
+      - "single_and_many_opt"
+      - "single_and_multy_opt"
+      - "single_and_co_opt"
+      - "all"
+    default: "all"
   - name: "DB_NAME"
     displayName: "DB name"
     type: string
@@ -47,8 +51,9 @@ steps:
     displayName: Pull k6 image
   - script: |
       cd ./performance-test
-      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} ${{ parameters.DB_NAME}} $OCP_APIM_SUBSCRIPTION_KEY
-    displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} payment_options_service_test ${{ parameters.DB_NAME}} $OCP_APIM_SUBSCRIPTION_KEY
+    displayName: Run k6 payment_options_service_test with notice type ${{ parameters.NOTICE_TYPE}} on ${{ parameters.ENVIRONMENT }}
     env:
       OCP_APIM_SUBSCRIPTION_KEY: ${{ variables.API_SUBSCRIPTION_KEY }}
+      NOTICE_TYPE: ${{ parameters.NOTICE_TYPE }}
 

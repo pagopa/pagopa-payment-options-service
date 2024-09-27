@@ -2,8 +2,12 @@ import http from 'k6/http';
 
 const subKey = `${__ENV.OCP_APIM_SUBSCRIPTION_KEY}`;
 
-// TODO
-export function fetchPaymentOptions(url, fiscalCode) {
+export function getToService(url, params) {
 
-  return http.get(url, { headers, responseType: "text"});
+  let headers = {
+    'Ocp-Apim-Subscription-Key': subKey,
+    "Content-Type": "application/json"
+  };
+
+  return http.get(url, { headers, responseType: "text", params });
 }

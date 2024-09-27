@@ -1,5 +1,46 @@
+import { getToService } from "./modules/payment_options_client";
+
 const paymentOptionsServiceURIBasePath = `${ENV_VARS.paymentOptionsServiceURIBasePath}`;
+const noticeType = `${__ENV.NOTICE_TYPE}`;
+
+const ORGANIZATIONAL_FISCAL_CODE = "77777777777";
+
+const SINGLE_OPT_NOTICE_NUMBER = "311111111111111111";
+const SINGLE_AND_MANY_OPT_NOTICE_NUMBER = "311111111111111112";
+const SINGLE_AND_MULTI_OPT_NOTICE_NUMBER = "311111111111111116";
+const SINGLE_AND_CO_OPT_NOTICE_NUMBER = "311111111112222225";
+
+const VALID_PSP = "99999000001";
+
+const getSelectedNoticeNumbers = () => {
+    const selectedNotices = [];
+    if (noticeType === "single_opt" || noticeType === "all") {
+        selectedNotices.push(SINGLE_OPT_NOTICE_NUMBER);
+    }
+    if (noticeType === "single_and_many_opt" || noticeType === "all") {
+        selectedNotices.push(SINGLE_AND_MANY_OPT_NOTICE_NUMBER);
+    }
+    if (noticeType === "single_and_multy_opt" || noticeType === "all") {
+        selectedNotices.push(SINGLE_AND_MULTI_OPT_NOTICE_NUMBER);
+    }
+    if (noticeType === "single_and_co_opt" || noticeType === "all") {
+        selectedNotices.push(SINGLE_AND_CO_OPT_NOTICE_NUMBER);
+    }
+    return selectedNotices;
+}
 
 export default function () {
-    // TODO
+    getSelectedNoticeNumbers().forEach(el => {
+        let response = getToService(`${paymentOptionsServiceURIBasePath}/payment-options/organizations/${ORGANIZATIONAL_FISCAL_CODE}/notices/${SINGLE_OPT_NOTICE_NUMBER}`, {idPsp: VALID_PSP});
+        console.info(`Payment Options Service getPaymentOptions with notice number ${el} call, Status ${response.status}`);
+
+        let responseBody = JSON.parse(response.body);
+
+        check(response, {
+            'Payment Options Service getPaymentOptions status is 200': () => response.status === 200,
+            'Payment Options Service getPaymentOptions body has list of payment options': () =>
+                Boolean(responseBody?.paymentOptions?.length)
+        });
+    })
+
 }
