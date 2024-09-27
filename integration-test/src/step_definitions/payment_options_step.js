@@ -66,7 +66,7 @@ When('an Http GET request is sent to recover payment options for taxCode {string
           case "singleAndManyMultiples":
             selectedNoticeNumber = singleOptAndManyMultiNoticeNumber;
             break;
-          case "co-oblidged"
+          case "co-oblidged":
             selectedNoticeNumber = coOptNoticeNumber;
             break;
         }
