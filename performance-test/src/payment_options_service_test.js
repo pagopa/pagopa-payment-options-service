@@ -13,6 +13,7 @@ const SINGLE_AND_CO_OPT_NOTICE_NUMBER = "311111111112222225";
 const VALID_PSP = "99999000001";
 
 const getSelectedNoticeNumbers = () => {
+    
     const selectedNotices = [];
     if (noticeType === "single_opt" || noticeType === "all") {
         selectedNotices.push(SINGLE_OPT_NOTICE_NUMBER);
