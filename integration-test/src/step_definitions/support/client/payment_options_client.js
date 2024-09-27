@@ -12,7 +12,7 @@ async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
     }
 
     const data = await get(PAY_OPT_HOST +
-     `/payment-options/organizations/{taxCode}/notices/{noticeNumber}`, {
+     `/payment-options/organizations/`+taxCode+`/notices/`+`noticeNumber`, {
         timeout: API_TIMEOUT,
         params,
         headers: {
