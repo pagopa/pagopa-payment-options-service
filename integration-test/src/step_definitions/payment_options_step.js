@@ -98,8 +98,8 @@ Then('response has a {int} Http status', function (expectedStatus) {
 });
 
 
-Then('response has an http status that contains {string}', function (expectedStatus) {
-    assert.strictEqual(true, this.response.status.startsWith(expectedStatus));
+Then('response has an http status that is either {int} or {int}', function (missingStatus, unauthorizedStatus) {
+    assert.strictEqual(true, this.response.status == missingStatus || this.response.status == unauthorizedStatus);
 });
 
 
