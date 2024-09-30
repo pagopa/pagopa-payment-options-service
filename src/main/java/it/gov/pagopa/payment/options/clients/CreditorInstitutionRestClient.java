@@ -48,7 +48,7 @@ public class CreditorInstitutionRestClient {
       throws MalformedURLException {
 
     logger.debug("[Payment Notice] Calling EC verify with {} endpoint, {} and {} port,"
-        + " {} targetHost, {} target Port, {} targetPath, {} fiscalCode, {} noticeNumber", endpoint, proxyHost, proxyPort,
+        + " {} targetHost, {} target port, {} targetPath, {} fiscalCode, {} noticeNumber", endpoint, proxyHost, proxyPort,
         targetHost, targetPort, targetPath, fiscalCode, noticeNumber);
 
     RestClientBuilder builder =

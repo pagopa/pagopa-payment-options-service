@@ -67,7 +67,7 @@ public class CreditorInstitutionService {
     try {
       String[] verifyEndpointParts =
           station.getRestEndpoint().split("/", 4);
-      targetHost = verifyEndpointParts[0] + verifyEndpointParts[2];
+      targetHost = verifyEndpointParts[2];
       String[] hostSplit = verifyEndpointParts[2].split(":");
       targetPort = hostSplit.length > 1 ?
           Long.parseLong(hostSplit[1]) :
