@@ -50,6 +50,7 @@ public class CreditorInstitutionRestClient {
     RestClientBuilder builder =
         RestClientBuilder.newBuilder().baseUrl(
             new URL(String.format(endpoint, fiscalCode, noticeNumber)));
+
     if (proxyHost != null && proxyPort != null) {
       builder = builder.proxyAddress(proxyHost, proxyPort.intValue());
     }
@@ -57,9 +58,7 @@ public class CreditorInstitutionRestClient {
         CreditorInstitutionRestClientInterface.class);
 
     try (Response response = ecRestClientInterface.verifyPaymentOptions(
-        fiscalCode, noticeNumber,
-        targetHost, targetPort.intValue(),
-        targetPath)) {
+        targetHost, targetPort.intValue(), targetPath)) {
 
       return objectMapper.readValue(
           response.readEntity(String.class), PaymentOptionsResponse.class);

@@ -34,7 +34,7 @@ class CreditorInstitutionRestClientTest {
     PaymentOptionsResponse paymentOptionsResponse =
         assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
         wiremockUrl, null, null,
-        "http://externalService", 443L, "/externalPath",
+        "http://externalService", 443L, "/payment-options/organizations/77777777777/notices/311111111112222222",
           "77777777777", "311111111112222222"));
     assertNotNull(paymentOptionsResponse);
   }
@@ -45,7 +45,7 @@ class CreditorInstitutionRestClientTest {
         assertThrows(CreditorInstitutionException.class,
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
             wiremockUrl, null, null,
-            "http://externalService", 443L, "/externalPath",
+            "http://externalService", 443L, "/payment-options/organizations/87777777777/notices/311111111112222222",
             "87777777777", "311111111112222222"));
     assertNotNull(exception);
     assertEquals(exception.getErrorResponse().getHttpStatusCode(), 500);
@@ -57,7 +57,7 @@ class CreditorInstitutionRestClientTest {
         assertThrows(PaymentOptionsException.class,
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                 wiremockUrl, null, null,
-                "http://externalService", 443L, "/externalPath",
+                "http://externalService", 443L, "/payment-options/organizations/97777777777/notices/311111111112222222",
                 "97777777777", "311111111112222222"));
     assertNotNull(exception);
   }
@@ -68,7 +68,7 @@ class CreditorInstitutionRestClientTest {
         assertThrows(PaymentOptionsException.class,
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                 wiremockUrl, null, null,
-                "http://externalService", 443L, "/externalPath",
+                "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888",
                 "08888888888", "88888888888"));
     assertNotNull(exception);
     assertEquals(exception.getErrorCode(), AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE);
@@ -80,7 +80,7 @@ class CreditorInstitutionRestClientTest {
         assertThrows(MalformedURLException.class,
             () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                 "AAAAAAA", null, null,
-                "http://externalService", 443L, "/externalPath",
+                "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888",
                 "88888888888", "88888888888"));
   }
 
@@ -89,7 +89,7 @@ class CreditorInstitutionRestClientTest {
     assertThrows(Exception.class,
         () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
             "AAAAAAA", "AAAAAAA%%%", 8081L,
-            "http://externalService", 443L, "/externalPath",
+            "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888",
             "88888888888", "88888888888"));
   }
 

@@ -1,7 +1,9 @@
 package it.gov.pagopa.payment.options.test.extensions;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +52,7 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
                                     .connection(Connection.builder()
                                         .protocol(ProtocolEnum.HTTP).ip("localhost")
                                         .port((long) wireMockServer.port()).build())
-                                    .restEndpoint("https://localhost:9095/test")
+                                    .restEndpoint("https://localhost:9095")
                                     .build()))
                             .creditorInstitutions(Map.of("77777777777",
                                 CreditorInstitution.builder()
@@ -73,8 +75,9 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
             ));
 
       wireMockServer.stubFor(
-          get(urlEqualTo(
-              "/payment-options/organizations/97777777777/notices/311111111112222222"))
+          post(urlEqualTo(
+              "/forward"))
+              .withHeader("X-Host-Path", equalTo("/payment-options/organizations/97777777777/notices/311111111112222222"))
               .willReturn(aResponse()
                   .withHeader("Content-Type", "application/json")
                   .withBody("AAAAAAAA")
@@ -82,8 +85,9 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
       );
 
         wireMockServer.stubFor(
-            get(urlEqualTo(
-                "/payment-options/organizations/77777777777/notices/311111111112222222"))
+            post(urlEqualTo(
+                "/forward"))
+                .withHeader("X-Host-Path", equalTo("/payment-options/organizations/77777777777/notices/311111111112222222"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withResponseBody(
@@ -95,8 +99,9 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
         );
 
         wireMockServer.stubFor(
-            get(urlEqualTo(
-                "/payment-options/organizations/87777777777/notices/311111111112222222"))
+            post(urlEqualTo(
+                "/forward"))
+                .withHeader("X-Host-Path", equalTo("/payment-options/organizations/87777777777/notices/311111111112222222"))
                 .willReturn(aResponse()
                     .withHeader("Content-Type", "application/json")
                     .withStatus(412)
@@ -119,6 +124,7 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
             "ApiConfigCacheClient.ocpSubKey", "test",
             "CreditorInstitutionRestClient.apimEndpoint",
             wireMockServer.baseUrl(),
+            "CreditorInstitutionRestClient.apimPath", "",
             "CreditorInstitutionRestClient.ocpSubKey", "test",
             "wiremock.port", String.valueOf(wireMockServer.port())
         );
