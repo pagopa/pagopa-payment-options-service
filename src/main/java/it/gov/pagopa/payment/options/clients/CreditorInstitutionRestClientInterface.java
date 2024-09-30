@@ -7,6 +7,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
+import org.jboss.resteasy.reactive.RestForm;
 
 /**
  * Template for the creditor institution REST client
@@ -19,7 +20,8 @@ public interface CreditorInstitutionRestClientInterface {
   Response verifyPaymentOptions(
       @HeaderParam("X-Host-Url") String hostUrl,
       @HeaderParam("X-Host-Port") Integer hostPort,
-      @HeaderParam("X-Host-Path") String hostPath
+      @HeaderParam("X-Host-Path") String hostPath,
+      @RestForm String data
   );
 
 }
