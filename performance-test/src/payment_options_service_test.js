@@ -43,7 +43,7 @@ export default function () {
     const selectedNotices = getSelectedNoticeNumbers();
     for (let i = 0; i < selectedNotices.length; i++) {
         const el = selectedNotices[i];
-        let response = getToService(`${paymentOptionsServiceURIBasePath}/payment-options/organizations/${ORGANIZATIONAL_FISCAL_CODE}/notices/${SINGLE_OPT_NOTICE_NUMBER}`, { idPsp: VALID_PSP });
+        let response = getToService(`${paymentOptionsServiceURIBasePath}/payment-options/organizations/${ORGANIZATIONAL_FISCAL_CODE}/notices/${el}`, { idPsp: VALID_PSP });
         console.info(`Payment Options Service getPaymentOptions with notice number ${el} call, Status ${response.status}`);
 
         let responseBody = JSON.parse(response.body);
@@ -51,7 +51,7 @@ export default function () {
         check(response, {
             'Payment Options Service getPaymentOptions status is 200': () => response.status === 200,
             'Payment Options Service getPaymentOptions body has list of payment options': () =>
-                Boolean(responseBody?.paymentOptions?.length)
+                Boolean(responseBody && responseBody.paymentOptions && responseBody.paymentOptions.length)
         });
     }
 }

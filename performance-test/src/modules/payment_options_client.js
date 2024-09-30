@@ -9,7 +9,7 @@ export function getToService(endpoint, params) {
   };
 
   const queryParams = params ? Object.entries(params) : [];
-  if (queryParams?.length) {
+  if (queryParams && queryParams.length) {
     queryParams.forEach((el, index) => {
       url = url.concat(index === 0 ? "?" : "&", el[0],  "=", el[1]);
     });
