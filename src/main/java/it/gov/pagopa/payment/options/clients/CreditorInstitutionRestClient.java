@@ -47,6 +47,10 @@ public class CreditorInstitutionRestClient {
       String fiscalCode, String noticeNumber)
       throws MalformedURLException {
 
+    logger.debug("[Payment Notice] Calling EC verify with {} endpoint, {} and {} port,"
+        + " {} targetHost, {} target Port, {} targetPath, {} fiscalCode, {} noticeNumber", endpoint, proxyHost, proxyPort,
+        targetHost, targetPort, targetPath, fiscalCode, noticeNumber);
+
     RestClientBuilder builder =
         RestClientBuilder.newBuilder().baseUrl(
             new URL(String.format(endpoint, fiscalCode, noticeNumber)));
@@ -71,6 +75,7 @@ public class CreditorInstitutionRestClient {
     } catch (Exception e) {
       logger.error("[Payment Options] Unable to call the station due to error: {}",
           e.getMessage());
+      logger.error(e.getMessage(), e);
       throw new PaymentOptionsException(
           AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, e.getMessage());
     }
