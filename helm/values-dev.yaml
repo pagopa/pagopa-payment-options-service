@@ -76,7 +76,7 @@ microservice-chart:
     APP_NAME: "payment-options-service"
     APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: 'payment-options-service' # required to show cloud role name in application insights
-    APP_LOGGING_LEVEL: 'DEBUG'
+    APP_LOG_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     APICONFIG_CACHE_URL: 'https://api.dev.platform.pagopa.it/api-config-cache/p/v1'
     EC_APIM_FORWARDER_ENDPOINT: 'https://api.dev.platform.pagopa.it'
