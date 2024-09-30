@@ -68,7 +68,7 @@ public class Station {
   @JsonProperty("flag_standin")
   private Boolean flagStandin = null;
 
-  @JsonProperty("verify_payment_option_enabled")
+  @JsonProperty("is_payment_options_enabled")
   private Boolean verifyPaymentOptionEnabled = false;
 
   @JsonProperty("rest_endpoint")
