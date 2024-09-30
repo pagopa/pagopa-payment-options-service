@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.4.2-1-PPANTT-131-feat-add-integration-tests"
+    tag: "0.4.2-3-PPANTT-131-feat-add-integration-tests"
     pullPolicy: Always
   livenessProbe:
     httpGet:
