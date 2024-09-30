@@ -9,12 +9,15 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Components;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+import org.eclipse.microprofile.openapi.annotations.servers.Server;
+import org.eclipse.microprofile.openapi.annotations.servers.ServerVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
                         @SecurityScheme(
                                 securitySchemeName = "ApiKey",
                                 apiKeyName = "Ocp-Apim-Subscription-Key",
+                                in = SecuritySchemeIn.HEADER,
                                 type = SecuritySchemeType.APIKEY)
                 },
                 responses = {
@@ -55,7 +59,19 @@ import org.slf4j.LoggerFactory;
                                         schema = @Schema(implementation = ErrorResponse.class)
                                 ))
                 }),
-        info = @Info(title = "Payments Options Services", version = "${quarkus.application.version}"))
+        info = @Info(
+                title = "Payments Options Services",
+                version = "",
+                description = "placeholder-for-replace"),
+        servers = {
+                @Server(url = "http://localhost:8080", description = "Localhost base URL"),
+                @Server(url = "https://{host}/payment-options/service/v1", description = "Base URL",
+                        variables = {
+                                @ServerVariable(name = "host",
+                                        enumeration = {"api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it"},
+                                        defaultValue = "api.dev.platform.pagopa.it")})
+        }
+)
 @Startup
 @QuarkusMain
 public class App extends Application {
