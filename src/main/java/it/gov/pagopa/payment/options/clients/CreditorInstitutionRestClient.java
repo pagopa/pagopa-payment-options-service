@@ -6,6 +6,7 @@ import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
+import it.gov.pagopa.payment.options.models.events.odpRe.Properties;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -62,7 +63,8 @@ public class CreditorInstitutionRestClient {
         CreditorInstitutionRestClientInterface.class);
 
     try (Response response = ecRestClientInterface.verifyPaymentOptions(
-        targetHost, targetPort.intValue(), targetPath, "TEST")) {
+        targetHost, targetPort.intValue(), targetPath,
+        Properties.builder().serviceIdentifier("ODP").build())) {
 
       return objectMapper.readValue(
           response.readEntity(String.class), PaymentOptionsResponse.class);
