@@ -8,6 +8,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.jboss.resteasy.reactive.PartType;
 import org.jboss.resteasy.reactive.RestForm;
@@ -24,7 +25,7 @@ public interface CreditorInstitutionRestClientInterface {
       @HeaderParam("X-Host-Url") String hostUrl,
       @HeaderParam("X-Host-Port") Integer hostPort,
       @HeaderParam("X-Host-Path") String hostPath,
-      @RestForm @PartType(MediaType.APPLICATION_JSON) Properties properties
+      Properties data
   );
 
 }
