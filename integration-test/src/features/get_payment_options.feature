@@ -2,7 +2,7 @@ Feature: Get Payment Options
 
   Scenario: Unauthorized idPsp
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "single" and idPsp "invalid"
-    Then response has an http status that contains 40
+    Then response has an http status that contains "40"
 
   Scenario: Nav not allowed for OdP
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "invalid" and idPsp "valid"
