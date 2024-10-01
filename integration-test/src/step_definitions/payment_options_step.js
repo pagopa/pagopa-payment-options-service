@@ -75,6 +75,9 @@ When('an Http GET request is sent to recover payment options for taxCode {string
           case "wrong":
             selectedNoticeNumber = wrongNoticeNumber;
             break;
+          case "disabled":
+            selectedNoticeNumber = disabledStationNoticeNumber;
+            break;
           case "error":
             selectedNoticeNumber = errorNoticeNumber;
             break;
