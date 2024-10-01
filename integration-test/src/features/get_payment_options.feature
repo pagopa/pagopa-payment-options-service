@@ -33,29 +33,29 @@ Feature: Get Payment Options
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "single" and idPsp "valid"
     Then response has a 200 Http status
     And payments options has size 1
-    And payments option n 0 has 1 installments
+    And payments option n 1 has 1 installments
 
   Scenario: Retrieve Payment Options (Opzione Unica + Unico Piano Rateale)
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "singleAndMultiple" and idPsp "valid"
     Then response has a 200 Http status
     And payments options has size 2
-    And payments option n 0 has 1 installments
-    And payments option n 1 has 3 installments
+    And payments option n 1 has 1 installments
+    And payments option n 2 has 3 installments
 
   Scenario: Retrieve Payment Options (Opzione Unica + Molteplici Piani Rateali)
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "singleAndManyMultiples" and idPsp "valid"
     Then response has a 200 Http status
     And payments options has size 3
-    And payments option n 0 has 1 installments
-    And payments option n 1 has 3 installments
-    And payments option n 2 has 5 installments
+    And payments option n 1 has 1 installments
+    And payments option n 2 has 3 installments
+    And payments option n 3 has 5 installments
 
   Scenario: Retrieve Payment Options (Co-Obbligati)
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "co-oblidged" and idPsp "valid"
     Then response has a 200 Http status
     And payments options has size 2
-    And payments option n 0 has 1 installments
     And payments option n 1 has 1 installments
+    And payments option n 2 has 1 installments
 
   Scenario: PAA Wrong System Error
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "wrong" and idPsp "valid"
