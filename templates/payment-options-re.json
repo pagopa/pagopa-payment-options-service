@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "payment-options-re event schema",
+  "type": "object",
+  "properties": {
+    "body": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "insertedTimestamp": {
+          "type": "string",
+          "description": "Data inserimento evento su kafka (yyyy-MM-dd'T'HH:mm:ss.SSSXXX)",
+          "examples": ["2024-09-23T17:27:04.1696470"]
+        },
+        "eventType": {
+          "type": "string",
+          "enum": ["REQ","RES","INTERNAL"]
+        },
+        "organizationId": {
+          "type": "string",
+          "minLength": 11,
+          "maxLength": 11,
+          "description": "Id dell’EC"
+        },
+        "stationId": {
+          "type": "string",
+          "description": "Id della stazione"
+        },
+        "pspId": {
+          "type": "string",
+          "minLength": 11,
+          "maxLength": 11,
+          "description": "Id del PSP"
+        },
+        "brokerId": {
+          "type": "string",
+          "description": "Id del broker"
+        },
+        "iuv": {
+          "type": "string",
+          "pattern": "^\\d{18}$"
+        },
+        "noticeNumber": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["OK","KO"]
+        },
+        "errorStatusDesc": {
+          "type": "string"
+        },
+        "errorStatusCode": {
+          "type": "string",
+          "pattern": "^ODP-\\d{3}$",
+          "description": "Qui per riferimenti https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-payment-options-service/main/openapi/openapi.json"
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "string",
+          "description": "Base64 or Gzip encoding"
+        },
+        "eventTimestamp": {
+          "type": "string",
+          "description": "Data e ora dell’evento (yyyy-MM-dd'T'HH:mm:ss.SSSXXX)",
+          "examples": ["2024-09-23T17:27:04.1690000"]
+        },
+        "version": {
+          "type": "number",
+          "description": "Versione dell’evento",
+          "examples": [1]
+        }
+      },
+      "required": [
+        "id",
+        "insertedTimestamp",
+        "eventType",
+        "organizationId",
+        "stationId",
+        "pspId",
+        "brokerId",
+        "iuv",
+        "noticeNumber",
+        "status",
+        "errorStatusDesc",
+        "errorStatusCode",
+        "sessionId",
+        "payload",
+        "eventTimestamp",
+        "version"
+      ]
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "serviceIdentifier": {
+          "type": "string",
+          "enum": ["ODP"]
+        }
+      },
+      "required": [
+        "serviceIdentifier"
+      ]
+    }
+  },
+  "required": [
+    "body",
+    "properties"
+  ]
+}
