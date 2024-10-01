@@ -56,3 +56,13 @@ Feature: Get Payment Options
     And payments options has size 2
     And payments option n 0 has 1 installments
     And payments option n 1 has 1 installments
+
+  Scenario: PAA Wrong System Error
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "wrong" and idPsp "valid"
+    Then response has a 400 Http status
+    And has error code "PAA_STAZIONE_INT_ERRATA"
+
+  Scenario: PAA System Error
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "error" and idPsp "valid"
+    Then response has a 400 Http status
+    And has error code "PAA_SYSTEM_ERROR"

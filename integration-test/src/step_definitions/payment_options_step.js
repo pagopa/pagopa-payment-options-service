@@ -12,6 +12,8 @@ const invalidStationNoticeNumber = process.env.INVALID_NOTICE_NUMBER;
 const disabledStationNoticeNumber = process.env.DISABLED_STATION_NOTICE_NUMBER;
 const disabledOdpStationNoticeNumber = process.env.DISABLED_STATION_ODP_NOTICE_NUMBER;
 const missingStationNoticeNumber = process.env.MISSING_STATION_NOTICE_NUMBER;
+const errorNoticeNumber = process.env.ERROR_STATION_NOTICE_NUMBER;
+const wrongNoticeNumber = process.env.WRONG_STATION_NOTICE_NUMBER;
 const invalidPsp = process.env.UNAUTHORIZED_PSP;
 const validPsp = process.env.VALID_PSP;
 
@@ -69,6 +71,12 @@ When('an Http GET request is sent to recover payment options for taxCode {string
             break;
           case "co-oblidged":
             selectedNoticeNumber = coOptNoticeNumber;
+            break;
+          case "wrong":
+            selectedNoticeNumber = wrongNoticeNumber;
+            break;
+          case "error":
+            selectedNoticeNumber = errorNoticeNumber;
             break;
         }
 
