@@ -25,7 +25,7 @@ public interface CreditorInstitutionRestClientInterface {
       @HeaderParam("X-Host-Url") String hostUrl,
       @HeaderParam("X-Host-Port") Integer hostPort,
       @HeaderParam("X-Host-Path") String hostPath,
-      Properties data
+      String data
   );
 
 }
