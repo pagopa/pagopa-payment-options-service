@@ -98,7 +98,7 @@ Then('payments options has size {int}', function (expectedSize) {
 });
 
 Then('payments option n {int} has {int} installments', function (i, expectedSize) {
-    console.logs(this.response?.data?.paymentOptions);
+    console.log(this.response?.data?.paymentOptions);
     assert.strictEqual(this.response?.data?.paymentOptions[i - 1].installments.length, expectedSize);
 });
 
