@@ -63,7 +63,7 @@ public class CreditorInstitutionRestClient {
         CreditorInstitutionRestClientInterface.class);
 
     try (Response response = ecRestClientInterface.verifyPaymentOptions(
-        targetHost, targetPort.intValue(), targetPath, "ODP")) {
+        targetHost, targetPort.intValue(), targetPath)) {
 
       return objectMapper.readValue(
           response.readEntity(String.class), PaymentOptionsResponse.class);

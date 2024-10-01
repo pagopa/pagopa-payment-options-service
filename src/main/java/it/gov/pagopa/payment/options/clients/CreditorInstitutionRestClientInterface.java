@@ -24,8 +24,7 @@ public interface CreditorInstitutionRestClientInterface {
   Response verifyPaymentOptions(
       @HeaderParam("X-Host-Url") String hostUrl,
       @HeaderParam("X-Host-Port") Integer hostPort,
-      @HeaderParam("X-Host-Path") String hostPath,
-      String data
+      @HeaderParam("X-Host-Path") String hostPath
   );
 
 }
