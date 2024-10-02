@@ -6,6 +6,7 @@ import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
+import it.gov.pagopa.payment.options.models.events.odpRe.Properties;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -50,6 +51,7 @@ public class CreditorInstitutionRestClient {
     RestClientBuilder builder =
         RestClientBuilder.newBuilder().baseUrl(
             new URL(String.format(endpoint, fiscalCode, noticeNumber)));
+
     if (proxyHost != null && proxyPort != null) {
       builder = builder.proxyAddress(proxyHost, proxyPort.intValue());
     }
@@ -57,9 +59,7 @@ public class CreditorInstitutionRestClient {
         CreditorInstitutionRestClientInterface.class);
 
     try (Response response = ecRestClientInterface.verifyPaymentOptions(
-        fiscalCode, noticeNumber,
-        targetHost, targetPort.intValue(),
-        targetPath)) {
+        targetHost, targetPort.intValue(), targetPath)) {
 
       return objectMapper.readValue(
           response.readEntity(String.class), PaymentOptionsResponse.class);
@@ -72,6 +72,7 @@ public class CreditorInstitutionRestClient {
     } catch (Exception e) {
       logger.error("[Payment Options] Unable to call the station due to error: {}",
           e.getMessage());
+      logger.error(e.getMessage(), e);
       throw new PaymentOptionsException(
           AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, e.getMessage());
     }

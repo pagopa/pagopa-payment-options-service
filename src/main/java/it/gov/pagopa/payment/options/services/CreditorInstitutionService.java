@@ -9,6 +9,7 @@ import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.MalformedURLException;
+import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,9 @@ public class CreditorInstitutionService {
 
   @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
   String APIM_FORWARDER_ENDPOINT;
+
+  @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath")
+  Optional<String> APIM_FORWARDER_PATH;
 
   static String PAYMENT_OPTIONS_SERVICE_SUFFIX = "/payment-options/organizations/%s/notices/%s";
 
@@ -50,8 +54,7 @@ public class CreditorInstitutionService {
           "[Payment Options] Station not configured to pass through the APIM Forwarder");
     }
 
-    String endpoint = getEndpoint(station);
-
+    String endpoint = getEndpoint(station, APIM_FORWARDER_PATH.orElse(""));
 
     if (station.getRestEndpoint() == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
@@ -64,14 +67,14 @@ public class CreditorInstitutionService {
     try {
       String[] verifyEndpointParts =
           station.getRestEndpoint().split("/", 4);
-      targetHost = verifyEndpointParts[0] + verifyEndpointParts[2];
+      targetHost = verifyEndpointParts[2];
       String[] hostSplit = verifyEndpointParts[2].split(":");
       targetPort = hostSplit.length > 1 ?
           Long.parseLong(hostSplit[1]) :
           verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase()) ?
               443L : 80L;
-      targetPath = verifyEndpointParts[3].concat(
-          String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber));
+      String formattedPath =  String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber);
+      targetPath = verifyEndpointParts.length > 3 ? verifyEndpointParts[3].concat(formattedPath) : formattedPath;
     } catch (Exception e) {
       logger.error("[Payment Options] Malformed Target URL: {}", e.getMessage());
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
@@ -92,14 +95,15 @@ public class CreditorInstitutionService {
 
   }
 
-  private static String getEndpoint(Station station) {
+  private static String getEndpoint(Station station, String apimForwarderPath) {
     return (station.getConnection().getProtocol() != null &&
         (station.getConnection().getProtocol().equals(ProtocolEnum.HTTPS)) ?
         ProtocolEnum.HTTPS.name().toLowerCase() :
         station.getConnection().getProtocol().name().toLowerCase()) +
             "://" + station.getConnection().getIp() + ":" +
             (station.getConnection().getPort() != null ?
-                String.valueOf(station.getConnection().getPort()) : "80");
+                String.valueOf(station.getConnection().getPort()) : "80")
+                .concat(apimForwarderPath);
   }
 
 }
