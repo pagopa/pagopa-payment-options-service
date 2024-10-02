@@ -1,0 +1,59 @@
+# azure-pipelines.yml
+trigger: none
+
+parameters:
+  - name: "ENVIRONMENT"
+    displayName: "Environment"
+    type: string
+    values:
+      - "dev"
+      - "uat"
+    default: "uat"
+  - name: "TEST_TYPE"
+    displayName: "Test type"
+    type: string
+    values:
+      - "load"
+      - "spike"
+      - "stress"
+      - "constant"
+    default: "constant"
+  - name: "NOTICE_TYPE"
+    displayName: "Notice type"
+    type: string
+    values:
+      - "single_opt"
+      - "single_and_many_opt"
+      - "single_and_multy_opt"
+      - "single_and_co_opt"
+      - "all"
+    default: "all"
+  - name: "DB_NAME"
+    displayName: "DB name"
+    type: string
+    values:
+      - pagopa_payment_options_servicek6
+variables:
+  ${{ if eq(parameters['ENVIRONMENT'], 'dev') }}:
+    poolImage: 'pagopa-dev-loadtest-linux'
+    API_SUBSCRIPTION_KEY: "$(DEV_API_SUBSCRIPTION_KEY)"
+  ${{ if eq(parameters['ENVIRONMENT'], 'uat') }}:
+    poolImage: 'pagopa-uat-loadtest-linux'
+    API_SUBSCRIPTION_KEY: "$(UAT_API_SUBSCRIPTION_KEY)"
+
+pool:
+  name: $(poolImage)
+
+steps:
+  - script: |
+      cd ./performance-test/src
+      docker pull grafana/k6
+    displayName: Pull k6 image
+  - script: |
+      cd ./performance-test
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} payment_options_service_test ${{ parameters.DB_NAME}} $OCP_APIM_SUBSCRIPTION_KEY
+    displayName: Run k6 payment_options_service_test with notice type ${{ parameters.NOTICE_TYPE}} on ${{ parameters.ENVIRONMENT }}
+    env:
+      OCP_APIM_SUBSCRIPTION_KEY: ${{ variables.API_SUBSCRIPTION_KEY }}
+      NOTICE_TYPE: ${{ parameters.NOTICE_TYPE }}
+
