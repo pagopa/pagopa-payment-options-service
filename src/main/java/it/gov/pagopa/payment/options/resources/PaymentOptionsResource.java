@@ -1,5 +1,6 @@
 package it.gov.pagopa.payment.options.resources;
 
+import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.inject.Inject;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -57,7 +59,39 @@ public class PaymentOptionsResource {
           @APIResponse(
               responseCode = "200",
               description = "Success",
-              content = @Content(mediaType = "application/json")
+              content =
+              @Content(
+                  mediaType = MediaType.APPLICATION_JSON,
+                  schema = @Schema(implementation = PaymentOptionsResource.class),
+                  example = "{\n"
+                      + "    \"paTaxCode\": \"77777777777\",\n"
+                      + "    \"paFullName\": \"EC\",\n"
+                      + "    \"paOfficeName\": \"EC\",\n"
+                      + "    \"paymentOptions\": [\n"
+                      + "        {\n"
+                      + "            \"description\": \"Test PayOpt - unica opzione\",\n"
+                      + "            \"numberOfInstallments\": 1,\n"
+                      + "            \"amount\": 120,\n"
+                      + "            \"dueDate\": \"2024-10-30T23:59:59\",\n"
+                      + "            \"validFrom\": \"2024-09-30T23:59:59\",\n"
+                      + "            \"status\": \"non pagato\",\n"
+                      + "            \"status reason\": \"desc\",\n"
+                      + "            \"allCCP\": \"false\",\n"
+                      + "            \"installments\": [\n"
+                      + "                {\n"
+                      + "                    \"nav\": \"311111111111111111\",\n"
+                      + "                    \"iuv\": \"311111111111111111\",\n"
+                      + "                    \"amount\": 120,\n"
+                      + "                    \"description\": \"Test Opt Inst - unica opzione\",\n"
+                      + "                    \"dueDate\": \"2024-10-30T23:59:59\",\n"
+                      + "                    \"validFrom\": \"2024-09-30T23:59:59\",\n"
+                      + "                    \"status\": \"non pagato\",\n"
+                      + "                    \"status reason\": \"desc\"\n"
+                      + "                }\n"
+                      + "            ]\n"
+                      + "        }\n"
+                      + "    ]\n"
+                      + "}")
           )
       }
   )
