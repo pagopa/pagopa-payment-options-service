@@ -62,7 +62,7 @@ public class PaymentOptionsResource {
               content =
               @Content(
                   mediaType = MediaType.APPLICATION_JSON,
-                  schema = @Schema(implementation = PaymentOptionsResource.class),
+                  schema = @Schema(implementation = PaymentOptionsResponse.class),
                   example = "{\n"
                       + "    \"paTaxCode\": \"77777777777\",\n"
                       + "    \"paFullName\": \"EC\",\n"
