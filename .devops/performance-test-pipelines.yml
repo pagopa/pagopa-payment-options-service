@@ -51,7 +51,7 @@ steps:
     displayName: Pull k6 image
   - script: |
       cd ./performance-test
-      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} payment_options_service_test ${{ parameters.DB_NAME}} $OCP_APIM_SUBSCRIPTION_KEY
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} payment_options_service_test ${{ parameters.DB_NAME}} $NOTICE_TYPE $OCP_APIM_SUBSCRIPTION_KEY
     displayName: Run k6 payment_options_service_test with notice type ${{ parameters.NOTICE_TYPE}} on ${{ parameters.ENVIRONMENT }}
     env:
       OCP_APIM_SUBSCRIPTION_KEY: ${{ variables.API_SUBSCRIPTION_KEY }}
