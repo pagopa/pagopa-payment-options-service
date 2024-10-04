@@ -4,7 +4,8 @@ ENVIRONMENT=$1
 TYPE=$2
 SCRIPT=$3
 DB_NAME=$4
-OCP_APIM_SUBSCRIPTION_KEY=$5
+NOTICE_TYPE=$5
+OCP_APIM_SUBSCRIPTION_KEY=$6
 
 if [ -z "$ENVIRONMENT" ]
 then
@@ -27,6 +28,7 @@ export env=${ENVIRONMENT}
 export type=${TYPE}
 export script=${SCRIPT}
 export db_name=${DB_NAME}
+export notice_type=${NOTICE_TYPE}
 export ocp_apim_subscription_key=${OCP_APIM_SUBSCRIPTION_KEY}
 
 stack_name=$(cd .. && basename "$PWD")
