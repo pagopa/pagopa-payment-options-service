@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
                 description = "placeholder-for-replace"),
         servers = {
                 @Server(url = "http://localhost:8080", description = "Localhost base URL"),
-                @Server(url = "https://{host}/payment-options/service/v1", description = "Base URL",
+                @Server(url = "https://{host}/odp/service/v1", description = "Base URL",
                         variables = {
                                 @ServerVariable(name = "host",
                                         enumeration = {"api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it"},
