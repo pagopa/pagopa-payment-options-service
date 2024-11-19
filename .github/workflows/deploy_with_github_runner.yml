@@ -40,7 +40,7 @@ jobs:
 
   deploy:
 #    needs: [ create_runner ]
-    runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
+    runs-on: [ self-hosted ]
     name: Deploy on AKS
     environment: github-${{ inputs.environment }}
     steps:
