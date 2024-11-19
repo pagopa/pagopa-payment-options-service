@@ -42,7 +42,7 @@ jobs:
 #    needs: [ create_runner ]
     runs-on: [ self-hosted ]
     name: Deploy on AKS
-    environment: github-${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Deploy
         uses: pagopa/github-actions-template/aks-deploy@main
