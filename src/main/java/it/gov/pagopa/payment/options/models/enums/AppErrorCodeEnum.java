@@ -44,46 +44,46 @@ public enum AppErrorCodeEnum {
         "ODP_STAZIONE_INT_PA_SCONOSCIUTA. "
             + "Errore forninca in caso di assenza associazione stazione e PA"),
 
-    ODP_STAZIONE_INT_PA_DISABILITATA(Status.BAD_REQUEST, "ODP-0099",
+    ODP_STAZIONE_INT_PA_DISABILITATA(Status.BAD_REQUEST, "ODP-010",
         "ODP_STAZIONE_INT_PA_DISABILITATA. Errore riportato in caso "
             + "la stazione coincidente con l’id fornito in input risulti disabilitato"),
-    ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE(Status.SERVICE_UNAVAILABLE, "ODP-010",
+    ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE(Status.SERVICE_UNAVAILABLE, "ODP-011",
         "ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE. "
             + "Errore fornito in caso d’irraggiungibilità della stazione"),
 
-    ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO(Status.BAD_REQUEST, "ODP-011",
+    ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO(Status.BAD_REQUEST, "ODP-012",
         "ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO. "
             + "Errore fornito in caso di servizio non attivo"),
 
-    ODP_STAZIONE_INT_PA_TIMEOUT(Status.INTERNAL_SERVER_ERROR, "ODP-012",
+    ODP_STAZIONE_INT_PA_TIMEOUT(Status.INTERNAL_SERVER_ERROR, "ODP-013",
         "ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione"),
 
-    ODP_ERRORE_EMESSO_DA_PAA(Status.INTERNAL_SERVER_ERROR, "ODP-013",
+    ODP_ERRORE_EMESSO_DA_PAA(Status.INTERNAL_SERVER_ERROR, "ODP-014",
         "ODP_ERRORE_EMESSO_DA_PAA. Errore fornito in caso di errori da PAA"),
 
-    ODP_STAZIONE_INT_PA_ERRORE_RESPONSE(Status.BAD_REQUEST, "ODP-014",
+    ODP_STAZIONE_INT_PA_ERRORE_RESPONSE(Status.BAD_REQUEST, "ODP-015",
         "ODP_STAZIONE_INT_PA_ERRORE_RESPONSE. "
             + "Errore fornito in caso di risposta KO dalla stazione"),
 
-    ODP_PSP_NAV_NOT_NMU(Status.BAD_REQUEST, "ODP-015",
+    ODP_PSP_NAV_NOT_NMU(Status.BAD_REQUEST, "ODP-016",
         "ODP_PSP_NAV_NOT_NMU. Errore fornito nel caso in cui "
             + "il nav non sia valido per il flusso OdP"),
 
-    ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA(Status.BAD_REQUEST, "ODP-016",
+    ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA(Status.BAD_REQUEST, "ODP-017",
         "ODP_SYSTEM_ERROR Codice d’errore generico"),
-    ODP_SYSTEM_ERROR(Status.INTERNAL_SERVER_ERROR, "ODP-017",
+    ODP_SYSTEM_ERROR(Status.INTERNAL_SERVER_ERROR, "ODP-018",
         "ODP_SYSTEM_ERROR. Codice d’errore generico"),
 
-    ODP_INTERMEDIARIO_PA_DISABILITATO(Status.BAD_REQUEST, "ODP-018",
+    ODP_INTERMEDIARIO_PA_DISABILITATO(Status.BAD_REQUEST, "ODP-019",
         "ODP_INTERMEDIARIO_PA_DISABILITATO"),
 
-    ODP_INTERMEDIARIO_PA_SCONOSCIUTO(Status.NOT_FOUND, "ODP-019",
+    ODP_INTERMEDIARIO_PA_SCONOSCIUTO(Status.NOT_FOUND, "ODP-020",
         "ODP_INTERMEDIARIO_PA_SCONOSCIUTO"),
 
-    ODP_DOMINIO_DISABILITATO(Status.BAD_REQUEST, "ODP-020",
+    ODP_DOMINIO_DISABILITATO(Status.BAD_REQUEST, "ODP-021",
         "ODP_DOMINIO_DISABILITATO"),
 
-    ODP_DOMINIO_SCONOSCIUTO(Status.NOT_FOUND, "ODP-021",
+    ODP_DOMINIO_SCONOSCIUTO(Status.NOT_FOUND, "ODP-022",
         "ODP_DOMINIO_SCONOSCIUTO");
 
     private final Response.Status status;
