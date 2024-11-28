@@ -7,17 +7,17 @@ Feature: Get Payment Options
   Scenario: Nav not allowed for OdP
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "invalid" and idPsp "valid"
     Then response has a 400 Http status
-    And has error code "ODP-015"
+    And has error code "ODP-016"
 
   Scenario: Station is disabled
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "disabled" and idPsp "valid"
     Then response has a 400 Http status
-    And has error code "ODP-0099"
+    And has error code "ODP-010"
 
   Scenario: Station has odp flag disabled
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "disabledOdp" and idPsp "valid"
     Then response has a 400 Http status
-    And has error code "ODP-016"
+    And has error code "ODP-017"
 
   Scenario: Retrieve Payment Options (Opzione Unica)
     When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "single" and idPsp "valid"
