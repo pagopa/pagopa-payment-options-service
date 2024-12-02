@@ -6,7 +6,7 @@
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
   <name>Payment Options Service</name>
-  <version>0.6.0-1-test-new-runner</version>
+  <version>0.6.1</version>
 
   <properties>
     <jacoco.version>0.8.7</jacoco.version>
