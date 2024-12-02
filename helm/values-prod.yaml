@@ -7,6 +7,7 @@ microservice-chart:
     tag: "0.5.0"
     pullPolicy: Always
   livenessProbe:
+    handlerType: httpGet
     httpGet:
       path: /q/health/live
       port: 8080
@@ -14,6 +15,7 @@ microservice-chart:
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
+    handlerType: httpGet
     httpGet:
       path: /q/health/ready
       port: 8080
@@ -33,9 +35,9 @@ microservice-chart:
     path: /payment-options-service/(.*)
     servicePort: 8080
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
+    name: "payopt-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -120,8 +122,8 @@ microservice-chart:
           podAffinityTerm:
             labelSelector:
               matchLabels:
-                app.kubernetes.io/instance: print-payment-notice-generator
-            namespaces: ["printit"]
+                app.kubernetes.io/instance: payment-options
+            namespaces: ["payopt"]
             topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: false
