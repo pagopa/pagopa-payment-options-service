@@ -4,9 +4,10 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.4.7-1-test-new-runner"
+    tag: "0.6.0"
     pullPolicy: Always
   livenessProbe:
+    handlerType: httpGet
     httpGet:
       path: /q/health/live
       port: 8080
@@ -14,6 +15,7 @@ microservice-chart:
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
+    handlerType: httpGet
     httpGet:
       path: /q/health/ready
       port: 8080
@@ -33,9 +35,9 @@ microservice-chart:
     path: /payment-options-service/(.*)
     servicePort: 8080
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
+    name: "payopt-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -62,8 +64,8 @@ microservice-chart:
       cpu: "1.5"
   autoscaling:
     enable: true
-    minReplica: 3
-    maxReplica: 10
+    minReplica: 1
+    maxReplica: 1
     pollingInterval: 30 # seconds
     cooldownPeriod: 300 # seconds
     triggers:

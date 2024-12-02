@@ -7,6 +7,8 @@ const varsArray = new SharedArray('vars', function () {
 });
 export const ENV_VARS = varsArray[0];
 
+export const options = JSON.parse(open(__ENV.TEST_TYPE)); // Needed to enable the test-types
+
 const paymentOptionsServiceURIBasePath = `${ENV_VARS.paymentOptionsServiceURIBasePath}`;
 const noticeType = `${__ENV.NOTICE_TYPE}`;
 
