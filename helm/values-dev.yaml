@@ -82,6 +82,7 @@ microservice-chart:
   envConfig:
     APP_NAME: "payment-options-service"
     APP_ENVIRONMENT: "dev"
+    ENV: 'azure-dev'
     WEBSITE_SITE_NAME: 'payment-options-service' # required to show cloud role name in application insights
     APP_LOG_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
