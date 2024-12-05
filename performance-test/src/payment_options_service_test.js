@@ -50,6 +50,10 @@ export default function () {
 
         let responseBody = JSON.parse(response.body);
 
+        if(response.status !== 200){
+            console.info(`Payment Options Service getPaymentOptions responded with error: ${responseBody.message}`);
+        }
+
         check(response, {
             'Payment Options Service getPaymentOptions status is 200': () => response.status === 200,
             'Payment Options Service getPaymentOptions body has list of payment options': () =>

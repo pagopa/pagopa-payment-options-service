@@ -2,7 +2,6 @@ import http from 'k6/http';
 const subKey = `${__ENV.OCP_APIM_SUBSCRIPTION_KEY}`;
 
 export function getToService(endpoint, params) {
-  console.log("TEST", subKey);
   let url = endpoint;
   let headers = {
     'Ocp-Apim-Subscription-Key': subKey,
@@ -16,5 +15,6 @@ export function getToService(endpoint, params) {
     });
   }
 
-  return http.get(url, { headers, responseType: "text", params });
+  console.info(`Calling url ${url}`);
+  return http.get(url, { headers, responseType: "text" });
 }
