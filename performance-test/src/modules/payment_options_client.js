@@ -1,10 +1,8 @@
 import http from 'k6/http';
-import {b64encode} from 'k6/encoding';
 const subKey = `${__ENV.OCP_APIM_SUBSCRIPTION_KEY}`;
 
 export function getToService(endpoint, params) {
   let url = endpoint;
-  console.log("TEST", b64encode(subKey));
   let headers = {
     'Ocp-Apim-Subscription-Key': subKey,
     "Content-Type": "application/json"
