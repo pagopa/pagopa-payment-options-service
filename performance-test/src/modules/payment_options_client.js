@@ -15,5 +15,6 @@ export function getToService(endpoint, params) {
     });
   }
 
-  return http.get(url, { headers, responseType: "text", params });
+  console.info(`Calling url ${url}`);
+  return http.get(url, { headers, responseType: "text" });
 }
