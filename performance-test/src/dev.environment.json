@@ -2,7 +2,7 @@
   "environment": [
     {
       "env": "dev",
-      "paymentOptionsServiceURIBasePath": "https://api.dev.platform.pagopa.it/payment-options/service/v1"
+      "paymentOptionsServiceURIBasePath": "https://api.dev.platform.pagopa.it/odp/service/v1"
     }
   ]
 }

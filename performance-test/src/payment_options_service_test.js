@@ -9,6 +9,7 @@ export const ENV_VARS = varsArray[0];
 
 export const options = JSON.parse(open(__ENV.TEST_TYPE)); // Needed to enable the test-types
 
+const environment = `${ENV_VARS.env}`;
 const paymentOptionsServiceURIBasePath = `${ENV_VARS.paymentOptionsServiceURIBasePath}`;
 const noticeType = `${__ENV.NOTICE_TYPE}`;
 
@@ -19,7 +20,7 @@ const SINGLE_AND_MANY_OPT_NOTICE_NUMBER = "311111111111111112";
 const SINGLE_AND_MULTI_OPT_NOTICE_NUMBER = "311111111111111116";
 const SINGLE_AND_CO_OPT_NOTICE_NUMBER = "311111111112222225";
 
-const VALID_PSP = "99999000001";
+const VALID_PSP = environment === "uat" ? "99999000011" : "99999000001";
 
 const getSelectedNoticeNumbers = () => {
     const noticeTypeAll = noticeType === "undefined" || noticeType === "all";
@@ -49,6 +50,10 @@ export default function () {
         console.info(`Payment Options Service getPaymentOptions with notice number ${el} call, Status ${response.status}`);
 
         let responseBody = JSON.parse(response.body);
+
+        if(response.status !== 200){
+            console.info(`Payment Options Service getPaymentOptions responded with error: ${responseBody.message}`);
+        }
 
         check(response, {
             'Payment Options Service getPaymentOptions status is 200': () => response.status === 200,
