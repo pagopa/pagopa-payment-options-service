@@ -38,6 +38,7 @@ locals {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
+    "SUBKEY" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value,
   }
   special_repo_secrets = {
     "CLIENT_ID_PR" : {
