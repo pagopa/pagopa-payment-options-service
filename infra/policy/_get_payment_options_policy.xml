@@ -2,12 +2,12 @@
   <inbound>
     <base />
     <!-- rate limit by subscription key -->
-    <rate-limit calls="300" renewal-period="10" remaining-calls-variable-name="remainingCallsPerSubscription"/>
+    <rate-limit calls="1500" renewal-period="10" remaining-calls-variable-name="remainingCallsPerSubscription"/>
     <set-backend-service base-url="https://${hostname}/payment-options-service" />
 
     <!-- Calling Authorizer's fragment -->
     <set-variable name="application_domain" value="payment_options" />
-    <set-variable name="authorization_entity" value="@(context.Request.Url.Query.GetValueOrDefault("idPsp"))" />
+    <set-variable name="authorization_entity" value="@(context.Request.Url.Query.GetValueOrDefault('idPsp'))" />
     <include-fragment fragment-id="authorizer" />
     <set-query-parameter name="idBrokerPsp" exists-action="override">
       <value>@(context.User?.FirstName)</value>
