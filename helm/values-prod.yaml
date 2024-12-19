@@ -57,10 +57,10 @@ microservice-chart:
         mountPath: /logs
   resources:
     requests:
-      memory: "512Mi"
+      memory: "1024Mi"
       cpu: "0.5"
     limits:
-      memory: "728Mi"
+      memory: "2048Mi"
       cpu: "1.5"
   autoscaling:
     enable: true
@@ -95,6 +95,7 @@ microservice-chart:
     VERIFY_KO_EVT_TOPIC: 'nodo-dei-pagamenti-verify-ko'
     VERIFY_RE_EVT_HOST: 'pagopa-p-itn-payopt-evh.servicebus.windows.net:9093'
     VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
+    JAVA_TOOL_OPTIONS: "-XX:MaxHeapSize=1780m -XX:MinHeapSize=64m"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
