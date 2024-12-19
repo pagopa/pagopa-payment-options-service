@@ -13,14 +13,14 @@ const environment = `${ENV_VARS.env}`;
 const paymentOptionsServiceURIBasePath = `${ENV_VARS.paymentOptionsServiceURIBasePath}`;
 const noticeType = `${__ENV.NOTICE_TYPE}`;
 
-const ORGANIZATIONAL_FISCAL_CODE = "77777777777";
+const ORGANIZATIONAL_FISCAL_CODE = environment === "uat" ? "99999000013" : "77777777777";
 
 const SINGLE_OPT_NOTICE_NUMBER = "311111111111111111";
 const SINGLE_AND_MANY_OPT_NOTICE_NUMBER = "311111111111111112";
 const SINGLE_AND_MULTI_OPT_NOTICE_NUMBER = "311111111111111116";
 const SINGLE_AND_CO_OPT_NOTICE_NUMBER = "311111111112222225";
 
-const VALID_PSP = environment === "uat" ? "99999000011" : "99999000001";
+const VALID_PSP = environment === "uat" ? "ABI50004" : "99999000001";
 
 const getSelectedNoticeNumbers = () => {
     const noticeTypeAll = noticeType === "undefined" || noticeType === "all";
