@@ -52,7 +52,7 @@ export default function () {
         let responseBody = JSON.parse(response.body);
 
         if(response.status !== 200){
-            console.info(`Payment Options Service getPaymentOptions responded with error: ${responseBody.message}`);
+            console.info(`Payment Options Service getPaymentOptions responded with error: ${responseBody && responseBody.message ? responseBody.message : "No error message"}`);
         }
 
         check(response, {
