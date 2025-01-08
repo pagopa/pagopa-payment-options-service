@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.6.3"
+    tag: "0.6.4"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
