@@ -42,6 +42,16 @@ const getSelectedNoticeNumbers = () => {
     return selectedNotices;
 }
 
+function parseResponseBody(body) {
+    try {
+        const json = JSON.parse(body);
+        return json;
+    } catch (_) {
+        console.info(`Payment Options Service getPaymentOptions responded with error text: ${body}`);
+        return {};
+    }
+}
+
 export default function () {
     const selectedNotices = getSelectedNoticeNumbers();
     for (let i = 0; i < selectedNotices.length; i++) {
@@ -49,9 +59,9 @@ export default function () {
         let response = getToService(`${paymentOptionsServiceURIBasePath}/payment-options/organizations/${ORGANIZATIONAL_FISCAL_CODE}/notices/${el}`, { idPsp: VALID_PSP });
         console.info(`Payment Options Service getPaymentOptions with notice number ${el} call, Status ${response.status}`);
 
-        let responseBody = JSON.parse(response.body);
+        let responseBody = parseResponseBody(response.body);
 
-        if(response.status !== 200){
+        if (response.status !== 200) {
             console.info(`Payment Options Service getPaymentOptions responded with error: ${responseBody && responseBody.message ? responseBody.message : "No error message"}`);
         }
 
