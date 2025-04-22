@@ -2,9 +2,9 @@ apiVersion: v2
 name: pagopa-payment-options
 description: Microservice that handles services for payment options
 type: application
-version: 0.96.0
-appVersion: 0.6.4
+version: 0.97.0
+appVersion: 0.6.4-1-PIDM-478-update-helm-chart-version
 dependencies:
   - name: microservice-chart
-    version: 7.1.1
+    version: 7.5.0
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
