@@ -13,6 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
@@ -40,6 +41,20 @@ import org.slf4j.LoggerFactory;
                                 content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON,
+                                        examples = {
+                                                @ExampleObject(
+                                                        name = "InternalServerErrorExample",
+                                                        value = """
+                                                                {
+                                                                  "httpStatusCode": 500,
+                                                                  "httpStatusDescription": "Internal Server Error",
+                                                                  "errorMessage": "An unexpected error has occurred. Please contact support.",
+                                                                  "appErrorCode": "ODP-<ERR_ID>",
+                                                                  "timestamp": 1724425035,
+                                                                  "dateTime": "2024-08-23T14:57:15.635528"
+                                                                }"""
+                                                )
+                                        },
                                         schema = @Schema(implementation = ErrorResponse.class))),
                         @APIResponse(
                                 name = "ErrorResponse400",
@@ -48,7 +63,22 @@ import org.slf4j.LoggerFactory;
                                 content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON,
+                                        examples = {
+                                                @ExampleObject(
+                                                        name = "BadRequestExample",
+                                                        value = """
+                                                                {
+                                                                  "httpStatusCode": 400,
+                                                                  "httpStatusDescription": "Bad Request",
+                                                                  "errorMessage": "Invalid request. Please check the submitted data and try again.",
+                                                                  "appErrorCode": "ODP-<ERR_ID>",
+                                                                  "timestamp": 1724425035,
+                                                                  "dateTime": "2024-08-23T14:57:15.635528"
+                                                                }"""
+                                                )
+                                        },
                                         schema = @Schema(implementation = ErrorResponse.class))),
+
                         @APIResponse(
                                 name = "ErrorResponse404",
                                 responseCode = "404",
@@ -56,6 +86,20 @@ import org.slf4j.LoggerFactory;
                                 content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON,
+                                        examples = {
+                                                @ExampleObject(
+                                                        name = "NotFoundExample",
+                                                        value = """
+                                                                {
+                                                                  "httpStatusCode": 404,
+                                                                  "httpStatusDescription": "Not Found",
+                                                                  "errorMessage": "Resource not found. Please verify the request and try again.",
+                                                                  "appErrorCode": "ODP-<ERR_ID>",
+                                                                  "timestamp": 1724425035,
+                                                                  "dateTime": "2024-08-23T14:57:15.635528"
+                                                                }"""
+                                                )
+                                        },
                                         schema = @Schema(implementation = ErrorResponse.class)
                                 ))
                 }),
