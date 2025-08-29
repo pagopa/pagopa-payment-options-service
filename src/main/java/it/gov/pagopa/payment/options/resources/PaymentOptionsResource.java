@@ -64,9 +64,9 @@ public class PaymentOptionsResource {
                   mediaType = MediaType.APPLICATION_JSON,
                   schema = @Schema(implementation = PaymentOptionsResponse.class),
                   example = "{\n"
-                      + "    \"paTaxCode\": \"77777777777\",\n"
-                      + "    \"paFullName\": \"EC\",\n"
-                      + "    \"paOfficeName\": \"EC\",\n"
+                      + "    \"organizationFiscalCode\": \"77777777777\",\n"
+                      + "    \"companyName\": \"EC\",\n"
+                      + "    \"officeName\": \"EC\",\n"
                       + "    \"paymentOptions\": [\n"
                       + "        {\n"
                       + "            \"description\": \"Test PayOpt - unica opzione\",\n"
