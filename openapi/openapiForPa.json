@@ -72,7 +72,7 @@
                     "status_reason" : "desc",
                     "allCCP" : false,
                     "installments" : [ {
-                      "nav" : "311111111111111116",
+                      "noticeNumber" : "311111111111111116",
                       "iuv" : "311111111111111116",
                       "amount" : 120,
                       "description" : "Test Opt Inst - soluzione unica",
@@ -148,7 +148,7 @@
       "Installment" : {
         "type" : "object",
         "properties" : {
-          "nav" : {
+          "noticeNumber" : {
             "type" : "string"
           },
           "iuv" : {
