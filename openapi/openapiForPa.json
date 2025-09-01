@@ -1,8 +1,8 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "PagoPa Payment Options",
-    "description" : "PagoPa Payment Options service \n ### APP ERROR CODES ### \n\n\n <details><summary>Details</summary>\n **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** \n- | - | - \n **ODP-100** | *Bad Request* | PAA_SINTASSI\n **ODP-100** | *Unprocessable Entity* | PAA_PAGAMENTO_SCONOSCIUTO\n **ODP-100** | *Not Found* | PAA_PAGAMENTO_DUPLICATO\n **ODP-100** | *Conflict* | PAA_PAGAMENTO_IN_CORSO\n **ODP-100** | *Conflict* | PAA_PAGAMENTO_SCADUTO\n **ODP-100** | *Unprocessable Entity* | PAA_PAGAMENTO_ANNULLATO\n **ODP-100** | *Bad Request* | PAA_SEMANTICA\n **ODP-100** | *Bad Request* | PAA_ID_DOMINIO_ERRATO\n **ODP-100** | *Bad Request* | PAA_ID_INTERMEDIARIO_ERRATO\n **ODP-100** | *Bad Request* | PAA_STAZIONE_INT_ERRATA\n **ODP-100** | *Internal Server Error* | PAA_SYSTEM_ERROR \n\n </details> \n",
+    "title" : "PagoPa Payment Options for PA",
+    "description" : "PagoPa Payment Options service for PA \n ### APP ERROR CODES ### \n\n\n <details><summary>Details</summary>\n **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** \n- | - | - \n **ODP-100** | *Bad Request* | PAA_SINTASSI\n **ODP-100** | *Unprocessable Entity* | PAA_PAGAMENTO_SCONOSCIUTO\n **ODP-100** | *Not Found* | PAA_PAGAMENTO_DUPLICATO\n **ODP-100** | *Conflict* | PAA_PAGAMENTO_IN_CORSO\n **ODP-100** | *Conflict* | PAA_PAGAMENTO_SCADUTO\n **ODP-100** | *Unprocessable Entity* | PAA_PAGAMENTO_ANNULLATO\n **ODP-100** | *Bad Request* | PAA_SEMANTICA\n **ODP-100** | *Bad Request* | PAA_ID_DOMINIO_ERRATO\n **ODP-100** | *Bad Request* | PAA_ID_INTERMEDIARIO_ERRATO\n **ODP-100** | *Bad Request* | PAA_STAZIONE_INT_ERRATA\n **ODP-100** | *Internal Server Error* | PAA_SYSTEM_ERROR \n\n </details> \n",
     "termsOfService" : "https://www.pagopa.gov.it/",
     "version" : "0.6.5"
   },
@@ -10,12 +10,12 @@
     "url" : "http://localhost:8080",
     "description" : "Localhost base URL"
   }, {
-    "url" : "https://{host}/odp/service/v1",
+    "url" : "https://{host}/service/v1",
     "description" : "Base URL",
     "variables" : {
       "host" : {
-        "default" : "api.dev.platform.pagopa.it",
-        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ]
+        "default" : "api.dev.platform.it",
+        "enum" : [ "api.dev.platform.it", "api.uat.platform.it", "api.platform.it" ]
       }
     }
   } ],
