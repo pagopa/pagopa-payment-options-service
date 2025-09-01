@@ -27,7 +27,7 @@
         "description" : "Returns payment options for a given notice and organization",
         "operationId" : "getPaymentOptionsByNoticeId",
         "parameters" : [ {
-          "name" : "noticeId",
+          "name" : "notice-id",
           "in" : "path",
           "required" : true,
           "schema" : {
