@@ -20,7 +20,7 @@
     }
   } ],
   "paths" : {
-    "/payment-options/organizations/{organization-fiscal-code}/notices/{noticeId}" : {
+    "/payment-options/organizations/{organization-fiscal-code}/notices/{notice-number}" : {
       "post" : {
         "tags" : [ "Payment Options Resource" ],
         "summary" : "Get payment options by noticeNumber",
