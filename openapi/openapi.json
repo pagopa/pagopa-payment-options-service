@@ -197,10 +197,12 @@
             "type" : "string"
           },
           "dueDate" : {
-            "type" : "string"
+            "type" : "string",
+            "format": "date-time"
           },
           "validFrom" : {
-            "type" : "string"
+            "type" : "string",
+            "format": "date-time"
           },
           "status" : {
             "$ref" : "#/components/schemas/EnumInstallment"
@@ -221,10 +223,12 @@
             "type" : "integer"
           },
           "dueDate" : {
-            "type" : "string"
+            "type" : "string",
+            "format": "date-time"
           },
           "validFrom" : {
-            "type" : "string"
+            "type" : "string",
+            "format": "date-time"
           },
           "amount" : {
             "format" : "int64",
