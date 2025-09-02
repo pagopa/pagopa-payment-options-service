@@ -1,15 +1,9 @@
 package it.gov.pagopa.payment.options.resources;
 
-import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -38,13 +32,13 @@ public class PaymentOptionsResource {
    * Rest client
    * @param idPsp input id PSP
    * @param idBrokerPsp input id Broker PSP
-   * @param fiscalCode EC fiscal code
+   * @param organizationFiscalCode EC fiscal code
    * @param noticeNumber input notice number
    * @return instance of extracted PaymentOptions, obtained from the external creditor institution
    * REST api
    */
   @GET
-  @Path("/organizations/{fiscal-code}/notices/{notice-number}")
+  @Path("/organizations/{organization-fiscal-code}/notices/{notice-number}")
   @Operation(
       operationId="getPaymentOptions",
       summary = "Get payment options",
@@ -63,47 +57,48 @@ public class PaymentOptionsResource {
               @Content(
                   mediaType = MediaType.APPLICATION_JSON,
                   schema = @Schema(implementation = PaymentOptionsResponse.class),
-                  example = "{\n"
-                      + "    \"organizationFiscalCode\": \"77777777777\",\n"
-                      + "    \"companyName\": \"EC\",\n"
-                      + "    \"officeName\": \"EC\",\n"
-                      + "    \"paymentOptions\": [\n"
-                      + "        {\n"
-                      + "            \"description\": \"Test PayOpt - unica opzione\",\n"
-                      + "            \"numberOfInstallments\": 1,\n"
-                      + "            \"amount\": 120,\n"
-                      + "            \"dueDate\": \"2024-10-30T23:59:59\",\n"
-                      + "            \"validFrom\": \"2024-09-30T23:59:59\",\n"
-                      + "            \"status\": \"non pagato\",\n"
-                      + "            \"status reason\": \"desc\",\n"
-                      + "            \"allCCP\": \"false\",\n"
-                      + "            \"installments\": [\n"
-                      + "                {\n"
-                      + "                    \"nav\": \"311111111111111111\",\n"
-                      + "                    \"iuv\": \"311111111111111111\",\n"
-                      + "                    \"amount\": 120,\n"
-                      + "                    \"description\": \"Test Opt Inst - unica opzione\",\n"
-                      + "                    \"dueDate\": \"2024-10-30T23:59:59\",\n"
-                      + "                    \"validFrom\": \"2024-09-30T23:59:59\",\n"
-                      + "                    \"status\": \"non pagato\",\n"
-                      + "                    \"status reason\": \"desc\"\n"
-                      + "                }\n"
-                      + "            ]\n"
-                      + "        }\n"
-                      + "    ]\n"
-                      + "}")
+                  example = """
+                          {
+                              "organizationFiscalCode": "77777777777",
+                              "companyName": "EC",
+                              "officeName": "EC",
+                              "paymentOptions": [
+                                  {
+                                      "description": "Test PayOpt - unica opzione",
+                                      "numberOfInstallments": 1,
+                                      "amount": 120,
+                                      "dueDate": "2024-10-30T23:59:59",
+                                      "validFrom": "2024-09-30T23:59:59",
+                                      "status": "non pagato",
+                                      "status reason": "desc",
+                                      "allCCP": "false",
+                                      "installments": [
+                                          {
+                                              "nav": "311111111111111111",
+                                              "iuv": "311111111111111111",
+                                              "amount": 120,
+                                              "description": "Test Opt Inst - unica opzione",
+                                              "dueDate": "2024-10-30T23:59:59",
+                                              "validFrom": "2024-09-30T23:59:59",
+                                              "status": "non pagato",
+                                              "status reason": "desc"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          }""")
           )
       }
   )
   public RestResponse<PaymentOptionsResponse> getPaymentOptions(
-      @PathParam("fiscal-code") String fiscalCode,
+      @PathParam("organization-fiscal-code") String organizationFiscalCode,
       @PathParam("notice-number") String noticeNumber,
       @QueryParam("idPsp") String idPsp,
       @Parameter(hidden = true) @QueryParam("idBrokerPsp") String idBrokerPsp,
       @HeaderParam("X-Session-Id") String sessionId
   ) {
     PaymentOptionsResponse paymentOptionsResponse =
-        paymentOptionsService.getPaymentOptions(idPsp, idBrokerPsp, fiscalCode, noticeNumber,
+        paymentOptionsService.getPaymentOptions(idPsp, idBrokerPsp, organizationFiscalCode, noticeNumber,
             sessionId != null ? sessionId : UUID.randomUUID().toString());
     return RestResponse.status(Status.OK, paymentOptionsResponse);
   }

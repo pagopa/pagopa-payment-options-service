@@ -43,21 +43,21 @@
         }
       }
     },
-    "/payment-options/organizations/{fiscal-code}/notices/{notice-number}" : {
+    "/payment-options/organizations/{organization-fiscal-code}/notices/{notice-number}" : {
       "get" : {
         "tags" : [ "Payment Options Resource" ],
         "summary" : "Get payment options",
         "description" : "Retrieve the payment options related to the provided input",
         "operationId" : "getPaymentOptions",
         "parameters" : [ {
-          "name" : "fiscal-code",
+          "name" : "notice-number",
           "in" : "path",
           "required" : true,
           "schema" : {
             "type" : "string"
           }
         }, {
-          "name" : "notice-number",
+          "name" : "organization-fiscal-code",
           "in" : "path",
           "required" : true,
           "schema" : {
