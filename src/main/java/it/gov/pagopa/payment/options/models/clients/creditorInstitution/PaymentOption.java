@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,8 +17,8 @@ public class PaymentOption {
 
   private String description;
   private Integer numberOfInstallments;
-  private LocalDateTime dueDate;
-  private LocalDateTime validFrom;
+  private String dueDate;
+  private String validFrom;
   private Long amount;
   private EnumPo status;
   private String statusReason;
