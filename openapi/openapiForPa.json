@@ -69,7 +69,7 @@
                     "dueDate" : "2024-10-30T23:59:59",
                     "validFrom" : "2024-09-30T23:59:59",
                     "status" : "non pagato",
-                    "status_reason" : "desc",
+                    "statusReason" : "desc",
                     "allCCP" : false,
                     "installments" : [ {
                       "noticeNumber" : "311111111111111116",
@@ -79,7 +79,7 @@
                       "dueDate" : "2024-10-30T23:59:59",
                       "validFrom" : "2024-09-30T23:59:59",
                       "status" : "non pagato",
-                      "status_reason" : "desc"
+                      "statusReason" : "desc"
                     } ]
                   } ]
                 }
@@ -162,10 +162,12 @@
             "type" : "string"
           },
           "dueDate" : {
-            "type" : "string"
+            "type": "string",
+            "format": "date-time"
           },
           "validFrom" : {
-            "type" : "string"
+            "type": "string",
+            "format": "date-time"
           },
           "status" : {
             "$ref" : "#/components/schemas/EnumInstallment"
@@ -186,10 +188,12 @@
             "type" : "integer"
           },
           "dueDate" : {
-            "type" : "string"
+            "type": "string",
+            "format": "date-time"
           },
           "validFrom" : {
-            "type" : "string"
+            "type": "string",
+            "format": "date-time"
           },
           "amount" : {
             "format" : "int64",
