@@ -47,6 +47,7 @@ public enum AppErrorCodeEnum {
     ODP_STAZIONE_INT_PA_DISABILITATA(Status.BAD_REQUEST, "ODP-010",
         "ODP_STAZIONE_INT_PA_DISABILITATA. Errore riportato in caso "
             + "la stazione coincidente con l’id fornito in input risulti disabilitato"),
+
     ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE(Status.SERVICE_UNAVAILABLE, "ODP-011",
         "ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE. "
             + "Errore fornito in caso d’irraggiungibilità della stazione"),
@@ -58,8 +59,7 @@ public enum AppErrorCodeEnum {
     ODP_STAZIONE_INT_PA_TIMEOUT(Status.INTERNAL_SERVER_ERROR, "ODP-013",
         "ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione"),
 
-    ODP_ERRORE_EMESSO_DA_PAA(Status.INTERNAL_SERVER_ERROR, "ODP-014",
-        "ODP_ERRORE_EMESSO_DA_PAA. Errore fornito in caso di errori da PAA"),
+//   "ODP-014" not used
 
     ODP_STAZIONE_INT_PA_ERRORE_RESPONSE(Status.BAD_REQUEST, "ODP-015",
         "ODP_STAZIONE_INT_PA_ERRORE_RESPONSE. "
@@ -71,6 +71,7 @@ public enum AppErrorCodeEnum {
 
     ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA(Status.BAD_REQUEST, "ODP-017",
         "ODP_SYSTEM_ERROR Codice d’errore generico"),
+
     ODP_SYSTEM_ERROR(Status.INTERNAL_SERVER_ERROR, "ODP-018",
         "ODP_SYSTEM_ERROR. Codice d’errore generico"),
 
@@ -84,7 +85,11 @@ public enum AppErrorCodeEnum {
         "ODP_DOMINIO_DISABILITATO"),
 
     ODP_DOMINIO_SCONOSCIUTO(Status.NOT_FOUND, "ODP-022",
-        "ODP_DOMINIO_SCONOSCIUTO");
+        "ODP_DOMINIO_SCONOSCIUTO"),
+
+    //Same status code returned from PAA response
+    ODP_ERRORE_EMESSO_DA_PAA(null, "ODP-100",
+        "ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PAA");
 
     private final Response.Status status;
     private final String errorCode;
