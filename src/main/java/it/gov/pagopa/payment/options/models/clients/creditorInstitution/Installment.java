@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -18,8 +20,8 @@ public class Installment {
   private String iuv;
   private Long amount;
   private String description;
-  private String dueDate;
-  private String validFrom;
+  private LocalDateTime dueDate;
+  private LocalDateTime validFrom;
   private EnumInstallment status;
   private String statusReason;
 
