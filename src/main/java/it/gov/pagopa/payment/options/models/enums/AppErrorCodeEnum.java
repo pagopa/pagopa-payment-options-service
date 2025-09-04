@@ -70,7 +70,8 @@ public enum AppErrorCodeEnum {
             + "il nav non sia valido per il flusso OdP"),
 
     ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA(Status.BAD_REQUEST, "ODP-017",
-        "ODP_SYSTEM_ERROR Codice d’errore generico"),
+        "ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA. " +
+                "Errore fornito nel caso in cui la stazione non sia abilitata per l’utilizzo del servizio OdP"),
 
     ODP_SYSTEM_ERROR(Status.INTERNAL_SERVER_ERROR, "ODP-018",
         "ODP_SYSTEM_ERROR. Codice d’errore generico"),
@@ -87,8 +88,7 @@ public enum AppErrorCodeEnum {
     ODP_DOMINIO_SCONOSCIUTO(Status.NOT_FOUND, "ODP-022",
         "ODP_DOMINIO_SCONOSCIUTO"),
 
-    //Same status code returned from PAA response
-    ODP_ERRORE_EMESSO_DA_PAA(null, "ODP-100",
+    ODP_ERRORE_EMESSO_DA_PAA(Status.BAD_REQUEST, "ODP-023",
         "ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PAA");
 
     private final Response.Status status;
