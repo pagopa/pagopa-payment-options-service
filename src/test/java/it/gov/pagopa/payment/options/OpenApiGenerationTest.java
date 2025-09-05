@@ -33,7 +33,7 @@ class OpenApiGenerationTest {
         formatted = formatted.replace("placeholder-for-replace", getAppErrorCodes());
         Path basePath = Paths.get("openapi/");
         Files.createDirectories(basePath);
-        Files.write(basePath.resolve("openapi.json"), formatted.getBytes());
+        Files.write(basePath.resolve("openapiForPsp.json"), formatted.getBytes());
     }
 
     private String getAppErrorCodes() {
