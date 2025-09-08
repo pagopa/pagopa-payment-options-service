@@ -75,7 +75,7 @@ jobs:
       - name: Check Size
         uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0 # v6.3.3
         env:
-          IGNORED_FILES: openapiForPsp.json, api-docs.json
+          IGNORED_FILES: openapi.json, api-docs.json
           BRANCH_NAME: ${{ github.head_ref}}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
