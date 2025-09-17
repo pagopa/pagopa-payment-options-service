@@ -1,5 +1,5 @@
 {
-  "name": "pagopa-pdf-engine",
+  "name": "pagopa-payment-options-service-integration-test",
   "license": "MIT",
   "version": "0.0.1",
   "main": "index.js",
