@@ -52,7 +52,7 @@
         }
       }
     },
-    "/payment-options/organizations/{fiscal-code}/notices/{notice-number}": {
+    "/payment-options/organizations/{organization-fiscal-code}/notices/{notice-number}": {
       "get": {
         "tags": [
           "Payment Options Resource"
@@ -62,7 +62,7 @@
         "operationId": "getPaymentOptions",
         "parameters": [
           {
-            "name": "fiscal-code",
+            "name": "notice-number",
             "in": "path",
             "required": true,
             "schema": {
@@ -70,7 +70,7 @@
             }
           },
           {
-            "name": "notice-number",
+            "name": "organization-fiscal-code",
             "in": "path",
             "required": true,
             "schema": {
@@ -110,9 +110,9 @@
                   "$ref": "#/components/schemas/PaymentOptionsResponse"
                 },
                 "example": {
-                  "paTaxCode": "77777777777",
-                  "paFullName": "EC",
-                  "paOfficeName": "EC",
+                  "organizationFiscalCode": "77777777777",
+                  "companyName": "EC",
+                  "officeName": "EC",
                   "paymentOptions": [
                     {
                       "description": "Test PayOpt - unica opzione",
@@ -230,10 +230,12 @@
             "type": "string"
           },
           "dueDate": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "validFrom": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "status": {
             "$ref": "#/components/schemas/EnumInstallment"
@@ -254,10 +256,12 @@
             "type": "integer"
           },
           "dueDate": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "validFrom": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "amount": {
             "format": "int64",
@@ -283,13 +287,13 @@
       "PaymentOptionsResponse": {
         "type": "object",
         "properties": {
-          "paTaxCode": {
+          "organizationFiscalCode": {
             "type": "string"
           },
-          "paFullName": {
+          "companyName": {
             "type": "string"
           },
-          "paOfficeName": {
+          "officeName": {
             "type": "string"
           },
           "standin": {
@@ -311,6 +315,18 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "BadRequestExample": {
+                "value": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "errorMessage": "Invalid request. Please check the submitted data and try again.",
+                  "appErrorCode": "ODP-<ERR_ID>",
+                  "timestamp": 1724425035,
+                  "dateTime": "2024-08-23T14:57:15.635528"
+                }
+              }
             }
           }
         }
@@ -321,6 +337,18 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "NotFoundExample": {
+                "value": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "errorMessage": "Resource not found. Please verify the request and try again.",
+                  "appErrorCode": "ODP-<ERR_ID>",
+                  "timestamp": 1724425035,
+                  "dateTime": "2024-08-23T14:57:15.635528"
+                }
+              }
             }
           }
         }
@@ -331,6 +359,18 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "InternalServerErrorExample": {
+                "value": {
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "errorMessage": "An unexpected error has occurred. Please contact support.",
+                  "appErrorCode": "ODP-<ERR_ID>",
+                  "timestamp": 1724425035,
+                  "dateTime": "2024-08-23T14:57:15.635528"
+                }
+              }
             }
           }
         }
