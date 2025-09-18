@@ -24,7 +24,7 @@ locals {
     "CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd_01.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
-    "SUBKEY" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value,
+    "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : "",
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -36,9 +36,11 @@ locals {
   }
   repo_secrets = {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
-    "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
+    "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_cd_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
-    "SUBKEY" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value,
+    "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : "",
+    "SLACK_WEBHOOK_URL_DEPLOY" : data.azurerm_key_vault_secret.key_vault_slack_deploy_webhook.value
+    "SLACK_WEBHOOK_URL_INTEGRATION_TEST" : data.azurerm_key_vault_secret.key_vault_slack_integration_test_webhook.value
   }
   special_repo_secrets = {
     "CLIENT_ID_PR" : {
@@ -63,7 +65,7 @@ locals {
     },
     "SUBKEY" : {
       "key" : "${upper(var.env)}_SUBKEY",
-      "value" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value
+      "value" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : ""
     },
   }
 }
@@ -84,7 +86,6 @@ resource "github_actions_environment_secret" "github_environment_runner_secrets"
 # ENV Variables #
 #################
 
-
 resource "github_actions_environment_variable" "github_environment_runner_variables" {
   for_each      = local.env_variables
   repository    = local.github.repository
@@ -97,14 +98,12 @@ resource "github_actions_environment_variable" "github_environment_runner_variab
 # Secrets of the Repository #
 #############################
 
-
 resource "github_actions_secret" "repo_secrets" {
   for_each        = local.repo_secrets
   repository      = local.github.repository
   secret_name     = each.key
   plaintext_value = each.value
 }
-
 
 resource "github_actions_secret" "special_repo_secrets" {
   for_each        = local.special_repo_secrets
