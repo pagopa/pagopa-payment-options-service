@@ -86,7 +86,6 @@ resource "github_actions_environment_secret" "github_environment_runner_secrets"
 # ENV Variables #
 #################
 
-
 resource "github_actions_environment_variable" "github_environment_runner_variables" {
   for_each      = local.env_variables
   repository    = local.github.repository
@@ -99,14 +98,12 @@ resource "github_actions_environment_variable" "github_environment_runner_variab
 # Secrets of the Repository #
 #############################
 
-
 resource "github_actions_secret" "repo_secrets" {
   for_each        = local.repo_secrets
   repository      = local.github.repository
   secret_name     = each.key
   plaintext_value = each.value
 }
-
 
 resource "github_actions_secret" "special_repo_secrets" {
   for_each        = local.special_repo_secrets
