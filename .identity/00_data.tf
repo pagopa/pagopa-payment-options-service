@@ -57,6 +57,7 @@ data "azurerm_key_vault_secret" "key_vault_cucumber_token" {
 }
 
 data "azurerm_key_vault_secret" "key-apikey-service-payment-options-test" {
+  count        = var.env_short != "p" ? 1 : 0
   name         = "apikey-service-payment-options"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
