@@ -24,7 +24,7 @@ locals {
     "CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd_01.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
-    "SUBKEY" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value,
+    "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : "",
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -38,7 +38,7 @@ locals {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_cd_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
-    "SUBKEY" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value,
+    "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : "",
     "SLACK_WEBHOOK_URL_DEPLOY" : data.azurerm_key_vault_secret.key_vault_slack_deploy_webhook.value
     "SLACK_WEBHOOK_URL_INTEGRATION_TEST" : data.azurerm_key_vault_secret.key_vault_slack_integration_test_webhook.value
   }
@@ -65,7 +65,7 @@ locals {
     },
     "SUBKEY" : {
       "key" : "${upper(var.env)}_SUBKEY",
-      "value" : data.azurerm_key_vault_secret.key-apikey-service-payment-options-test.value
+      "value" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : ""
     },
   }
 }
