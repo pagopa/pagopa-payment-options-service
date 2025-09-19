@@ -14,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class PaymentOptionsResponse {
 
-  private String paTaxCode;
-  private String paFullName;
-  private String paOfficeName;
+  private String organizationFiscalCode;
+  private String companyName;
+  private String officeName;
   private Boolean standin;
   private List<PaymentOption> paymentOptions;
 
