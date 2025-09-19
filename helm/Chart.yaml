@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-payment-options
 description: Microservice that handles services for payment options
 type: application
-version: 0.102.0
-appVersion: 0.6.6-3-PIDM-890-paVerifyPaymentOptions-openapi
+version: 0.101.0
+appVersion: 0.6.7
 dependencies:
   - name: microservice-chart
     version: 7.5.0
