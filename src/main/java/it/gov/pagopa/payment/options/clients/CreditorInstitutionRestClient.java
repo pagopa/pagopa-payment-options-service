@@ -78,6 +78,53 @@ public class CreditorInstitutionRestClient {
     }
 
   }
+  
+  /**
+   * Calls GPD-Core verifyPaymentOptions API (EC GPD "special guest").
+   *
+   * @param gpdBaseEndpoint base endpoint, e.g. https://api.<env>.platform.pagopa.it/gpd/api/v1
+   * @param organizationFiscalCode fiscal code of the organization
+   * @param noticeNumber notice number (NAV)
+   * @param segregationCodes optional segregation codes
+   * @return PaymentOptionsResponse
+   */
+  public PaymentOptionsResponse callGpdPaymentOptionsVerify(
+      String gpdBaseEndpoint,
+      String organizationFiscalCode,
+      String noticeNumber,
+      String segregationCodes
+  ) throws MalformedURLException {
+
+    RestClientBuilder builder =
+        RestClientBuilder.newBuilder().baseUrl(new URL(gpdBaseEndpoint));
+
+    GpdCoreRestClientInterface gpdClient =
+        builder.build(GpdCoreRestClientInterface.class);
+
+    try (Response response = gpdClient.verifyPaymentOptions(
+        organizationFiscalCode, noticeNumber, segregationCodes)) {
+
+      if (response.getStatus() >= 200 && response.getStatus() < 300) {
+        return objectMapper.readValue(
+            response.readEntity(String.class), PaymentOptionsResponse.class);
+      } else {
+        manageErrorResponse(response);
+        return null;
+      }
+
+    } catch (ClientWebApplicationException clientWebApplicationException) {
+      logger.error("[Payment Options] GPD REST client exception: {}",
+          clientWebApplicationException.getMessage());
+      manageErrorResponse(clientWebApplicationException.getResponse());
+      return null;
+    } catch (Exception e) {
+      logger.error("[Payment Options] Unable to call GPD-Core due to error: {}",
+          e.getMessage());
+      logger.error(e.getMessage(), e);
+      throw new PaymentOptionsException(
+          AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, e.getMessage());
+    }
+  }
 
   private void manageErrorResponse(Response response) {
     try {

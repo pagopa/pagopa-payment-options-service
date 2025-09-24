@@ -22,7 +22,7 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Deploy
-        uses: pagopa/github-actions-template/aks-deploy@main
+        uses: pagopa/github-actions-template/aks-deploy@525266fb788f4da438e5919fcf660fe8637271ed # v2.2.0
         with:
           branch: ${{ github.ref_name }}
           client_id: ${{ secrets.CLIENT_ID }}
@@ -67,12 +67,15 @@ jobs:
 
       - name: Terraform Apply
         shell: bash
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
         run: |
           cd ./infra
-          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
+          export ARM_CLIENT_ID="$ARM_CLIENT_ID"
           export ARM_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
           export ARM_TENANT_ID=$(az account show --query tenantId --output tsv)
           export ARM_USE_OIDC=true
-          export ARM_ACCESS_KEY=$(az storage account keys list --resource-group io-infra-rg --account-name pagopainfraterraform${{inputs.environment}} --query '[0].value' -o tsv)
-          bash ./terraform.sh init itn-${{ inputs.environment }}
-          bash ./terraform.sh apply itn-${{ inputs.environment }} -auto-approve
+          export ARM_ACCESS_KEY=$(az storage account keys list --resource-group io-infra-rg --account-name pagopainfraterraform$ENVIRONMENT --query '[0].value' -o tsv)
+          bash ./terraform.sh init itn-$ENVIRONMENT
+          bash ./terraform.sh apply itn-$ENVIRONMENT -auto-approve
