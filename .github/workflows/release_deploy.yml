@@ -53,6 +53,8 @@ jobs:
       environment: ${{ steps.get_env.outputs.environment }}
     steps:
       - name: pull request rejected
+        env:
+          ENV: ${{ inputs.environment }}
         if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged != true
         run: |
           echo "❌ PR was closed without a merge"
@@ -91,7 +93,7 @@ jobs:
         run: echo "semver=${{env.SEMVER}}" >> $GITHUB_OUTPUT
 
       # Set Environment
-      - run: echo "ENVIRNOMENT=${{ inputs.environment}}" >> $GITHUB_ENV
+      - run: echo "ENVIRNOMENT=$ENV" >> $GITHUB_ENV
 
       - if: ${{ inputs.environment == null }}
         run: echo "ENVIRNOMENT=dev" >> $GITHUB_ENV
