@@ -14,11 +14,6 @@ on:
           - dev
           - uat
           - prod
-      canary:
-        description: 'run the tests on canary version'
-        required: false
-        type: boolean
-        default: false
       notify:
         required: false
         type: boolean
@@ -55,7 +50,6 @@ jobs:
         shell: bash
         run: |
           export SUBKEY=${{ secrets.SUBKEY }}
-          export CANARY=${{ inputs.canary }}
           export CUCUMBER_PUBLISH_TOKEN=${{ secrets.CUCUMBER_PUBLISH_TOKEN }}
 
           cd ./integration-test
