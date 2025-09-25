@@ -3,6 +3,7 @@ package it.gov.pagopa.payment.options.models;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -10,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
  * Model class for the error response
  */
 @Getter
+@Setter
 @Builder
 @Jacksonized
 @RegisterForReflection
