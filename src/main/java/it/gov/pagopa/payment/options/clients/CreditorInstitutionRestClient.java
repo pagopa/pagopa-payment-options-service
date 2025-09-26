@@ -14,8 +14,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoField;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.slf4j.Logger;
@@ -63,12 +63,12 @@ public class CreditorInstitutionRestClient {
     } catch (CreditorInstitutionException e) {
       throw e;
     } catch (JsonProcessingException e) {
-      LocalDateTime now = LocalDateTime.now();
+      Instant now = Instant.now();
       ErrorResponse errorResponse =
           buildErrorResponse(
               CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
-              now.getLong(ChronoField.MILLI_OF_SECOND),
-              now.toString());
+              now.toEpochMilli(),
+              now.truncatedTo(ChronoUnit.MILLIS).toString());
       throw new CreditorInstitutionException(
           errorResponse, "[Payment Options] Unable to parse the station response");
     } catch (Exception e) {
