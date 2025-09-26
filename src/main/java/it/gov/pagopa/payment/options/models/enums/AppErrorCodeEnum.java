@@ -60,10 +60,7 @@ public enum AppErrorCodeEnum {
         "ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione"),
 
 //   "ODP-014" not used
-
-    ODP_STAZIONE_INT_PA_ERRORE_RESPONSE(Status.BAD_REQUEST, "ODP-015",
-        "ODP_STAZIONE_INT_PA_ERRORE_RESPONSE. "
-            + "Errore fornito in caso di risposta KO dalla stazione"),
+//   "ODP-015" not used
 
     ODP_PSP_NAV_NOT_NMU(Status.BAD_REQUEST, "ODP-016",
         "ODP_PSP_NAV_NOT_NMU. Errore fornito nel caso in cui "
