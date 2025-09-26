@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "pagoPA Payment Options for PSP",
-    "description": "pagoPA Payment Options service for PSP \n ### APP ERROR CODES ### \n\n\n <details><summary>Details</summary>\n **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** \n- | - | - \n **ODP-001** | *Bad Request* | ODP-SINTASSI. Errore riportato in caso di errore di sintassi nel contenuto della richiesta verso ODP\n **ODP-002** | *Not Found* | ODP_PSP_SCONOSCIUTO. Errore riportato in caso non sia presente fra i dati ottenuti da config-cache un psp coincidente con l’id fornito in input\n **ODP-003** | *Bad Request* | ODP_PSP_DISABILITATO. Errore riportato in caso il psp coincidente con l’id fornito in input risulti disabilitato\n **ODP-004** | *Not Found* | ODP_INTERMEDIARIO_PSP_SCONOSCIUTO. Errore riportato in caso il broker psp coincidente con i dati forniti in input non sia presente nei dati ottenuti da config-cache\n **ODP-005** | *Bad Request* | ODP_INTERMEDIARIO_PSP_DISABILITATO. Errore riportato in caso il broker psp coincidente con l’id fornito in input risulti disabilitato\n **ODP-006** | *Unauthorized* | ODP_AUTENTICAZIONE. Errore di autenticazione rispetto ai dati forniti\n **ODP-007** | *Forbidden* | ODP_AUTORIZZAZIONE. Errore di autorizzazione rispetto ai dati forniti\n **ODP-008** | *Bad Request* | ODP_SEMANTICA. Errore fornito in caso della presenza di casi d’invalidità semantica nei dati del flusso di verifica\n **ODP-009** | *Not Found* | ODP_STAZIONE_INT_PA_SCONOSCIUTA. Errore fornito in caso di assenza associazione stazione e PA\n **ODP-010** | *Bad Request* | ODP_STAZIONE_INT_PA_DISABILITATA. Errore riportato in caso la stazione coincidente con l’id fornito in input risulti disabilitato\n **ODP-011** | *Service Unavailable* | ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE. Errore fornito in caso d’irraggiungibilità della stazione\n **ODP-012** | *Bad Request* | ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO. Errore fornito in caso di servizio non attivo\n **ODP-013** | *Internal Server Error* | ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione\n **ODP-015** | *Bad Request* | ODP_STAZIONE_INT_PA_ERRORE_RESPONSE. Errore fornito in caso di risposta KO dalla stazione\n **ODP-016** | *Bad Request* | ODP_PSP_NAV_NOT_NMU. Errore fornito nel caso in cui il nav non sia valido per il flusso OdP\n **ODP-017** | *Bad Request* | ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA. Errore fornito nel caso in cui la stazione non sia abilitata per l’utilizzo del servizio OdP\n **ODP-018** | *Internal Server Error* | ODP_SYSTEM_ERROR. Codice d’errore generico\n **ODP-019** | *Bad Request* | ODP_INTERMEDIARIO_PA_DISABILITATO. Errore fornito in caso di intermediario non abilitato\n **ODP-020** | *Not Found* | ODP_INTERMEDIARIO_PA_SCONOSCIUTO. Errore fornito in caso di intermediario assente\n **ODP-021** | *Bad Request* | ODP_DOMINIO_DISABILITATO. Errore fornito in caso di PA non abilitata\n **ODP-022** | *Not Found* | ODP_DOMINIO_SCONOSCIUTO. Errore fornito in caso di PA assente\n **ODP-023** | *Bad Request* | ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PA \n\n </details> \n",
+    "title": "PagoPa Payment Options for PSP",
+    "description": "pagoPa Payment Options service for PSP \n ### APP ERROR CODES ### \n\n\n <details><summary>Details</summary>\n **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** \n- | - | - \n **ODP-001** | *Bad Request* | ODP-SINTASSI. Errore riportato in caso di errore di sintassi nel contenuto della richiesta verso ODP\n **ODP-002** | *Not Found* | ODP_PSP_SCONOSCIUTO. Errore riportato in caso non sia presente fra i dati ottenuti da config-cache un psp coincidente con l’id fornito in input\n **ODP-003** | *Bad Request* | ODP_PSP_DISABILITATO. Errore riportato in caso il psp coincidente con l’id fornito in input risulti disabilitato\n **ODP-004** | *Not Found* | ODP_INTERMEDIARIO_PSP_SCONOSCIUTO. Errore riportato in caso il broker psp coincidente con i dati forniti in input non sia presente nei dati ottenuti da config-cache\n **ODP-005** | *Bad Request* | ODP_INTERMEDIARIO_PSP_DISABILITATO. Errore riportato in caso il broker psp coincidente con l’id fornito in input risulti disabilitato\n **ODP-006** | *Unauthorized* | ODP_AUTENTICAZIONE. Errore di autenticazione rispetto ai dati forniti\n **ODP-007** | *Forbidden* | ODP_AUTORIZZAZIONE. Errore di autorizzazione rispetto ai dati forniti\n **ODP-008** | *Bad Request* | ODP_SEMANTICA. Errore fornito in caso della presenza di casi d’invalidità semantica nei dati del flusso di verifica\n **ODP-009** | *Not Found* | ODP_STAZIONE_INT_PA_SCONOSCIUTA. Errore fornito in caso di assenza associazione stazione e PA\n **ODP-010** | *Bad Request* | ODP_STAZIONE_INT_PA_DISABILITATA. Errore riportato in caso la stazione coincidente con l’id fornito in input risulti disabilitato\n **ODP-011** | *Service Unavailable* | ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE. Errore fornito in caso d’irraggiungibilità della stazione\n **ODP-012** | *Bad Request* | ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO. Errore fornito in caso di servizio non attivo\n **ODP-013** | *Internal Server Error* | ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione\n **ODP-016** | *Bad Request* | ODP_PSP_NAV_NOT_NMU. Errore fornito nel caso in cui il nav non sia valido per il flusso OdP\n **ODP-017** | *Bad Request* | ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA. Errore fornito nel caso in cui la stazione non sia abilitata per l’utilizzo del servizio OdP\n **ODP-018** | *Internal Server Error* | ODP_SYSTEM_ERROR. Codice d’errore generico\n **ODP-019** | *Bad Request* | ODP_INTERMEDIARIO_PA_DISABILITATO. Errore fornito in caso di intermediario non abilitato\n **ODP-020** | *Not Found* | ODP_INTERMEDIARIO_PA_SCONOSCIUTO. Errore fornito in caso di intermediario assente\n **ODP-021** | *Bad Request* | ODP_DOMINIO_DISABILITATO. Errore fornito in caso di PA non abilitata\n **ODP-022** | *Not Found* | ODP_DOMINIO_SCONOSCIUTO. Errore fornito in caso di PA assente\n **ODP-023** | *Bad Gateway* | ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PA \n\n </details> \n",
     "termsOfService": "https://www.pagopa.gov.it/",
     "version": "0.7.0"
   },
@@ -24,6 +24,12 @@
           ]
         }
       }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Payment Options",
+      "description": "APIs to retrieve payment options"
     }
   ],
   "paths": {
@@ -55,7 +61,7 @@
     "/payment-options/organizations/{organization-fiscal-code}/notices/{notice-number}": {
       "get": {
         "tags": [
-          "Payment Options Resource"
+          "Payment Options"
         ],
         "summary": "Get payment options",
         "description": "Retrieve the payment options related to the provided input",
@@ -64,6 +70,7 @@
           {
             "name": "notice-number",
             "in": "path",
+            "description": "Notice number",
             "required": true,
             "schema": {
               "type": "string"
@@ -72,6 +79,7 @@
           {
             "name": "organization-fiscal-code",
             "in": "path",
+            "description": "Organization fiscal code",
             "required": true,
             "schema": {
               "type": "string"
@@ -80,6 +88,7 @@
           {
             "name": "idPsp",
             "in": "query",
+            "description": "PSP identifier",
             "schema": {
               "type": "string"
             }
@@ -93,14 +102,23 @@
           }
         ],
         "responses": {
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse500"
-          },
           "400": {
             "$ref": "#/components/responses/ErrorResponse400"
           },
+          "401": {
+            "$ref": "#/components/responses/ErrorResponse401"
+          },
+          "403": {
+            "$ref": "#/components/responses/ErrorResponse403"
+          },
           "404": {
             "$ref": "#/components/responses/ErrorResponse404"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse500"
+          },
+          "502": {
+            "$ref": "#/components/responses/ErrorResponse502"
           },
           "200": {
             "description": "Success",
@@ -161,27 +179,6 @@
           }
         }
       },
-      "EnumInstallment": {
-        "enum": [
-          "POI_UNPAID",
-          "POI_PAID",
-          "POI_EXPIRED_NOT_PAYABLE",
-          "POI_EXPIRED_UNPAID",
-          "POI_INVALID"
-        ],
-        "type": "string"
-      },
-      "EnumPo": {
-        "enum": [
-          "PO_UNPAID",
-          "PO_PAID",
-          "PO_PARTIALLY_PAID",
-          "PO_EXPIRED_NOT_PAYABLE",
-          "PO_EXPIRED_UNPAID",
-          "PO_INVALID"
-        ],
-        "type": "string"
-      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -230,20 +227,28 @@
             "type": "string"
           },
           "dueDate": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "validFrom": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "status": {
-            "$ref": "#/components/schemas/EnumInstallment"
+            "$ref": "#/components/schemas/InstallmentEnum"
           },
           "statusReason": {
             "type": "string"
           }
         }
+      },
+      "InstallmentEnum": {
+        "enum": [
+          "POI_UNPAID",
+          "POI_PAID",
+          "POI_EXPIRED_NOT_PAYABLE",
+          "POI_EXPIRED_UNPAID",
+          "POI_INVALID"
+        ],
+        "type": "string"
       },
       "PaymentOption": {
         "type": "object",
@@ -256,19 +261,17 @@
             "type": "integer"
           },
           "dueDate": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "validFrom": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "amount": {
             "format": "int64",
             "type": "integer"
           },
           "status": {
-            "$ref": "#/components/schemas/EnumPo"
+            "$ref": "#/components/schemas/PaymentOptionStatusEnum"
           },
           "statusReason": {
             "type": "string"
@@ -283,6 +286,17 @@
             }
           }
         }
+      },
+      "PaymentOptionStatusEnum": {
+        "enum": [
+          "PO_UNPAID",
+          "PO_PAID",
+          "PO_PARTIALLY_PAID",
+          "PO_EXPIRED_NOT_PAYABLE",
+          "PO_EXPIRED_UNPAID",
+          "PO_INVALID"
+        ],
+        "type": "string"
       },
       "PaymentOptionsResponse": {
         "type": "object",
@@ -310,26 +324,30 @@
     },
     "responses": {
       "ErrorResponse400": {
-        "description": "Default app exception for status 400",
+        "description": "Bad Request",
         "content": {
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
             },
-            "examples": {
-              "BadRequestExample": {
-                "value": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "errorMessage": "Invalid request. Please check the submitted data and try again.",
-                  "appErrorCode": "ODP-<ERR_ID>",
-                  "timestamp": 1724425035,
-                  "dateTime": "2024-08-23T14:57:15.635528"
-                }
-              }
+            "example": {
+              "httpStatusCode": 400,
+              "httpStatusDescription": "Bad Request",
+              "appErrorCode": "ODP-<ERR_ID>",
+              "timestamp": 1724425035,
+              "dateTime": "2024-08-23T14:57:15.635528",
+              "errorMessage": "Invalid request. Please check the submitted data and try again."
             }
           }
         }
+      },
+      "ErrorResponse401": {
+        "description": "Unauthorized",
+        "content": {}
+      },
+      "ErrorResponse403": {
+        "description": "Forbidden",
+        "content": {}
       },
       "ErrorResponse404": {
         "description": "Default app exception for status 404",
@@ -338,17 +356,13 @@
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
             },
-            "examples": {
-              "NotFoundExample": {
-                "value": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "errorMessage": "Resource not found. Please verify the request and try again.",
-                  "appErrorCode": "ODP-<ERR_ID>",
-                  "timestamp": 1724425035,
-                  "dateTime": "2024-08-23T14:57:15.635528"
-                }
-              }
+            "example": {
+              "httpStatusCode": 404,
+              "httpStatusDescription": "Not Found",
+              "appErrorCode": "ODP-<ERR_ID>",
+              "timestamp": 1724425035,
+              "dateTime": "2024-08-23T14:57:15.635528",
+              "errorMessage": "Resource not found. Please verify the request and try again."
             }
           }
         }
@@ -360,17 +374,31 @@
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
             },
-            "examples": {
-              "InternalServerErrorExample": {
-                "value": {
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "errorMessage": "An unexpected error has occurred. Please contact support.",
-                  "appErrorCode": "ODP-<ERR_ID>",
-                  "timestamp": 1724425035,
-                  "dateTime": "2024-08-23T14:57:15.635528"
-                }
-              }
+            "example": {
+              "httpStatusCode": 500,
+              "httpStatusDescription": "Internal Server Error",
+              "appErrorCode": "ODP-<ERR_ID>",
+              "timestamp": 1724425035,
+              "dateTime": "2024-08-23T14:57:15.635528",
+              "errorMessage": "An unexpected error has occurred. Please contact support."
+            }
+          }
+        }
+      },
+      "ErrorResponse502": {
+        "description": "Bad Gateway",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "httpStatusCode": 502,
+              "httpStatusDescription": "Bad Gateway",
+              "appErrorCode": "ODP-23>",
+              "timestamp": 1724425035,
+              "dateTime": "2024-08-23T14:57:15.635528",
+              "errorMessage": "ODP_ERRORE_EMESSO_DA_PAA PAA_SINTASSI Error generated by PA."
             }
           }
         }
