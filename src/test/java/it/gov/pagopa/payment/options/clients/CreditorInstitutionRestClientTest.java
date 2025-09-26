@@ -12,6 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,9 +38,8 @@ class CreditorInstitutionRestClientTest {
     void callEcPaymentOptionsVerifyShouldReturnData() {
         PaymentOptionsResponse paymentOptionsResponse =
                 assertDoesNotThrow(() -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                        wiremockUrl, null, null,
-                        "http://externalService", 443L, "/payment-options/organizations/77777777777/notices/311111111112222222",
-                        "77777777777", "311111111112222222"));
+                        new URL(wiremockUrl), null, null,
+                        "http://externalService", 443L, "/payment-options/organizations/77777777777/notices/311111111112222222"));
 
         assertNotNull(paymentOptionsResponse);
     }
@@ -49,9 +49,8 @@ class CreditorInstitutionRestClientTest {
         CreditorInstitutionException exception =
                 assertThrows(CreditorInstitutionException.class,
                         () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                                wiremockUrl, null, null,
-                                "http://externalService", 443L, "/payment-options/organizations/87777777777/notices/311111111112222222",
-                                "87777777777", "311111111112222222"));
+                                new URL(wiremockUrl), null, null,
+                                "http://externalService", 443L, "/payment-options/organizations/87777777777/notices/311111111112222222"));
 
         assertNotNull(exception);
         assertEquals(400, exception.getErrorResponse().getHttpStatusCode());
@@ -64,9 +63,8 @@ class CreditorInstitutionRestClientTest {
         CreditorInstitutionException exception =
                 assertThrows(CreditorInstitutionException.class,
                         () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                                wiremockUrl, null, null,
-                                "http://externalService", 443L, "/payment-options/organizations/57777777777/notices/311111111112222222",
-                                "57777777777", "311111111112222222"));
+                                new URL(wiremockUrl), null, null,
+                                "http://externalService", 443L, "/payment-options/organizations/57777777777/notices/311111111112222222"));
 
         assertNotNull(exception);
         assertEquals(400, exception.getErrorResponse().getHttpStatusCode());
@@ -79,9 +77,8 @@ class CreditorInstitutionRestClientTest {
         CreditorInstitutionException exception =
                 assertThrows(CreditorInstitutionException.class,
                         () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                                wiremockUrl, null, null,
-                                "http://externalService", 443L, "/payment-options/organizations/67777777777/notices/311111111112222222",
-                                "67777777777", "311111111112222222"));
+                                new URL(wiremockUrl), null, null,
+                                "http://externalService", 443L, "/payment-options/organizations/67777777777/notices/311111111112222222"));
 
         assertNotNull(exception);
         assertEquals(400, exception.getErrorResponse().getHttpStatusCode());
@@ -94,9 +91,8 @@ class CreditorInstitutionRestClientTest {
         CreditorInstitutionException exception =
                 assertThrows(CreditorInstitutionException.class,
                         () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                                wiremockUrl, null, null,
-                                "http://externalService", 443L, "/payment-options/organizations/97777777777/notices/311111111112222222",
-                                "97777777777", "311111111112222222"));
+                                new URL(wiremockUrl), null, null,
+                                "http://externalService", 443L, "/payment-options/organizations/97777777777/notices/311111111112222222"));
 
         assertNotNull(exception);
         assertEquals(400, exception.getErrorResponse().getHttpStatusCode());
@@ -109,9 +105,8 @@ class CreditorInstitutionRestClientTest {
         CreditorInstitutionException exception =
                 assertThrows(CreditorInstitutionException.class,
                         () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                                wiremockUrl, null, null,
-                                "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888",
-                                "08888888888", "88888888888"));
+                                new URL(wiremockUrl), null, null,
+                                "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888"));
 
         assertNotNull(exception);
         assertEquals(AppErrorCodeEnum.ODP_ERRORE_EMESSO_DA_PAA.getErrorCode(), exception.getErrorResponse().getAppErrorCode());
@@ -122,17 +117,15 @@ class CreditorInstitutionRestClientTest {
     void callEcPaymentOptionsVerifyShouldReturnExceptionOnMalformedUrl() {
         assertThrows(MalformedURLException.class,
                 () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                        "AAAAAAA", null, null,
-                        "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888",
-                        "88888888888", "88888888888"));
+                        new URL("AAAAAAA"), null, null,
+                        "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888"));
     }
 
     @Test
     void callEcPaymentOptionsVerifyShouldReturnExceptionOnWrongProxy() {
         assertThrows(Exception.class,
                 () -> creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                        "AAAAAAA", "AAAAAAA%%%", 8081L,
-                        "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888",
-                        "88888888888", "88888888888"));
+                        new URL("AAAAAAA"), "AAAAAAA%%%", 8081L,
+                        "http://externalService", 443L, "/payment-options/organizations/08888888888/notices/88888888888"));
     }
 }

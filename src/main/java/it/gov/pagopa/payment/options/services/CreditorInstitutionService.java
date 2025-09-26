@@ -9,55 +9,56 @@ import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Service containing methods to manage call to the creditor institution REST service
- */
+/** Service containing methods to manage call to the creditor institution REST service */
 @ApplicationScoped
 public class CreditorInstitutionService {
 
   private final Logger logger = LoggerFactory.getLogger(CreditorInstitutionService.class);
 
   @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
-  String APIM_FORWARDER_ENDPOINT;
+  String apimForwarderEndpoint;
 
   @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath")
-  Optional<String> APIM_FORWARDER_PATH;
+  Optional<String> apimForwarderPath;
 
-  static String PAYMENT_OPTIONS_SERVICE_SUFFIX = "/payment-options/organizations/%s/notices/%s";
+  private static final String PAYMENT_OPTIONS_SERVICE_SUFFIX =
+      "/payment-options/organizations/%s/notices/%s";
 
-  @Inject
-  CreditorInstitutionRestClient creditorInstitutionRestClient;
+  @Inject CreditorInstitutionRestClient creditorInstitutionRestClient;
 
   /**
-   * Using the provided input attempts to call the creditor institution service
-   * to obtain the list paymentOptions related to the input
+   * Using the provided input attempts to call the creditor institution service to obtain the list
+   * paymentOptions related to the input
    *
-   * The method contains checks regarding the endpoint to use, and attempts to
-   * extract the REST target params
+   * <p>The method contains checks regarding the endpoint to use, and attempts to extract the REST
+   * target params
    *
    * @param noticeNumber input notice number
    * @param fiscalCode input fiscal code
    * @param station station containing the connection config to use
-   * @return
+   * @return the payment option retrieved from creditor institution
    */
   public PaymentOptionsResponse getPaymentOptions(
       String noticeNumber, String fiscalCode, Station station) {
 
-    if (station.getConnection().getIp() == null ||
-        !APIM_FORWARDER_ENDPOINT.contains(station.getConnection().getIp())) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
+    if (station.getConnection().getIp() == null
+        || !this.apimForwarderEndpoint.contains(station.getConnection().getIp())) {
+      throw new PaymentOptionsException(
+          AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
           "[Payment Options] Station not configured to pass through the APIM Forwarder");
     }
 
-    String endpoint = getEndpoint(station, APIM_FORWARDER_PATH.orElse(""));
+    String endpoint = getEndpoint(station, this.apimForwarderPath.orElse(""));
 
     if (station.getRestEndpoint() == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
+      throw new PaymentOptionsException(
+          AppErrorCodeEnum.ODP_SEMANTICA,
           "[Payment Options] Station new verify endpoint not provided");
     }
 
@@ -65,34 +66,43 @@ public class CreditorInstitutionService {
     long targetPort;
     String targetPath;
     try {
-      String[] verifyEndpointParts =
-          station.getRestEndpoint().split("/", 4);
+      String[] verifyEndpointParts = station.getRestEndpoint().split("/", 4);
       targetHost = verifyEndpointParts[2];
       String[] hostSplit = verifyEndpointParts[2].split(":");
-      targetPort = hostSplit.length > 1 ?
-          Long.parseLong(hostSplit[1]) :
-          verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase()) ?
-              443L : 80L;
-      String formattedPath =  String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber);
-      targetPath = verifyEndpointParts.length > 3 ? verifyEndpointParts[3].concat(formattedPath) : formattedPath;
+      targetPort =
+          hostSplit.length > 1
+              ? Long.parseLong(hostSplit[1])
+              : verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase())
+                  ? 443L
+                  : 80L;
+      String formattedPath =
+          String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber);
+      targetPath =
+          verifyEndpointParts.length > 3
+              ? verifyEndpointParts[3].concat(formattedPath)
+              : formattedPath;
     } catch (Exception e) {
       logger.error("[Payment Options] Malformed Target URL: {}", e.getMessage());
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
     }
 
+    URL forwarderUrl = buildForwarderUrl(noticeNumber, fiscalCode, endpoint);
+    return this.creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+        forwarderUrl,
+        station.getProxy() != null ? station.getProxy().getProxyHost() : null,
+        station.getProxy() != null ? station.getProxy().getProxyPort() : null,
+        targetHost,
+        targetPort,
+        targetPath);
+  }
+
+  private URL buildForwarderUrl(String noticeNumber, String fiscalCode, String endpoint) {
     try {
-      return creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-          endpoint,
-          station.getProxy() != null ? station.getProxy().getProxyHost() : null,
-          station.getProxy() != null ? station.getProxy().getProxyPort() : null,
-          targetHost, targetPort, targetPath,
-          fiscalCode, noticeNumber
-      );
+      return new URL(String.format(endpoint, fiscalCode, noticeNumber));
     } catch (MalformedURLException e) {
-      logger.error("[Payment Options] Malformed URL: {}", e.getMessage());
+      logger.error("[Payment Options] Malformed URL", e);
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
     }
-
   }
 
   private static String getEndpoint(Station station, String apimForwarderPath) {
@@ -105,5 +115,4 @@ public class CreditorInstitutionService {
                 String.valueOf(station.getConnection().getPort()) : "80")
                 .concat(apimForwarderPath);
   }
-
 }
