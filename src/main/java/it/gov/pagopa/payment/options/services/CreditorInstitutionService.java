@@ -2,15 +2,15 @@ package it.gov.pagopa.payment.options.services;
 
 import it.gov.pagopa.payment.options.clients.CreditorInstitutionRestClient;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
+import it.gov.pagopa.payment.options.models.clients.cache.Connection;
 import it.gov.pagopa.payment.options.models.clients.cache.Connection.ProtocolEnum;
 import it.gov.pagopa.payment.options.models.clients.cache.Station;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
+import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +21,22 @@ public class CreditorInstitutionService {
 
   private final Logger logger = LoggerFactory.getLogger(CreditorInstitutionService.class);
 
-  @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
-  String apimForwarderEndpoint;
-
-  @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath")
-  Optional<String> apimForwarderPath;
-
   private static final String PAYMENT_OPTIONS_SERVICE_SUFFIX =
       "/payment-options/organizations/%s/notices/%s";
 
-  @Inject CreditorInstitutionRestClient creditorInstitutionRestClient;
+  private final String apimForwarderEndpoint;
+  private final String apimForwarderPath;
+  private final CreditorInstitutionRestClient creditorInstitutionRestClient;
+
+  CreditorInstitutionService(
+      @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
+          String apimForwarderEndpoint,
+      @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath") String apimForwarderPath,
+      CreditorInstitutionRestClient creditorInstitutionRestClient) {
+    this.apimForwarderEndpoint = apimForwarderEndpoint;
+    this.apimForwarderPath = apimForwarderPath;
+    this.creditorInstitutionRestClient = creditorInstitutionRestClient;
+  }
 
   /**
    * Using the provided input attempts to call the creditor institution service to obtain the list
@@ -54,8 +60,6 @@ public class CreditorInstitutionService {
           "[Payment Options] Station not configured to pass through the APIM Forwarder");
     }
 
-    String endpoint = getEndpoint(station, this.apimForwarderPath.orElse(""));
-
     if (station.getRestEndpoint() == null) {
       throw new PaymentOptionsException(
           AppErrorCodeEnum.ODP_SEMANTICA,
@@ -68,13 +72,7 @@ public class CreditorInstitutionService {
     try {
       String[] verifyEndpointParts = station.getRestEndpoint().split("/", 4);
       targetHost = verifyEndpointParts[2];
-      String[] hostSplit = verifyEndpointParts[2].split(":");
-      targetPort =
-          hostSplit.length > 1
-              ? Long.parseLong(hostSplit[1])
-              : verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase())
-                  ? 443L
-                  : 80L;
+      targetPort = getTargetPort(verifyEndpointParts);
       String formattedPath =
           String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber);
       targetPath =
@@ -82,11 +80,11 @@ public class CreditorInstitutionService {
               ? verifyEndpointParts[3].concat(formattedPath)
               : formattedPath;
     } catch (Exception e) {
-      logger.error("[Payment Options] Malformed Target URL: {}", e.getMessage());
+      logger.error("[Payment Options] Malformed Target URL", e);
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
     }
 
-    URL forwarderUrl = buildForwarderUrl(noticeNumber, fiscalCode, endpoint);
+    URL forwarderUrl = buildForwarderUrl(station.getConnection());
     return this.creditorInstitutionRestClient.callEcPaymentOptionsVerify(
         forwarderUrl,
         station.getProxy() != null ? station.getProxy().getProxyHost() : null,
@@ -96,23 +94,41 @@ public class CreditorInstitutionService {
         targetPath);
   }
 
-  private URL buildForwarderUrl(String noticeNumber, String fiscalCode, String endpoint) {
+  private long getTargetPort(String[] verifyEndpointParts) {
+    String[] hostSplit = verifyEndpointParts[2].split(":");
+
+    if (hostSplit.length > 1) {
+      return Long.parseLong(hostSplit[1]);
+    }
+    if (verifyEndpointParts[0].contains(ProtocolEnum.HTTPS.name().toLowerCase())) {
+      return 443L;
+    }
+    return 80L;
+  }
+
+  private URL buildForwarderUrl(@Nonnull Connection connection) {
     try {
-      return new URL(String.format(endpoint, fiscalCode, noticeNumber));
+      String scheme = getProtocol(connection);
+      String port = connection.getPort() != null ? String.valueOf(connection.getPort()) : "80";
+      String url =
+          String.format("%s://%s:%s%s", scheme, connection.getIp(), port, this.apimForwarderPath);
+
+      return new URL(url);
     } catch (MalformedURLException e) {
       logger.error("[Payment Options] Malformed URL", e);
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
     }
   }
 
-  private static String getEndpoint(Station station, String apimForwarderPath) {
-    return (station.getConnection().getProtocol() != null &&
-        (station.getConnection().getProtocol().equals(ProtocolEnum.HTTPS)) ?
-        ProtocolEnum.HTTPS.name().toLowerCase() :
-        station.getConnection().getProtocol().name().toLowerCase()) +
-            "://" + station.getConnection().getIp() + ":" +
-            (station.getConnection().getPort() != null ?
-                String.valueOf(station.getConnection().getPort()) : "80")
-                .concat(apimForwarderPath);
+  private String getProtocol(Connection connection) {
+    ProtocolEnum protocol = connection.getProtocol();
+
+    if (ProtocolEnum.HTTPS.equals(protocol)) {
+      return ProtocolEnum.HTTPS.name().toLowerCase();
+    }
+    if (protocol != null) {
+      return protocol.name().toLowerCase();
+    }
+    return ProtocolEnum.HTTP.name().toLowerCase();
   }
 }

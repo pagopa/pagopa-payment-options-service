@@ -171,7 +171,7 @@ public class WireMockExtensions implements QuarkusTestResourceLifecycleManager {
                 "ApiConfigCacheClient.ocpSubKey", "test",
                 "CreditorInstitutionRestClient.apimEndpoint",
                 wireMockServer.baseUrl(),
-                "CreditorInstitutionRestClient.apimPath", "",
+                "CreditorInstitutionRestClient.apimPath", "/",
                 "CreditorInstitutionRestClient.ocpSubKey", "test",
                 "wiremock.port", String.valueOf(wireMockServer.port())
         );
