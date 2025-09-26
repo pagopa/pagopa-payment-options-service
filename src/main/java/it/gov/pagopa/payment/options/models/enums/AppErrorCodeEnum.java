@@ -88,7 +88,7 @@ public enum AppErrorCodeEnum {
     ODP_DOMINIO_SCONOSCIUTO(Status.NOT_FOUND, "ODP-022",
         "ODP_DOMINIO_SCONOSCIUTO. Errore fornito in caso di PA assente"),
 
-    ODP_ERRORE_EMESSO_DA_PAA(Status.BAD_REQUEST, "ODP-023",
+    ODP_ERRORE_EMESSO_DA_PAA(Status.BAD_GATEWAY, "ODP-023",
         "ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PA");
 
     private final Response.Status status;

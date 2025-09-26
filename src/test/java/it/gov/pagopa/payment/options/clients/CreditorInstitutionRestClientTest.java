@@ -56,23 +56,23 @@ class CreditorInstitutionRestClientTest {
   @ParameterizedTest
   @ValueSource(strings = {"87777777777", "57777777777", "97777777777"})
   @SneakyThrows
-  void callEcPaymentOptionsVerifyShouldReturnErrorResponseWithFailureOnResponseParseOrValidation() {
+  void callEcPaymentOptionsVerifyShouldReturnErrorResponseWithFailureOnResponseParseOrValidation(
+      String fiscalCode) {
     URL url = new URL(wiremockUrl);
+    String targetPath =
+        String.format("/payment-options/organizations/%s/notices/311111111112222222", fiscalCode);
 
     CreditorInstitutionException exception =
         assertThrows(
             CreditorInstitutionException.class,
             () ->
                 creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                    url,
-                    null,
-                    null,
-                    TARGET_HOST,
-                    TARGET_PORT,
-                    "/payment-options/organizations/87777777777/notices/311111111112222222"));
+                    url, null, null, TARGET_HOST, TARGET_PORT, targetPath));
 
     assertNotNull(exception);
-    assertEquals(400, exception.getErrorResponse().getHttpStatusCode());
+    assertEquals(
+        AppErrorCodeEnum.ODP_ERRORE_EMESSO_DA_PAA.getStatus().getStatusCode(),
+        exception.getErrorResponse().getHttpStatusCode());
     assertEquals(
         AppErrorCodeEnum.ODP_ERRORE_EMESSO_DA_PAA.getErrorCode(),
         exception.getErrorResponse().getAppErrorCode());
@@ -99,7 +99,9 @@ class CreditorInstitutionRestClientTest {
                     "/payment-options/organizations/67777777777/notices/311111111112222222"));
 
     assertNotNull(exception);
-    assertEquals(400, exception.getErrorResponse().getHttpStatusCode());
+    assertEquals(
+        AppErrorCodeEnum.ODP_ERRORE_EMESSO_DA_PAA.getStatus().getStatusCode(),
+        exception.getErrorResponse().getHttpStatusCode());
     assertEquals(
         AppErrorCodeEnum.ODP_ERRORE_EMESSO_DA_PAA.getErrorCode(),
         exception.getErrorResponse().getAppErrorCode());
