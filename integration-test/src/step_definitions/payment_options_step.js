@@ -12,8 +12,10 @@ const invalidStationNoticeNumber = process.env.INVALID_NOTICE_NUMBER;
 const disabledStationNoticeNumber = process.env.DISABLED_STATION_NOTICE_NUMBER;
 const disabledOdpStationNoticeNumber = process.env.DISABLED_STATION_ODP_NOTICE_NUMBER;
 const missingStationNoticeNumber = process.env.MISSING_STATION_NOTICE_NUMBER;
-const errorNoticeNumber = process.env.ERROR_STATION_NOTICE_NUMBER;
-const wrongNoticeNumber = process.env.WRONG_STATION_NOTICE_NUMBER;
+const errorPagamentoSconosciutoNoticeNumber = process.env.ERROR_PAGAMENTO_SCONOSCIUTO_NOTICE_NUMBER;
+const errorStazioneIntErrataNoticeNumber = process.env.ERROR_STAZIONE_INT_ERRATA_NOTICE_NUMBER;
+const invalidResponseErrorCodeNoticeNumber = process.env.INVALID_RESPONSE_ERROR_CODE_NOTICE_NUMBER;
+const invalidResponseStatusCodeNoticeNumber = process.env.INVALID_RESPONSE_STATUS_CODE_NOTICE_NUMBER;
 const invalidPsp = process.env.UNAUTHORIZED_PSP;
 const validPsp = process.env.VALID_PSP;
 
@@ -72,14 +74,20 @@ When('an Http GET request is sent to recover payment options for taxCode {string
           case "co-oblidged":
             selectedNoticeNumber = coOptNoticeNumber;
             break;
-          case "wrong":
-            selectedNoticeNumber = wrongNoticeNumber;
+          case "errorStazioneIntErrata":
+            selectedNoticeNumber = errorStazioneIntErrataNoticeNumber;
             break;
           case "disabled":
             selectedNoticeNumber = disabledStationNoticeNumber;
             break;
-          case "error":
-            selectedNoticeNumber = errorNoticeNumber;
+          case "errorPagamentoSconosciuto":
+            selectedNoticeNumber = errorPagamentoSconosciutoNoticeNumber;
+            break;
+          case "invalidResponseErrorCode":
+            selectedNoticeNumber = invalidResponseErrorCodeNoticeNumber;
+            break;
+          case "invalidResponseStatusCode":
+            selectedNoticeNumber = invalidResponseStatusCodeNoticeNumber;
             break;
         }
 
@@ -118,3 +126,7 @@ Then('response has an http status that is either {int} or {int}', function (miss
 Then('has error code {string}', function (expectedCode) {
     assert.strictEqual(this.response?.data?.appErrorCode, expectedCode);
 });
+
+Then('error message start with {string}', (expectedStartErrorMessage) => {
+  assert.isTrue(this.response?.data?.errorMessage.startWith(expectedStartErrorMessage));
+})

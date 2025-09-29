@@ -47,12 +47,26 @@ Feature: Get Payment Options
     And payments option n 1 has 1 installments
     And payments option n 2 has 1 installments
 
-  Scenario: PAA Wrong System Error
-    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "wrong" and idPsp "valid"
-    Then response has a 400 Http status
-    And has error code "PAA_STAZIONE_INT_ERRATA"
+  Scenario: PAA Error PAA_STAZIONE_INT_ERRATA
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "errorStazioneIntErrata" and idPsp "valid"
+    Then response has a 502 Http status
+    And has error code "ODP-023"
+    And error message start with "ODP_ERRORE_EMESSO_DA_PAA ODP-106 PAA_STAZIONE_INT_ERRATA"
 
-  Scenario: PAA System Error
-    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "error" and idPsp "valid"
-    Then response has a 400 Http status
-    And has error code "PAA_SYSTEM_ERROR"
+  Scenario: PAA Error PAA_PAGAMENTO_SCONOSCIUTO
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "errorPagamentoSconosciuto" and idPsp "valid"
+    Then response has a 502 Http status
+    And has error code "ODP-023"
+    And error message start with "ODP_ERRORE_EMESSO_DA_PAA ODP-107 PAA_PAGAMENTO_SCONOSCIUTO"
+
+  Scenario: PAA Invalid Response error code
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "invalidResponseErrorCode" and idPsp "valid"
+    Then response has a 502 Http status
+    And has error code "ODP-023"
+    And error message start with "PAA_SYSTEM_ERROR"
+
+  Scenario: PAA Invalid Response status code
+    When an Http GET request is sent to recover payment options for taxCode "valid" with noticeNumber "invalidResponseStatusCode" and idPsp "valid"
+    Then response has a 502 Http status
+    And has error code "ODP-023"
+    And error message start with "PAA_SYSTEM_ERROR"
