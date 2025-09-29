@@ -127,8 +127,10 @@ Then('has error code {string}', function (expectedCode) {
     assert.strictEqual(this.response?.data?.appErrorCode, expectedCode);
 });
 
-Then('error message start with {string}', (expectedStartErrorMessage) => {
+Then('error message start with {string}', function (expectedStartErrorMessage) {
   console.log(this.response);
+  console.log(this.response.data);
+  console.log(this.response.data?.appErrorCode);
   const re = new RegExp('^' + expectedStartErrorMessage);
   console.log(re);
   assert.match(this.response?.data?.errorMessage, re);
