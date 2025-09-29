@@ -128,6 +128,8 @@ Then('has error code {string}', function (expectedCode) {
 });
 
 Then('error message start with {string}', (expectedStartErrorMessage) => {
+  console.log(this.response);
   const re = new RegExp('^' + expectedStartErrorMessage);
+  console.log(re);
   assert.match(this.response?.data?.errorMessage, re);
 })
