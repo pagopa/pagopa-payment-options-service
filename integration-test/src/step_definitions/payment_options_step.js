@@ -128,5 +128,5 @@ Then('has error code {string}', function (expectedCode) {
 });
 
 Then('error message start with {string}', (expectedStartErrorMessage) => {
-  assert.isTrue(this.response?.data?.errorMessage.startWith(expectedStartErrorMessage));
+  assert.ok(this.response?.data?.errorMessage.startWith(expectedStartErrorMessage));
 })
