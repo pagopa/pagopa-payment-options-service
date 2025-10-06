@@ -23,7 +23,7 @@ public class Generic {
     @ConfigProperty(name = "quarkus.application.version", defaultValue = "")
     private String version;
 
-    @ConfigProperty(name = "quarkus.application.environment", defaultValue = "")
+    @ConfigProperty(name = "application.environment", defaultValue = "")
     private String environment;
 
 
