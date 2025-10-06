@@ -11,7 +11,6 @@ import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentO
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import it.gov.pagopa.payment.options.models.enums.CreditorInstitutionErrorEnum;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import java.net.URL;
 import java.time.Instant;
@@ -27,7 +26,11 @@ public class CreditorInstitutionRestClient {
 
   private final Logger logger = LoggerFactory.getLogger(CreditorInstitutionRestClient.class);
 
-  @Inject ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
+
+  public CreditorInstitutionRestClient(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   /**
    * Call the creditor institution service to obtain the list paymentOptions related to the input
