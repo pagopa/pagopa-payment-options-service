@@ -98,7 +98,8 @@ public class CreditorInstitutionRestClient {
       Response response = e.getResponse();
       ErrorResponse errorResponse =
           this.objectMapper.readValue(response.readEntity(String.class), ErrorResponse.class);
-      errorResponse = validateAndBuildErrorResponse(response.getStatus(), errorResponse);
+      errorResponse =
+          validateAndBuildErrorResponse(response.getStatus(), errorResponse, targetPath);
 
       throw new CreditorInstitutionException(
           errorResponse,
@@ -107,7 +108,7 @@ public class CreditorInstitutionRestClient {
   }
 
   private ErrorResponse validateAndBuildErrorResponse(
-      int responseStatus, ErrorResponse errorResponse) {
+      int responseStatus, ErrorResponse errorResponse, String targetPath) {
     String responseErrorCode = errorResponse.getAppErrorCode();
     String errorMessage =
         String.format(
@@ -120,6 +121,11 @@ public class CreditorInstitutionRestClient {
         || CreditorInstitutionErrorEnum.getFromErrorCode(responseErrorCode).getStatus()
             != responseStatus) {
       errorResponseForPSP.setErrorMessage(CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name());
+      logger.error(
+          "[Payment Options] [Alert] Organization invoked with path {} responded with an invalid error code {} response status {} pair",
+          targetPath,
+          responseErrorCode,
+          responseStatus);
     }
     return errorResponseForPSP;
   }
