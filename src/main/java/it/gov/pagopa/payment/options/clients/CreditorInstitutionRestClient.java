@@ -10,6 +10,7 @@ import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import it.gov.pagopa.payment.options.models.enums.CreditorInstitutionErrorEnum;
+import it.gov.pagopa.payment.options.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import java.net.URL;
@@ -128,7 +129,7 @@ public class CreditorInstitutionRestClient {
       String orgFiscalCode = extractOrgFiscalCode(targetPath);
       logger.error(
           "[Payment Options] [Alert] Organization with fiscal code {} responded with an invalid error code {} response status {} pair",
-          orgFiscalCode,
+          StringUtil.sanitize(orgFiscalCode),
           responseErrorCode,
           responseStatus);
     }
