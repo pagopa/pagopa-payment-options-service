@@ -1,5 +1,6 @@
 package it.gov.pagopa.payment.options.resources;
 
+import it.gov.pagopa.payment.options.filters.LoggedAPI;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
 import it.gov.pagopa.payment.options.services.PaymentOptionsService;
 import jakarta.ws.rs.*;
@@ -19,6 +20,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Path("/payment-options")
 @Tag(name = "Payment Options", description = "APIs to retrieve payment options")
 @Produces(value = MediaType.APPLICATION_JSON)
+@LoggedAPI
 public class PaymentOptionsResource {
 
   private final PaymentOptionsService paymentOptionsService;

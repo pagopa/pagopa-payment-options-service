@@ -50,6 +50,7 @@ public class ApiLoggingFilter {
     this.objectMapper = objectMapper;
   }
 
+  @LoggedAPI
   @Priority(Priorities.USER)
   @ServerRequestFilter
   public Optional<RestResponse<Void>> onRequest(ContainerRequestContext ctx) {
@@ -70,6 +71,7 @@ public class ApiLoggingFilter {
     return Optional.empty();
   }
 
+  @LoggedAPI
   @Priority(Priorities.USER)
   @ServerResponseFilter
   public void onResponse(ContainerResponseContext responseContext) {
