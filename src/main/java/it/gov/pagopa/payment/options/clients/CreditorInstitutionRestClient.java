@@ -15,6 +15,9 @@ import jakarta.ws.rs.core.Response;
 import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.slf4j.Logger;
@@ -121,9 +124,11 @@ public class CreditorInstitutionRestClient {
         || CreditorInstitutionErrorEnum.getFromErrorCode(responseErrorCode).getStatus()
             != responseStatus) {
       errorResponseForPSP.setErrorMessage(CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name());
+
+      String orgFiscalCode = extractOrgFiscalCode(targetPath);
       logger.error(
-          "[Payment Options] [Alert] Organization invoked with path {} responded with an invalid error code {} response status {} pair",
-          targetPath,
+          "[Payment Options] [Alert] Organization with fiscal code {} responded with an invalid error code {} response status {} pair",
+          orgFiscalCode,
           responseErrorCode,
           responseStatus);
     }
@@ -139,5 +144,15 @@ public class CreditorInstitutionRestClient {
         .timestamp(timestamp)
         .dateTime(dateTime)
         .build();
+  }
+
+  private String extractOrgFiscalCode(String targetPath) {
+    String orgFiscalCode = "";
+    Pattern p = Pattern.compile("/payment-options/organizations/([^/?]+)");
+    Matcher m = p.matcher(targetPath);
+    if (m.find()) {
+      orgFiscalCode = m.group(1);
+    }
+    return orgFiscalCode;
   }
 }
