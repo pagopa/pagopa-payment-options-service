@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.7.0-1-PIDM-898-ec-error-response-improvement"
+    tag: "0.7.0-2-PIDM-898-ec-error-response-improvement"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
