@@ -13,7 +13,6 @@ import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
@@ -21,7 +20,6 @@ import org.eclipse.microprofile.openapi.annotations.servers.Server;
 import org.eclipse.microprofile.openapi.annotations.servers.ServerVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @OpenAPIDefinition(
         components =
@@ -35,50 +33,34 @@ import org.slf4j.LoggerFactory;
                 },
                 responses = {
                         @APIResponse(
-                                name = "ErrorResponse500",
-                                responseCode = "500",
-                                description = "Internal Server Error",
-                                content =
-                                @Content(
-                                        mediaType = MediaType.APPLICATION_JSON,
-                                        examples = {
-                                                @ExampleObject(
-                                                        name = "InternalServerErrorExample",
-                                                        value = """
-                                                                {
-                                                                  "httpStatusCode": 500,
-                                                                  "httpStatusDescription": "Internal Server Error",
-                                                                  "errorMessage": "An unexpected error has occurred. Please contact support.",
-                                                                  "appErrorCode": "ODP-<ERR_ID>",
-                                                                  "timestamp": 1724425035,
-                                                                  "dateTime": "2024-08-23T14:57:15.635528"
-                                                                }"""
-                                                )
-                                        },
-                                        schema = @Schema(implementation = ErrorResponse.class))),
-                        @APIResponse(
                                 name = "ErrorResponse400",
                                 responseCode = "400",
-                                description = "Default app exception for status 400",
+                                description = "Bad Request",
                                 content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON,
-                                        examples = {
-                                                @ExampleObject(
-                                                        name = "BadRequestExample",
-                                                        value = """
-                                                                {
-                                                                  "httpStatusCode": 400,
-                                                                  "httpStatusDescription": "Bad Request",
-                                                                  "errorMessage": "Invalid request. Please check the submitted data and try again.",
-                                                                  "appErrorCode": "ODP-<ERR_ID>",
-                                                                  "timestamp": 1724425035,
-                                                                  "dateTime": "2024-08-23T14:57:15.635528"
-                                                                }"""
-                                                )
-                                        },
+                                        example = """
+                                                    {
+                                                      "httpStatusCode": 400,
+                                                      "httpStatusDescription": "Bad Request",
+                                                      "appErrorCode": "ODP-<ERR_ID>",
+                                                      "timestamp": 1724425035,
+                                                      "dateTime": "2024-08-23T14:57:15.635528",
+                                                      "errorMessage": "Invalid request. Please check the submitted data and try again."
+                                                    }""",
                                         schema = @Schema(implementation = ErrorResponse.class))),
-
+                        @APIResponse(
+                                name = "ErrorResponse401",
+                                responseCode = "401",
+                                description = "Unauthorized",
+                                content =
+                                @Content(schema = @Schema())),
+                        @APIResponse(
+                                name = "ErrorResponse403",
+                                responseCode = "403",
+                                description = "Forbidden",
+                                content =
+                                @Content(schema = @Schema())),
                         @APIResponse(
                                 name = "ErrorResponse404",
                                 responseCode = "404",
@@ -86,22 +68,54 @@ import org.slf4j.LoggerFactory;
                                 content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON,
-                                        examples = {
-                                                @ExampleObject(
-                                                        name = "NotFoundExample",
-                                                        value = """
-                                                                {
-                                                                  "httpStatusCode": 404,
-                                                                  "httpStatusDescription": "Not Found",
-                                                                  "errorMessage": "Resource not found. Please verify the request and try again.",
-                                                                  "appErrorCode": "ODP-<ERR_ID>",
-                                                                  "timestamp": 1724425035,
-                                                                  "dateTime": "2024-08-23T14:57:15.635528"
-                                                                }"""
-                                                )
-                                        },
+                                        example =  """
+                                                    {
+                                                      "httpStatusCode": 404,
+                                                      "httpStatusDescription": "Not Found",
+                                                      "appErrorCode": "ODP-<ERR_ID>",
+                                                      "timestamp": 1724425035,
+                                                      "dateTime": "2024-08-23T14:57:15.635528",
+                                                      "errorMessage": "Resource not found. Please verify the request and try again."
+                                                    }"""
+                                        ,
                                         schema = @Schema(implementation = ErrorResponse.class)
-                                ))
+                                )),
+                        @APIResponse(
+                                name = "ErrorResponse500",
+                                responseCode = "500",
+                                description = "Internal Server Error",
+                                content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON,
+                                        example =
+                                                 """
+                                                {
+                                                  "httpStatusCode": 500,
+                                                  "httpStatusDescription": "Internal Server Error",
+                                                  "appErrorCode": "ODP-<ERR_ID>",
+                                                  "timestamp": 1724425035,
+                                                  "dateTime": "2024-08-23T14:57:15.635528",
+                                                  "errorMessage": "An unexpected error has occurred. Please contact support."
+                                                }"""
+                                        ,
+                                        schema = @Schema(implementation = ErrorResponse.class))),
+                        @APIResponse(
+                                name = "ErrorResponse502",
+                                responseCode = "502",
+                                description = "Bad Gateway",
+                                content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON,
+                                        example = """
+                                                    {
+                                                      "httpStatusCode": 502,
+                                                      "httpStatusDescription": "Bad Gateway",
+                                                      "appErrorCode": "ODP-23>",
+                                                      "timestamp": 1724425035,
+                                                      "dateTime": "2024-08-23T14:57:15.635528",
+                                                      "errorMessage": "ODP_ERRORE_EMESSO_DA_PAA PAA_SINTASSI Error generated by PA."
+                                                    }""",
+                                        schema = @Schema(implementation = ErrorResponse.class)))
                 }),
         info = @Info(
                 title = "Payments Options Services",

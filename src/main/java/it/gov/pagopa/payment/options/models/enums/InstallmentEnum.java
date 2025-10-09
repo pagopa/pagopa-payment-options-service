@@ -1,6 +1,6 @@
 package it.gov.pagopa.payment.options.models.enums;
 
-public enum EnumInstallment {
+public enum InstallmentEnum {
 
   POI_UNPAID,
   POI_PAID,
