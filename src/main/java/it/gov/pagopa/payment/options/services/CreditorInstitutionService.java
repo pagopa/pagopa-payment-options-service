@@ -150,8 +150,9 @@ public class CreditorInstitutionService {
 		  return false;
 	  }
 	  // removes possible final "/"
-	  String stationEndpoint = station.getRestEndpoint().replaceAll("/+$", "");
-	  String gpdEndpoint = GPD_REST_ENDPOINT.get().replaceAll("/+$", "");
+	  // used "/++$" (possessive quantifier) ​​for sonar reporting java:S5852
+	  String stationEndpoint = station.getRestEndpoint().replaceAll("/++$", "");
+	  String gpdEndpoint = GPD_REST_ENDPOINT.get().replaceAll("/++$", "");
 	  return stationEndpoint.equalsIgnoreCase(gpdEndpoint);
   }
 
