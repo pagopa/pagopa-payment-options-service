@@ -39,7 +39,7 @@ class OpenApiGenerationTest {
     private String getAppErrorCodes() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("PagoPa Payment Options service \\n ### APP ERROR CODES ### \\n\\n\\n <details><summary>Details</summary>\\n **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** \\n- | - | - ");
+        stringBuilder.append("pagoPa Payment Options service for PSP \\n ### APP ERROR CODES ### \\n\\n\\n <details><summary>Details</summary>\\n **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** \\n- | - | - ");
         for (AppErrorCodeEnum errorCode : AppErrorCodeEnum.values()) {
             stringBuilder
                     .append("\\n **")
