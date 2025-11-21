@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.net.MalformedURLException;
+
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.payment.options.clients.CreditorInstitutionRestClient;
@@ -107,6 +109,116 @@ class CreditorInstitutionServiceTest {
     assertEquals(
         AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
         paymentOptionsException.getErrorCode());
+  }
+  
+  //----------------- GPD Special Guest Tests -----------------
+  @Test
+  void getPaymentOptionsGpdSpecialGuestRestEndpointMatches()
+      throws MalformedURLException {
+
+    String gpdEndpoint = "http://localhost:8080";
+
+    when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+        any(), any(), any(), any()))
+        .thenReturn(PaymentOptionsResponse.builder().build());
+
+    PaymentOptionsResponse response = assertDoesNotThrow(
+        () -> sut.getPaymentOptions(
+            "000001", "000001",
+            Station.builder()
+                .stationCode("000001_01")
+                .connection(
+                    it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
+                        .ip("some-ip")
+                        .protocol(ProtocolEnum.HTTPS)
+                        .port(443L)
+                        .build()
+                )
+                .restEndpoint(gpdEndpoint)
+                .verifyPaymentOptionEnabled(true)
+                .build()
+        )
+    );
+
+    assertNotNull(response);
+
+    // ONLY the GPD client should be called
+    verify(creditorInstitutionRestClient, Mockito.times(1))
+    .callGpdPaymentOptionsVerify(any(), any(), any(), any());
+
+    verify(creditorInstitutionRestClient, Mockito.never())
+    .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+
+  }
+  
+  @Test
+  void getPaymentOptionsMalformedUrlGpdToPaymentOptionsException()
+      throws MalformedURLException {
+
+    String gpdEndpoint = "http://localhost";
+
+    when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+        any(), any(), any(), any()))
+        .thenThrow(new MalformedURLException("bad gpd url"));
+
+    PaymentOptionsException ex = assertThrows(
+        PaymentOptionsException.class,
+        () -> sut.getPaymentOptions(
+            "000001", "000001",
+            Station.builder()
+                .stationCode("000001_01")
+                .connection(
+                    it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
+                        .ip("some-ip")
+                        .protocol(ProtocolEnum.HTTPS)
+                        .port(443L)
+                        .build()
+                )
+                .restEndpoint(gpdEndpoint)
+                .verifyPaymentOptionEnabled(true)
+                .build()
+        )
+    );
+
+    assertNotNull(ex);
+    assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, ex.getErrorCode());
+  }
+  
+  @Test
+  void getPaymentOptionsGpdSpecialGuestPropagatesPaymentOptionsException()
+      throws MalformedURLException {
+
+    String gpdEndpoint = "http://localhost:8080";
+
+    PaymentOptionsException clientException = new PaymentOptionsException(
+        AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
+        "Unable to reach GPD-Core endpoint"
+    );
+
+    when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+        any(), any(), any(), any()))
+        .thenThrow(clientException);
+
+    PaymentOptionsException ex = assertThrows(
+        PaymentOptionsException.class,
+        () -> sut.getPaymentOptions(
+            "000001", "000001",
+            Station.builder()
+                .stationCode("000001_01")
+                .connection(
+                    it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
+                        .ip("some-ip")
+                        .protocol(ProtocolEnum.HTTPS)
+                        .port(443L)
+                        .build()
+                )
+                .restEndpoint(gpdEndpoint)
+                .verifyPaymentOptionEnabled(true)
+                .build()
+        )
+    );
+
+    assertSame(clientException.getErrorCode(), ex.getErrorCode());
   }
 
   private Station buildStation(String connectionIp, String restEndpoint) {

@@ -11,6 +11,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,12 @@ public class CreditorInstitutionService {
     this.apimForwarderPath = apimForwarderPath;
     this.creditorInstitutionRestClient = creditorInstitutionRestClient;
   }
+  
+ //endpoint "special guest" GPD-Core
+ @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint")
+ Optional<String> GPD_REST_ENDPOINT;
+ @ConfigProperty(name = "CreditorInstitutionRestClient.odpBasePathPaymentOptionsServices")
+ Optional<String> ODP_BASE_PATH_PAYMENT_OPTIONS_SERVICES;
 
   /**
    * Using the provided input attempts to call the creditor institution service to obtain the list
@@ -52,7 +60,40 @@ public class CreditorInstitutionService {
    */
   public PaymentOptionsResponse getPaymentOptions(
       String noticeNumber, String fiscalCode, Station station) {
+	  
+	  // 1) Special guest: EC = GPD-Core
+	  if (isEcGpdSpecialGuest(station)) {
+		  logger.info("[Payment Options] Using GPD-Core special guest endpoint for station {}",
+				  station.getStationCode());
 
+		  String gpdEndpoint = station.getRestEndpoint();
+		  if (gpdEndpoint == null) {
+			  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
+					  "[Payment Options] GPD-Core endpoint not provided for station "
+							  + station.getStationCode());
+		  }
+
+		  try {
+			  return creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+					  gpdEndpoint,
+					  fiscalCode,
+					  noticeNumber,
+					  null  // segregationCodes is not passed (optional param)
+					  );
+		  } catch (MalformedURLException e) {
+			  throw new PaymentOptionsException(
+					  AppErrorCodeEnum.ODP_SEMANTICA,
+					  String.format(
+							  "[Payment Options] Malformed GPD-Core URL for station %s: %s",
+							  station.getStationCode(),
+							  gpdEndpoint
+							  ),
+					  e
+					  );
+		  }
+	  }
+
+	// 2) "Normal" behavior: EC via APIM forwarder
     if (station.getConnection().getIp() == null
         || !this.apimForwarderEndpoint.contains(station.getConnection().getIp())) {
       throw new PaymentOptionsException(
@@ -130,5 +171,25 @@ public class CreditorInstitutionService {
       return protocol.name().toLowerCase();
     }
     return ProtocolEnum.HTTP.name().toLowerCase();
+  }
+  
+  private boolean isEcGpdSpecialGuest(Station station) {
+	  if (station.getRestEndpoint() == null || GPD_REST_ENDPOINT.isEmpty()) {
+		  return false;
+	  }
+	  
+	  String stationEndpoint = station.getRestEndpoint();
+	  // removes possible final "/"
+	  while (stationEndpoint.endsWith("/")) {
+	      stationEndpoint = stationEndpoint.substring(0, stationEndpoint.length() - 1);
+	  }
+	 
+	  String gpdEndpoint = GPD_REST_ENDPOINT.get();
+	  // removes possible final "/"
+	  while (gpdEndpoint.endsWith("/")) {
+	      gpdEndpoint = gpdEndpoint.substring(0, gpdEndpoint.length() - 1);
+	  }
+	  
+	  return stationEndpoint.equalsIgnoreCase(gpdEndpoint);
   }
 }
