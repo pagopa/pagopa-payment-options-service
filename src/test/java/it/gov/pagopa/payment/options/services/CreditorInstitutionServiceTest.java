@@ -1,5 +1,13 @@
 package it.gov.pagopa.payment.options.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import java.net.MalformedURLException;
+
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.payment.options.clients.CreditorInstitutionRestClient;
@@ -14,170 +22,96 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.net.MalformedURLException;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-
 @QuarkusTest
 class CreditorInstitutionServiceTest {
 
-  @InjectMock
-  CreditorInstitutionRestClient creditorInstitutionRestClient;
+  private static final String NOTICE_NUMBER = "000001";
+  private static final String FISCAL_CODE = "000002";
 
-  @Inject
-  CreditorInstitutionService creditorInstitutionService;
+  @InjectMock CreditorInstitutionRestClient creditorInstitutionRestClient;
+
+  @Inject CreditorInstitutionService sut;
 
   @BeforeEach
-  public void init() {
+  void init() {
     Mockito.reset(creditorInstitutionRestClient);
   }
 
   @Test
-  void getPaymentOptionsShouldReturnData() throws MalformedURLException {
+  void getPaymentOptionsShouldReturnData() {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any())
-    ).thenReturn(PaymentOptionsResponse.builder().build());
+            any(), any(), any(), any(), any(), any()))
+        .thenReturn(PaymentOptionsResponse.builder().build());
+
+    Station station = buildStation("localhost", "http://localhost:8080/test");
+
     PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> creditorInstitutionService.getPaymentOptions(
-        "000001","000001",
-        Station.builder().stationCode("000001_01")
-            .connection(
-                Connection.builder()
-                    .ip("localhost")
-                    .protocol(ProtocolEnum.HTTP)
-                    .port(8082L)
-                    .build()
-            )
-            .restEndpoint("http://localhost:8080/test")
-            .verifyPaymentOptionEnabled(true)
-            .build()
-    ));
+        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+
     assertNotNull(paymentOptionsResponse);
-    verify(creditorInstitutionRestClient).callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any());
+    verify(creditorInstitutionRestClient)
+        .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
 
   @Test
-  void getPaymentOptionsShouldReturnDataWithDefaultPort() throws MalformedURLException {
+  void getPaymentOptionsShouldReturnDataWithDefaultPort() {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any())
-    ).thenReturn(PaymentOptionsResponse.builder().build());
+            any(), any(), any(), any(), any(), any()))
+        .thenReturn(PaymentOptionsResponse.builder().build());
+
+    Station station = buildStation("localhost", "http://localhost/test");
+
     PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001",
-            Station.builder().stationCode("000001_01")
-                .connection(
-                    Connection.builder()
-                        .ip("localhost")
-                        .protocol(ProtocolEnum.HTTP)
-                        .port(8082L)
-                        .build()
-                )
-                .restEndpoint("http://localhost/test")
-                .verifyPaymentOptionEnabled(true)
-                .build()
-        ));
+        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+
     assertNotNull(paymentOptionsResponse);
-    verify(creditorInstitutionRestClient).callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any());
+    verify(creditorInstitutionRestClient)
+        .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
 
   @Test
-  void getPaymentOptionsShouldReturnExceptionOnMalformed() throws MalformedURLException {
-    when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any())
-    ).thenThrow(new MalformedURLException());
-    PaymentOptionsException paymentOptionsException =
-        assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001",
-            Station.builder().stationCode("000001_01")
-                .connection(
-                    Connection.builder()
-                        .ip("localhost")
-                        .protocol(ProtocolEnum.HTTP)
-                        .port(8082L)
-                        .build()
-                )
-                .restEndpoint("http://localhost:8080/test")
-                .verifyPaymentOptionEnabled(true)
-                .build()
-        ));
-    assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_SEMANTICA);
-    verify(creditorInstitutionRestClient).callEcPaymentOptionsVerify(
-        any(), any(), any(), any(), any(), any(), any(), any()
-    );
-  }
+  void getPaymentOptionsShouldReturnExceptionOnMissingEndpoint() {
+    Station station = buildStation("localhost", null);
 
-  @Test
-  void getPaymentOptionsShouldReturnExceptionOnMissingEndpoint() throws MalformedURLException {
     PaymentOptionsException paymentOptionsException =
-        assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001",
-            Station.builder().stationCode("000001_01")
-                .connection(
-                    Connection.builder()
-                        .ip("localhost")
-                        .protocol(ProtocolEnum.HTTP)
-                        .port(8082L)
-                        .build()
-                )
-                .restEndpoint(null)
-                .verifyPaymentOptionEnabled(true)
-                .build()
-        ));
+        assertThrows(
+            PaymentOptionsException.class,
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_SEMANTICA);
+    assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, paymentOptionsException.getErrorCode());
     verifyNoInteractions(creditorInstitutionRestClient);
   }
 
   @Test
-  void getPaymentOptionsShouldReturnExceptionOnBrokerServiceUrl() throws MalformedURLException {
+  void getPaymentOptionsShouldReturnExceptionOnBrokerServiceUrl() {
+    Station station = buildStation("localhost", ":8080");
+
     PaymentOptionsException paymentOptionsException =
-        assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001",
-            Station.builder().stationCode("000001_01")
-                .connection(
-                    Connection.builder()
-                        .ip("localhost")
-                        .protocol(ProtocolEnum.HTTP)
-                        .port(8082L)
-                        .build()
-                )
-                .restEndpoint(":8080")
-                .verifyPaymentOptionEnabled(true)
-                .build()
-        ));
+        assertThrows(
+            PaymentOptionsException.class,
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_SEMANTICA);
+    assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, paymentOptionsException.getErrorCode());
   }
 
   @Test
-  void getPaymentOptionsShouldReturnExceptionOnMissingConnection() throws MalformedURLException {
+  void getPaymentOptionsShouldReturnExceptionOnMissingConnection() {
+    Station station = buildStation(null, ":8080");
+
     PaymentOptionsException paymentOptionsException =
-        assertThrows(PaymentOptionsException.class, () -> creditorInstitutionService.getPaymentOptions(
-            "000001","000001",
-            Station.builder().stationCode("000001_01")
-                .connection(
-                    Connection.builder()
-                        .protocol(ProtocolEnum.HTTP)
-                        .port(8082L)
-                        .build()
-                )
-                .restEndpoint(":8080")
-                .verifyPaymentOptionEnabled(true)
-                .build()
-        ));
+        assertThrows(
+            PaymentOptionsException.class,
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(), AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE);
+    assertEquals(
+        AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
+        paymentOptionsException.getErrorCode());
   }
   
-  
-  // ----------------- GPD Special Guest Tests -----------------
+  //----------------- GPD Special Guest Tests -----------------
   @Test
   void getPaymentOptionsGpdSpecialGuestRestEndpointMatches()
       throws MalformedURLException {
@@ -189,7 +123,7 @@ class CreditorInstitutionServiceTest {
         .thenReturn(PaymentOptionsResponse.builder().build());
 
     PaymentOptionsResponse response = assertDoesNotThrow(
-        () -> creditorInstitutionService.getPaymentOptions(
+        () -> sut.getPaymentOptions(
             "000001", "000001",
             Station.builder()
                 .stationCode("000001_01")
@@ -213,7 +147,7 @@ class CreditorInstitutionServiceTest {
     .callGpdPaymentOptionsVerify(any(), any(), any(), any());
 
     verify(creditorInstitutionRestClient, Mockito.never())
-    .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any(), any(), any());
+    .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
 
   }
   
@@ -229,7 +163,7 @@ class CreditorInstitutionServiceTest {
 
     PaymentOptionsException ex = assertThrows(
         PaymentOptionsException.class,
-        () -> creditorInstitutionService.getPaymentOptions(
+        () -> sut.getPaymentOptions(
             "000001", "000001",
             Station.builder()
                 .stationCode("000001_01")
@@ -267,7 +201,7 @@ class CreditorInstitutionServiceTest {
 
     PaymentOptionsException ex = assertThrows(
         PaymentOptionsException.class,
-        () -> creditorInstitutionService.getPaymentOptions(
+        () -> sut.getPaymentOptions(
             "000001", "000001",
             Station.builder()
                 .stationCode("000001_01")
@@ -287,4 +221,13 @@ class CreditorInstitutionServiceTest {
     assertSame(clientException.getErrorCode(), ex.getErrorCode());
   }
 
+  private Station buildStation(String connectionIp, String restEndpoint) {
+    return Station.builder()
+        .stationCode("000001_01")
+        .connection(
+            Connection.builder().ip(connectionIp).protocol(ProtocolEnum.HTTP).port(8082L).build())
+        .restEndpoint(restEndpoint)
+        .verifyPaymentOptionEnabled(true)
+        .build();
+  }
 }

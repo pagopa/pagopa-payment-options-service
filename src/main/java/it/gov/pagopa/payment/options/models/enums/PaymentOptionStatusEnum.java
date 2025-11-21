@@ -1,6 +1,6 @@
 package it.gov.pagopa.payment.options.models.enums;
 
-public enum EnumPo {
+public enum PaymentOptionStatusEnum {
 
   PO_UNPAID,
   PO_PAID,

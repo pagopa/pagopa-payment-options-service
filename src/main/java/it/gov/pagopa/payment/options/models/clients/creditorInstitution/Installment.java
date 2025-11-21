@@ -1,6 +1,6 @@
 package it.gov.pagopa.payment.options.models.clients.creditorInstitution;
 
-import it.gov.pagopa.payment.options.models.enums.EnumInstallment;
+import it.gov.pagopa.payment.options.models.enums.InstallmentEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class Installment {
   private String description;
   private String dueDate;
   private String validFrom;
-  private EnumInstallment status;
+  private InstallmentEnum status;
   private String statusReason;
 
 }
