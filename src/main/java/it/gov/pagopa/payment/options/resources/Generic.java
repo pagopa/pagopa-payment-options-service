@@ -14,6 +14,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 
 @LoggedAPI
+@Path("/info")
 @Produces(value = MediaType.APPLICATION_JSON)
 public class Generic {
     @ConfigProperty(name = "quarkus.application.name", defaultValue = "")
@@ -31,7 +32,6 @@ public class Generic {
             @APIResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON))
     })
     @GET
-    @Path("/info")
     public Response info() {
         AppInfo info = AppInfo.builder()
                 .name(name)
