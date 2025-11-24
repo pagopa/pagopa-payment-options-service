@@ -63,6 +63,7 @@ public class PaymentOptionsService {
 
     Station station = null;
     StationCreditorInstitution stationCreditorInstitution = null;
+    Long segregationCode = null;
 
     try {
 
@@ -74,7 +75,7 @@ public class PaymentOptionsService {
             "Notice number contains a nav not valid for the OdP service");
       }
 
-      long segregationCode = Long.parseLong(noticeNumber.substring(1, 3));
+      segregationCode = Long.parseLong(noticeNumber.substring(1, 3));
 
       ConfigDataV1 configCacheData = getConfigData();
 
@@ -141,7 +142,7 @@ public class PaymentOptionsService {
       );
 
       PaymentOptionsResponse paymentOptionsResponse =
-          creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
+          creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station, segregationCode);
 
 
       Instant instantForEcRes = Instant.now();
