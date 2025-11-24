@@ -7,17 +7,24 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
+import it.gov.pagopa.payment.options.models.clients.gpd.error.OdPErrorResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import it.gov.pagopa.payment.options.models.enums.CreditorInstitutionErrorEnum;
 import it.gov.pagopa.payment.options.services.CreditorInstitutionService;
 import it.gov.pagopa.payment.options.test.extensions.WireMockExtensions;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import lombok.SneakyThrows;
@@ -26,6 +33,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @QuarkusTest
 @QuarkusTestResource(WireMockExtensions.class)
@@ -226,5 +235,65 @@ class CreditorInstitutionRestClientTest {
    assertSame(clientException, ex);
    assertSame(clientException.getErrorCode(), ex.getErrorCode());
  }
+ 
+ @Test
+ void manageGpdErrorResponseShouldThrowCreditorInstitutionException() throws Exception {
+   OdPErrorResponse gpdError =
+       OdPErrorResponse.builder()
+           .httpStatusCode(404)
+           .httpStatusDescription("Not Found")
+           .appErrorCode("ODP-404")
+           .timestamp(1724425035L)
+           .dateTime("2024-08-23T14:57:15.635528")
+           .errorMessage("PAA_SOME_ERROR some details")
+           .build();
+
+   String json = new ObjectMapper().writeValueAsString(gpdError);
+
+   Response response = mock(Response.class);
+   when(response.readEntity(String.class)).thenReturn(json);
+   
+   // the private method is invoked by reflection
+   PaymentOptionsException ex =
+		      assertThrows(
+		          PaymentOptionsException.class,
+		          () -> invokeManageGpdErrorResponse(response, creditorInstitutionRestClient));
+   
+   assertNotNull(ex);
+   assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
+ }
+ 
+ @Test
+ void manageGpdErrorResponseShouldThrowPaymentOptionsExceptionOnInvalidBody() throws Exception {
+   // entity NOT parsable as OdPErrorResponse
+   Response response = Response.status(500).entity("this is not json").build();
+
+   PaymentOptionsException ex =
+       assertThrows(
+           PaymentOptionsException.class,
+           () -> invokeManageGpdErrorResponse(response, creditorInstitutionRestClient));
+
+   assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
+ }
+ 
+ private RuntimeException invokeManageGpdErrorResponse(
+		 Response response, CreditorInstitutionRestClient client) throws Exception {
+	 Method m =
+			 CreditorInstitutionRestClient.class.getDeclaredMethod(
+					 "manageGpdErrorResponse", Response.class);
+	 m.setAccessible(true);
+	 try {
+		 m.invoke(client, response);
+		 return null;
+	 } catch (InvocationTargetException ite) {
+		 Throwable cause = ite.getCause();
+		 if (cause instanceof RuntimeException re) {
+			 throw re;
+		 } else {
+			 throw new RuntimeException(cause);
+		 }
+	 }
+ }
+ 
   
 }
