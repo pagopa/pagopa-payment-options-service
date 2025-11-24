@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.net.MalformedURLException;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -46,7 +45,7 @@ class CreditorInstitutionServiceTest {
     Station station = buildStation("localhost", "http://localhost:8080/test");
 
     PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
 
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient)
@@ -62,7 +61,7 @@ class CreditorInstitutionServiceTest {
     Station station = buildStation("localhost", "http://localhost/test");
 
     PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
 
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient)
@@ -76,7 +75,7 @@ class CreditorInstitutionServiceTest {
     PaymentOptionsException paymentOptionsException =
         assertThrows(
             PaymentOptionsException.class,
-            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
 
     assertNotNull(paymentOptionsException);
     assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, paymentOptionsException.getErrorCode());
@@ -90,7 +89,7 @@ class CreditorInstitutionServiceTest {
     PaymentOptionsException paymentOptionsException =
         assertThrows(
             PaymentOptionsException.class,
-            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
 
     assertNotNull(paymentOptionsException);
     assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, paymentOptionsException.getErrorCode());
@@ -103,7 +102,7 @@ class CreditorInstitutionServiceTest {
     PaymentOptionsException paymentOptionsException =
         assertThrows(
             PaymentOptionsException.class,
-            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station));
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
 
     assertNotNull(paymentOptionsException);
     assertEquals(
@@ -113,8 +112,7 @@ class CreditorInstitutionServiceTest {
   
   //----------------- GPD Special Guest Tests -----------------
   @Test
-  void getPaymentOptionsGpdSpecialGuestRestEndpointMatches()
-      throws MalformedURLException {
+  void getPaymentOptionsGpdSpecialGuestRestEndpointMatches() {
 
     String gpdEndpoint = "http://localhost:8080";
 
@@ -136,7 +134,8 @@ class CreditorInstitutionServiceTest {
                 )
                 .restEndpoint(gpdEndpoint)
                 .verifyPaymentOptionEnabled(true)
-                .build()
+                .build(),
+                null
         )
     );
 
@@ -152,14 +151,18 @@ class CreditorInstitutionServiceTest {
   }
   
   @Test
-  void getPaymentOptionsMalformedUrlGpdToPaymentOptionsException()
-      throws MalformedURLException {
+  void getPaymentOptionsMalformedUrlGpdToPaymentOptionsException() {
 
     String gpdEndpoint = "http://localhost";
+    
+    PaymentOptionsException clientException = new PaymentOptionsException(
+            AppErrorCodeEnum.ODP_SEMANTICA,
+            "[Payment Options] Malformed GPD-Core endpoint"
+        );
 
     when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
         any(), any(), any(), any()))
-        .thenThrow(new MalformedURLException("bad gpd url"));
+        .thenThrow(clientException);
 
     PaymentOptionsException ex = assertThrows(
         PaymentOptionsException.class,
@@ -176,7 +179,8 @@ class CreditorInstitutionServiceTest {
                 )
                 .restEndpoint(gpdEndpoint)
                 .verifyPaymentOptionEnabled(true)
-                .build()
+                .build(),
+                null
         )
     );
 
@@ -185,8 +189,7 @@ class CreditorInstitutionServiceTest {
   }
   
   @Test
-  void getPaymentOptionsGpdSpecialGuestPropagatesPaymentOptionsException()
-      throws MalformedURLException {
+  void getPaymentOptionsGpdSpecialGuestPropagatesPaymentOptionsException() {
 
     String gpdEndpoint = "http://localhost:8080";
 
@@ -214,7 +217,8 @@ class CreditorInstitutionServiceTest {
                 )
                 .restEndpoint(gpdEndpoint)
                 .verifyPaymentOptionEnabled(true)
-                .build()
+                .build(),
+                null
         )
     );
 

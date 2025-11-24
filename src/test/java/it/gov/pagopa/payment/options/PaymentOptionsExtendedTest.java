@@ -49,7 +49,7 @@ public class PaymentOptionsExtendedTest {
         eq("00001"), eq("00001"),
         eq("77777777777"),eq("311111111112222222"), any());
     verify(creditorInstitutionService).getPaymentOptions(
-        eq("311111111112222222"), eq("77777777777"), any());
+        eq("311111111112222222"), eq("77777777777"), any(), any());
     verify(eventService, times(0)).sendVerifyKoEvent(
         any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
 

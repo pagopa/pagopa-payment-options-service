@@ -89,8 +89,10 @@ public class ConfigCacheService {
           })
       );
 
-      logger.debug("[Payment Options] Retrieved data {}",
-          new ObjectMapper().writeValueAsString(configDataV1));
+      if (logger.isTraceEnabled()) {
+        logger.trace("[Payment Options] Retrieved data {}",
+                new ObjectMapper().writeValueAsString(configDataV1));
+      }
 
       if (configDataV1.getVersion() == null || configCacheData.getVersion() == null ||
           configDataV1.getVersion().compareTo(configCacheData.getVersion()) >= 0) {

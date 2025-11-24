@@ -71,7 +71,7 @@ class PaymentOptionsServiceTest {
             )
         .build());
 
-    when(creditorInstitutionService.getPaymentOptions(any(), any(), any())).thenReturn(
+    when(creditorInstitutionService.getPaymentOptions(any(), any(), any(), any())).thenReturn(
         PaymentOptionsResponse.builder().build());
 
     PaymentOptionsResponse paymentOptionsResponse = assertDoesNotThrow(() ->
@@ -79,7 +79,7 @@ class PaymentOptionsServiceTest {
         "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsResponse);
     verify(configCacheService).getConfigCacheData();
-    verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
+    verify(creditorInstitutionService).getPaymentOptions(any(), any(), any(), any());
 
   }
 
@@ -105,7 +105,7 @@ class PaymentOptionsServiceTest {
         )
         .build());
 
-    when(creditorInstitutionService.getPaymentOptions(any(), any(), any())).thenThrow(
+    when(creditorInstitutionService.getPaymentOptions(any(), any(), any(), any())).thenThrow(
         new CreditorInstitutionException(
             ErrorResponse.builder().appErrorCode("ODP-001")
                 .errorMessage("test").build(), "test"));
@@ -115,7 +115,7 @@ class PaymentOptionsServiceTest {
         "00001", "00001", "00001", "3000000000", null));
     assertNotNull(creditorInstitutionException);
     verify(configCacheService).getConfigCacheData();
-    verify(creditorInstitutionService).getPaymentOptions(any(), any(), any());
+    verify(creditorInstitutionService).getPaymentOptions(any(), any(), any(), any());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
