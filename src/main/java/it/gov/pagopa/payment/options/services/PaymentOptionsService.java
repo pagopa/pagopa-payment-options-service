@@ -276,7 +276,7 @@ public class PaymentOptionsService {
     if (creditorInstitution == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
           "Creditor institution with id " + fiscalCode + " not found");
-    } else if (!creditorInstitution.getEnabled()) {
+    } else if (creditorInstitution.getEnabled() == null || !creditorInstitution.getEnabled().booleanValue()) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
           "Creditor institution with id " + fiscalCode + " disabled");
     }

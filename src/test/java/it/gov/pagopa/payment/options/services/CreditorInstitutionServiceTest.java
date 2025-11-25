@@ -163,26 +163,28 @@ class CreditorInstitutionServiceTest {
     when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
         any(), any(), any(), any()))
         .thenThrow(clientException);
+    
+    Station station = Station.builder()
+    		.stationCode("000001_01")
+    		.connection(
+    				it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
+    				.ip("some-ip")
+    				.protocol(ProtocolEnum.HTTPS)
+    				.port(443L)
+    				.build()
+    				)
+    		.restEndpoint(gpdEndpoint)
+    		.verifyPaymentOptionEnabled(true)
+    		.build();
 
     PaymentOptionsException ex = assertThrows(
-        PaymentOptionsException.class,
-        () -> sut.getPaymentOptions(
-            "000001", "000001",
-            Station.builder()
-                .stationCode("000001_01")
-                .connection(
-                    it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
-                        .ip("some-ip")
-                        .protocol(ProtocolEnum.HTTPS)
-                        .port(443L)
-                        .build()
-                )
-                .restEndpoint(gpdEndpoint)
-                .verifyPaymentOptionEnabled(true)
-                .build(),
-                null
-        )
-    );
+    		PaymentOptionsException.class,
+    		() -> sut.getPaymentOptions(
+    				"000001", "000001",
+    				station, // Oggetto pre-creato
+    				null
+    				)
+    		);
 
     assertNotNull(ex);
     assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, ex.getErrorCode());
@@ -201,24 +203,27 @@ class CreditorInstitutionServiceTest {
     when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
         any(), any(), any(), any()))
         .thenThrow(clientException);
+    
+    Station station = Station.builder()
+        .stationCode("000001_01")
+        .connection(
+            it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
+                .ip("some-ip")
+                .protocol(ProtocolEnum.HTTPS)
+                .port(443L)
+                .build()
+        )
+        .restEndpoint(gpdEndpoint)
+        .verifyPaymentOptionEnabled(true)
+        .build();
 
     PaymentOptionsException ex = assertThrows(
         PaymentOptionsException.class,
         () -> sut.getPaymentOptions(
-            "000001", "000001",
-            Station.builder()
-                .stationCode("000001_01")
-                .connection(
-                    it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
-                        .ip("some-ip")
-                        .protocol(ProtocolEnum.HTTPS)
-                        .port(443L)
-                        .build()
-                )
-                .restEndpoint(gpdEndpoint)
-                .verifyPaymentOptionEnabled(true)
-                .build(),
-                null
+            "000001", 
+            "000001",
+            station,
+            null
         )
     );
 
