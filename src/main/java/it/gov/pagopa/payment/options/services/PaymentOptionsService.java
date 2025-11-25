@@ -90,18 +90,18 @@ public class PaymentOptionsService {
 
       station = stationMap.get(stationCreditorInstitution.getStationCode());
       if (station == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
-            "Station not found using station code " + stationCreditorInstitution.getStationCode());
-      } else if (!station.getEnabled()) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
-            "Station found using station code " +
-                stationCreditorInstitution.getStationCode() + " disabled");
-      } else if (!station.getVerifyPaymentOptionEnabled()) {
-        throw new PaymentOptionsException(
-            AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
-            "Station found using station code " +
-                stationCreditorInstitution.getStationCode() + " has the OdP verify service disabled."
-                + " Use the standard verification flow");
+    	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
+    			  "Station not found using station code " + stationCreditorInstitution.getStationCode());
+      } else if (station.getEnabled() == null || !station.getEnabled().booleanValue()) {
+    	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
+    			  "Station found using station code " +
+    					  stationCreditorInstitution.getStationCode() + " disabled");
+      } else if (station.getVerifyPaymentOptionEnabled() == null || !station.getVerifyPaymentOptionEnabled().booleanValue()) {
+    	  throw new PaymentOptionsException(
+    			  AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
+    			  "Station found using station code " +
+    					  stationCreditorInstitution.getStationCode() + " has the OdP verify service disabled."
+    					  + " Use the standard verification flow");
       }
 
     } catch (PaymentOptionsException e) {

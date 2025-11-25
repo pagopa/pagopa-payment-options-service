@@ -42,9 +42,9 @@ public class CreditorInstitutionService {
   
  //endpoint "special guest" GPD-Core
  @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint")
- Optional<String> GPD_REST_ENDPOINT;
+ Optional<String> gpdRestEndpoint;
  @ConfigProperty(name = "CreditorInstitutionRestClient.odpBasePathPaymentOptionsServices")
- Optional<String> ODP_BASE_PATH_PAYMENT_OPTIONS_SERVICES;
+ Optional<String> odpBasePathPaymentOptionsServices;
 
   /**
    * Using the provided input attempts to call the creditor institution service to obtain the list
@@ -162,7 +162,7 @@ public class CreditorInstitutionService {
   }
   
   private boolean isEcGpdSpecialGuest(Station station) {
-	  if (station.getRestEndpoint() == null || GPD_REST_ENDPOINT.isEmpty()) {
+	  if (station.getRestEndpoint() == null || gpdRestEndpoint.isEmpty()) {
 		  return false;
 	  }
 	  
@@ -172,7 +172,7 @@ public class CreditorInstitutionService {
 	      stationEndpoint = stationEndpoint.substring(0, stationEndpoint.length() - 1);
 	  }
 	 
-	  String gpdEndpoint = GPD_REST_ENDPOINT.get();
+	  String gpdEndpoint = gpdRestEndpoint.get();
 	  // removes possible final "/"
 	  while (gpdEndpoint.endsWith("/")) {
 	      gpdEndpoint = gpdEndpoint.substring(0, gpdEndpoint.length() - 1);

@@ -385,7 +385,7 @@ class CreditorInstitutionRestClientTest {
 
  
  @Test
- void manageGpdErrorResponseShouldThrowPaymentOptionsExceptionOnInvalidJson() throws Exception {
+ void manageGpdErrorResponseShouldThrowPaymentOptionsExceptionOnInvalidJson() {
      Response response = mock(Response.class);
      when(response.readEntity(String.class)).thenReturn("not-a-json");
 
@@ -401,89 +401,6 @@ class CreditorInstitutionRestClientTest {
      assertTrue(cause instanceof PaymentOptionsException);
      assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ((PaymentOptionsException) cause).getErrorCode());
  }
-
-
-
-/*
-
- @ParameterizedTest
- @ValueSource(strings = {"", "   ", "not-a-valid-url"})
- void callGpdPaymentOptionsVerifyShouldThrowSemanticaOnInvalidEndpoint(String gpdEndpoint) {
-   PaymentOptionsException ex =
-       assertThrows(
-           PaymentOptionsException.class,
-           () ->
-               creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-                   gpdEndpoint, "77777777777", "311111111112222222", null));
-
-   assertNotNull(ex);
-   assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
- }
-
- @Test
- void callGpdPaymentOptionsVerifyShouldPropagatePaymentOptionsException() {
-   PaymentOptionsException clientException =
-       new PaymentOptionsException(
-           AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
-           "[Payment Options] Unable to reach GPD-Core endpoint");
-
-   CreditorInstitutionRestClient spyClient =
-       Mockito.spy(creditorInstitutionRestClient);
-
-   Mockito.doThrow(clientException)
-       .when(spyClient)
-       .callGpdPaymentOptionsVerify(any(), any(), any(), any());
-
-   PaymentOptionsException ex =
-       assertThrows(
-           PaymentOptionsException.class,
-           () ->
-               spyClient.callGpdPaymentOptionsVerify(
-                   "http://dummy-gpd-endpoint", "77777777777", "311111111112222222", null));
-
-   assertSame(clientException, ex);
-   assertSame(clientException.getErrorCode(), ex.getErrorCode());
- }
- 
- @Test
- void manageGpdErrorResponseShouldThrowCreditorInstitutionException() throws Exception {
-   OdPErrorResponse gpdError =
-       OdPErrorResponse.builder()
-           .httpStatusCode(404)
-           .httpStatusDescription("Not Found")
-           .appErrorCode("ODP-404")
-           .timestamp(1724425035L)
-           .dateTime("2024-08-23T14:57:15.635528")
-           .errorMessage("PAA_SOME_ERROR some details")
-           .build();
-
-   String json = new ObjectMapper().writeValueAsString(gpdError);
-
-   Response response = mock(Response.class);
-   when(response.readEntity(String.class)).thenReturn(json);
-   
-   // the private method is invoked by reflection
-   PaymentOptionsException ex =
-		      assertThrows(
-		          PaymentOptionsException.class,
-		          () -> invokeManageGpdErrorResponse(response, creditorInstitutionRestClient));
-   
-   assertNotNull(ex);
-   assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
- }
- 
- @Test
- void manageGpdErrorResponseShouldThrowPaymentOptionsExceptionOnInvalidBody() throws Exception {
-   // entity NOT parsable as OdPErrorResponse
-   Response response = Response.status(500).entity("this is not json").build();
-
-   PaymentOptionsException ex =
-       assertThrows(
-           PaymentOptionsException.class,
-           () -> invokeManageGpdErrorResponse(response, creditorInstitutionRestClient));
-
-   assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
- }*/
  
  private RuntimeException invokeManageGpdErrorResponse(
 		 Response response, CreditorInstitutionRestClient client) throws Exception {
