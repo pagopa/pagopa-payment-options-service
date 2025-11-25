@@ -92,11 +92,11 @@ public class PaymentOptionsService {
       if (station == null) {
     	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
     			  "Station not found using station code " + stationCreditorInstitution.getStationCode());
-      } else if (station.getEnabled() == null || !station.getEnabled().booleanValue()) {
+      } else if (!Boolean.TRUE.equals(station.getEnabled())) {
     	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
     			  "Station found using station code " +
     					  stationCreditorInstitution.getStationCode() + " disabled");
-      } else if (station.getVerifyPaymentOptionEnabled() == null || !station.getVerifyPaymentOptionEnabled().booleanValue()) {
+      } else if (!Boolean.TRUE.equals(station.getVerifyPaymentOptionEnabled())) {
     	  throw new PaymentOptionsException(
     			  AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
     			  "Station found using station code " +
@@ -276,7 +276,7 @@ public class PaymentOptionsService {
     if (creditorInstitution == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
           "Creditor institution with id " + fiscalCode + " not found");
-    } else if (creditorInstitution.getEnabled() == null || !creditorInstitution.getEnabled().booleanValue()) {
+    } else if (!Boolean.TRUE.equals(creditorInstitution.getEnabled())) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
           "Creditor institution with id " + fiscalCode + " disabled");
     }

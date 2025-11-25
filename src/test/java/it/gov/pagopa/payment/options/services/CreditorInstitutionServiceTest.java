@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -117,7 +118,7 @@ class CreditorInstitutionServiceTest {
     String gpdEndpoint = "http://localhost:8080";
 
     when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-        any(), any(), any(), any()))
+        any(), any(), any()))
         .thenReturn(PaymentOptionsResponse.builder().build());
 
     PaymentOptionsResponse response = assertDoesNotThrow(
@@ -143,7 +144,7 @@ class CreditorInstitutionServiceTest {
 
     // ONLY the GPD client should be called
     verify(creditorInstitutionRestClient, Mockito.times(1))
-    .callGpdPaymentOptionsVerify(any(), any(), any(), any());
+    .callGpdPaymentOptionsVerify(any(), any(), any());
 
     verify(creditorInstitutionRestClient, Mockito.never())
     .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
@@ -153,41 +154,45 @@ class CreditorInstitutionServiceTest {
   @Test
   void getPaymentOptionsMalformedUrlGpdToPaymentOptionsException() {
 
-    String gpdEndpoint = "http://localhost";
-    
+	sut.gpdRestEndpoint = Optional.of("http://localhost:8080");
+
     PaymentOptionsException clientException = new PaymentOptionsException(
-            AppErrorCodeEnum.ODP_SEMANTICA,
-            "[Payment Options] Malformed GPD-Core endpoint"
-        );
+        AppErrorCodeEnum.ODP_SEMANTICA,
+        "[Payment Options] Malformed GPD-Core endpoint"
+    );
 
     when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-        any(), any(), any(), any()))
+        any(), any(), any()))
         .thenThrow(clientException);
-    
+
     Station station = Station.builder()
-    		.stationCode("000001_01")
-    		.connection(
-    				it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
-    				.ip("some-ip")
-    				.protocol(ProtocolEnum.HTTPS)
-    				.port(443L)
-    				.build()
-    				)
-    		.restEndpoint(gpdEndpoint)
-    		.verifyPaymentOptionEnabled(true)
-    		.build();
+        .stationCode("000001_01")
+        .connection(
+            it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
+                .ip("some-ip")
+                .protocol(ProtocolEnum.HTTPS)
+                .port(443L)
+                .build()
+        )
+        .restEndpoint("http://localhost:8080")
+        .verifyPaymentOptionEnabled(true)
+        .build();
 
     PaymentOptionsException ex = assertThrows(
-    		PaymentOptionsException.class,
-    		() -> sut.getPaymentOptions(
-    				"000001", "000001",
-    				station, // Oggetto pre-creato
-    				null
-    				)
-    		);
+        PaymentOptionsException.class,
+        () -> sut.getPaymentOptions(
+            "000001", "000001",
+            station,
+            null
+        )
+    );
 
     assertNotNull(ex);
-    assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, ex.getErrorCode());
+    assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
+    assertTrue(ex.getMessage().contains("Malformed GPD-Core endpoint"));
+
+    verify(creditorInstitutionRestClient, Mockito.never())
+        .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
   
   @Test
@@ -201,7 +206,7 @@ class CreditorInstitutionServiceTest {
     );
 
     when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-        any(), any(), any(), any()))
+        any(), any(), any()))
         .thenThrow(clientException);
     
     Station station = Station.builder()
@@ -226,8 +231,15 @@ class CreditorInstitutionServiceTest {
             null
         )
     );
-
+    
+    assertSame(clientException, ex);
     assertSame(clientException.getErrorCode(), ex.getErrorCode());
+
+    verify(creditorInstitutionRestClient, Mockito.times(1))
+    .callGpdPaymentOptionsVerify(any(), any(), any());
+
+    verify(creditorInstitutionRestClient, Mockito.never())
+    .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
 
   private Station buildStation(String connectionIp, String restEndpoint) {

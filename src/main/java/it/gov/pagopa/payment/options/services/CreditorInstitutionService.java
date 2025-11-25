@@ -40,11 +40,9 @@ public class CreditorInstitutionService {
     this.creditorInstitutionRestClient = creditorInstitutionRestClient;
   }
   
- //endpoint "special guest" GPD-Core
- @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint")
- Optional<String> gpdRestEndpoint;
- @ConfigProperty(name = "CreditorInstitutionRestClient.odpBasePathPaymentOptionsServices")
- Optional<String> odpBasePathPaymentOptionsServices;
+  //endpoint "special guest" GPD-Core
+  @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint")
+  Optional<String> gpdRestEndpoint;
 
   /**
    * Using the provided input attempts to call the creditor institution service to obtain the list
@@ -66,15 +64,7 @@ public class CreditorInstitutionService {
 		 logger.info("[Payment Options] Using GPD-Core special guest endpoint for station {}",
 				 station.getStationCode());
 
-		 String gpdEndpoint = station.getRestEndpoint();
-		 if (gpdEndpoint == null) {
-			 throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA,
-					 "[Payment Options] GPD-Core endpoint not provided for station "
-							 + station.getStationCode());
-		 }
-
 		 return creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-				 gpdEndpoint,
 				 fiscalCode,
 				 noticeNumber,
 				 (segregationCode != null) ? String.valueOf(segregationCode) : null  // optional param

@@ -8,14 +8,13 @@ import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
-import it.gov.pagopa.payment.options.models.clients.gpd.error.OdPErrorResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import it.gov.pagopa.payment.options.models.enums.CreditorInstitutionErrorEnum;
 import it.gov.pagopa.payment.options.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -23,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +30,18 @@ import org.slf4j.LoggerFactory;
 /** Rest Client for Creditor Institution services */
 @ApplicationScoped
 public class CreditorInstitutionRestClient {
+	
+	private final GpdCoreRestClientInterface gpdClient;
 
 	private final Logger logger = LoggerFactory.getLogger(CreditorInstitutionRestClient.class);
 
 	private final ObjectMapper objectMapper;
 
-	public CreditorInstitutionRestClient(ObjectMapper objectMapper) {
+	@Inject
+	public CreditorInstitutionRestClient(ObjectMapper objectMapper, 
+			@RestClient GpdCoreRestClientInterface gpdClient) {
 		this.objectMapper = objectMapper;
+		this.gpdClient = gpdClient;
 	}
 
 	/**
@@ -106,7 +111,7 @@ public class CreditorInstitutionRestClient {
 	      ErrorResponse errorResponse =
 	          this.objectMapper.readValue(response.readEntity(String.class), ErrorResponse.class);
 	      errorResponse =
-	          validateAndBuildErrorResponse(response.getStatus(), errorResponse, targetPath);
+	          validateAndBuildErrorResponse(response.getStatus(), errorResponse, extractOrgFiscalCode(targetPath));
 
 	      throw new CreditorInstitutionException(
 	          errorResponse,
@@ -115,7 +120,7 @@ public class CreditorInstitutionRestClient {
 	  }
 
 	  private ErrorResponse validateAndBuildErrorResponse(
-	      int responseStatus, ErrorResponse errorResponse, String targetPath) {
+	      int responseStatus, ErrorResponse errorResponse, String orgFiscalCode) {
 	    String responseErrorCode = errorResponse.getAppErrorCode();
 	    String errorMessage =
 	        String.format(
@@ -129,7 +134,6 @@ public class CreditorInstitutionRestClient {
 	            != responseStatus) {
 	      errorResponseForPSP.setErrorMessage(CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name());
 
-	      String orgFiscalCode = extractOrgFiscalCode(targetPath);
 	      logger.error(
 	          "[Payment Options] [Alert] Organization with fiscal code {} responded with an invalid error code {} response status {} pair",
 	          StringUtil.sanitize(orgFiscalCode),
@@ -171,51 +175,48 @@ public class CreditorInstitutionRestClient {
 	   * @return PaymentOptionsResponse
 	   */
 	  public PaymentOptionsResponse callGpdPaymentOptionsVerify(
-			  String gpdBaseEndpoint,
 			  String organizationFiscalCode,
 			  String noticeNumber,
 			  String segregationCodes
 			  ) {
 
-		  final URL baseUrl;
-		  try {
-			  if (gpdBaseEndpoint == null || gpdBaseEndpoint.isBlank()) {
-				  throw new MalformedURLException("GPD-Core endpoint is null or blank");
-			  }
-			  baseUrl = new URL(gpdBaseEndpoint);
-		  } catch (MalformedURLException e) {
-			  // Node-side semantics: malformed endpoint
-			  throw new PaymentOptionsException(
-					  AppErrorCodeEnum.ODP_SEMANTICA,
-					  "[Payment Options] Malformed GPD-Core endpoint",
-					  e
-					  );
-		  }
+		  try (Response response = gpdClient.verifyPaymentOptions(
+				  organizationFiscalCode, noticeNumber, segregationCodes)) {
 
-		  // Rest Client
-		  RestClientBuilder builder = RestClientBuilder.newBuilder().baseUrl(baseUrl);
-		  GpdCoreRestClientInterface gpdClient = builder.build(GpdCoreRestClientInterface.class);
-
-		  try {
-			  // Call to service:
-			  //    - if 2xx -> return normal response
-			  //    - if 4xx/5xx -> Quarkus throws ClientWebApplicationException
-			  try (Response response = gpdClient.verifyPaymentOptions(
-					  organizationFiscalCode, noticeNumber, segregationCodes)) {
-
+			  if (response.getStatus() >= 200 && response.getStatus() < 300) {
 				  return objectMapper.readValue(
 						  response.readEntity(String.class),
 						  PaymentOptionsResponse.class
 						  );
 			  }
 
+			  // business error → mapping come EC
+			  ErrorResponse errorResponse = objectMapper.readValue(
+					  response.readEntity(String.class),
+					  ErrorResponse.class
+					  );
+
+			  errorResponse = validateAndBuildErrorResponse(
+					  response.getStatus(),
+					  errorResponse,
+					  organizationFiscalCode
+					  );
+
+			  throw new CreditorInstitutionException(
+					  errorResponse,
+					  "[Payment Options] Encountered a managed error calling GPD-Core verifyPaymentOptions"
+					  );
+
 		  } catch (ClientWebApplicationException e) {
-			  Response response = e.getResponse();
-			  if (response != null) {
-				  // Business error from GPD-Core: OdPErrorResponse -> ErrorResponse -> CreditorInstitutionException
-				  manageGpdErrorResponse(response);
+
+			  Response resp = e.getResponse();
+			  if (resp != null) {
+				  // business error inside ClientWebApplicationException
+				  return callGpdPaymentOptionsVerify(
+						  organizationFiscalCode, noticeNumber, segregationCodes
+						  );
 			  }
-			  // If there is no response --> network error / handshake / timeout...
+
 			  throw new PaymentOptionsException(
 					  AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
 					  "[Payment Options] Unable to reach GPD-Core endpoint",
@@ -223,67 +224,28 @@ public class CreditorInstitutionRestClient {
 					  );
 
 		  } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-			  // GPD-Core 2xx response parsing error
+
 			  Instant now = Instant.now();
-			  ErrorResponse errorResponse =
-					  buildErrorResponse(
-							  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
-							  now.toEpochMilli(),
-							  now.truncatedTo(ChronoUnit.MILLIS).toString()
-							  );
+			  ErrorResponse fallback = buildErrorResponse(
+					  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
+					  now.toEpochMilli(),
+					  now.truncatedTo(ChronoUnit.MILLIS).toString()
+					  );
+
 			  throw new CreditorInstitutionException(
-					  errorResponse,
+					  fallback,
 					  "[Payment Options] Unable to parse the GPD-Core response"
 					  );
 
 		  } catch (CreditorInstitutionException e) {
-			  // already mapped -> only propagated
 			  throw e;
-
 		  } catch (Exception e) {
-			  // unexpected errors -> PaymentOptionsException
 			  throw new PaymentOptionsException(
 					  AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
 					  e.getMessage(),
 					  e
 					  );
 		  }
-	}
-
-	private void manageGpdErrorResponse(Response response) {
-		try {
-			// 1) parse GPD-Core error response
-			OdPErrorResponse gpdError = objectMapper.readValue(
-					response.readEntity(String.class),
-					OdPErrorResponse.class
-					);
-
-			// 2) map GPD-Core OdPErrorResponse -> Payment Options internal ErrorResponse
-			ErrorResponse errorResponse = ErrorResponse.builder()
-					.httpStatusCode(gpdError.getHttpStatusCode())
-					.httpStatusDescription(gpdError.getHttpStatusDescription())
-					.appErrorCode(gpdError.getAppErrorCode())
-					.timestamp(gpdError.getTimestamp())
-					.dateTime(gpdError.getDateTime())
-					.errorMessage(gpdError.getErrorMessage())
-					.build();
-
-			// 3) throws as CreditorInstitutionException
-			throw new CreditorInstitutionException(
-					errorResponse,
-					"[Payment Options] Encountered a managed error calling GPD-Core verifyPaymentOptions");
-
-		} catch (CreditorInstitutionException creditorInstitutionException) {
-			// the exception is propagated as is
-			throw creditorInstitutionException;
-		} catch (Exception e) {
-			// if GPD error cannot be parsed -> generic fallback
-			throw new PaymentOptionsException(
-					AppErrorCodeEnum.ODP_SEMANTICA,
-					e.getMessage());
-		}
-	}
-	
-	
+	  }
 
 }

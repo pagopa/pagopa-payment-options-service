@@ -7,15 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+import static it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum.ODP_ERRORE_EMESSO_DA_PAA;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.payment.options.exception.CreditorInstitutionException;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
+import it.gov.pagopa.payment.options.models.ErrorResponse;
 import it.gov.pagopa.payment.options.models.clients.creditorInstitution.PaymentOptionsResponse;
-import it.gov.pagopa.payment.options.models.clients.gpd.error.OdPErrorResponse;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import it.gov.pagopa.payment.options.models.enums.CreditorInstitutionErrorEnum;
 import it.gov.pagopa.payment.options.services.CreditorInstitutionService;
@@ -23,18 +23,14 @@ import it.gov.pagopa.payment.options.test.extensions.WireMockExtensions;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.MockedStatic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -187,239 +183,165 @@ class CreditorInstitutionRestClientTest {
   
   @Test
   void callGpdPaymentOptionsVerifyShouldReturnDataOn2xx() throws Exception {
-      String gpdEndpoint = "http://localhost:8080";
 
-      // mock static per RestClientBuilder
-      try (MockedStatic<RestClientBuilder> builderStatic = mockStatic(RestClientBuilder.class)) {
-          RestClientBuilder builder = mock(RestClientBuilder.class);
-          GpdCoreRestClientInterface gpdClient = mock(GpdCoreRestClientInterface.class);
-          Response response = mock(Response.class);
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
 
-          builderStatic.when(RestClientBuilder::newBuilder).thenReturn(builder);
-          when(builder.baseUrl(any(URL.class))).thenReturn(builder);
-          when(builder.build(GpdCoreRestClientInterface.class)).thenReturn(gpdClient);
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
 
-          PaymentOptionsResponse expected = PaymentOptionsResponse.builder().build();
-          String body = new ObjectMapper().writeValueAsString(expected);
-          when(gpdClient.verifyPaymentOptions(any(), any(), any())).thenReturn(response);
-          when(response.readEntity(String.class)).thenReturn(body);
+      PaymentOptionsResponse expected = PaymentOptionsResponse.builder().build();
+      String body = om.writeValueAsString(expected);
 
-          PaymentOptionsResponse result = creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-              gpdEndpoint,
-              "77777777777",
-              "311111111111111111",
-              null
-          );
+      Response response = mock(Response.class);
+      when(response.getStatus()).thenReturn(200);
+      when(response.readEntity(String.class)).thenReturn(body);
 
-          assertNotNull(result);
-      }
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenReturn(response);
+
+      PaymentOptionsResponse result =
+          client.callGpdPaymentOptionsVerify("77777777777", "311111111111111111", null);
+
+      assertNotNull(result);
+  }
+  
+ 
+  @Test
+  void callGpdPaymentOptionsVerifyShouldMapBusinessErrorFromGpd() throws Exception {
+
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
+
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
+
+      ErrorResponse err = ErrorResponse.builder()
+          .httpStatusCode(404)
+          .httpStatusDescription("Not Found")
+          .appErrorCode("ODP-404")
+          .timestamp(1724425035L)
+          .dateTime("2024-08-23T14:57:15.635528")
+          .errorMessage("PAA_SOME_ERROR details")
+          .build();
+
+      String json = om.writeValueAsString(err);
+
+      Response resp = mock(Response.class);
+      when(resp.getStatus()).thenReturn(404);
+      when(resp.readEntity(String.class)).thenReturn(json);
+
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenReturn(resp);
+
+      CreditorInstitutionException ex = assertThrows(
+          CreditorInstitutionException.class,
+          () -> client.callGpdPaymentOptionsVerify(
+              "77777777777", "311111111111111111", null)
+      );
+
+      assertNotNull(ex.getErrorResponse());
+      assertEquals(
+    		  ODP_ERRORE_EMESSO_DA_PAA.getStatus().getStatusCode(),
+    		  ex.getErrorResponse().getHttpStatusCode()
+    		  );
+      assertEquals(
+    		  ODP_ERRORE_EMESSO_DA_PAA.getErrorCode(),
+    		  ex.getErrorResponse().getAppErrorCode()
+    		  );
+      assertEquals(
+    		  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
+    		  ex.getErrorResponse().getErrorMessage()
+    		  );
+  }
+
+ 
+  @Test
+  void callGpdPaymentOptionsVerifyShouldMapNetworkErrorToPaymentOptionsException() {
+
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
+
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
+
+      ClientWebApplicationException cwae = mock(ClientWebApplicationException.class);
+      when(cwae.getResponse()).thenReturn(null);
+
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenThrow(cwae);
+
+      PaymentOptionsException ex = assertThrows(
+          PaymentOptionsException.class,
+          () -> client.callGpdPaymentOptionsVerify(
+              "77777777777", "311111111111111111", null)
+      );
+
+      assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, ex.getErrorCode());
+  }
+
+ 
+  @Test
+  void callGpdPaymentOptionsVerifyShouldMapParsingErrorToCreditorInstitutionException() throws Exception {
+
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
+
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
+
+      Response response = mock(Response.class);
+      when(response.getStatus()).thenReturn(200);
+      when(response.readEntity(String.class)).thenReturn("NOT_JSON");
+
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenReturn(response);
+
+      CreditorInstitutionException ex = assertThrows(
+          CreditorInstitutionException.class,
+          () -> client.callGpdPaymentOptionsVerify(
+              "77777777777", "311111111111111111", null)
+      );
+
+      assertEquals(
+          CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
+          ex.getErrorResponse().getErrorMessage()
+      );
   }
   
   @Test
-  void callGpdPaymentOptionsVerifyShouldThrowOnMalformedEndpoint() {
-      PaymentOptionsException ex = assertThrows(
-          PaymentOptionsException.class,
-          () -> creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-              "  ",         
-              "77777777777",
-              "311111111111111111",
-              null
-          )
+  void callGpdPaymentOptionsVerifyShouldThrowMappedCreditorInstitutionException() throws Exception {
+
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
+
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
+
+      ErrorResponse err = ErrorResponse.builder()
+          .httpStatusCode(500)
+          .httpStatusDescription("Error")
+          .appErrorCode("PAA_SYSTEM_ERROR")
+          .timestamp(1L)
+          .dateTime("2024-01-01T00:00:00")
+          .errorMessage("details")
+          .build();
+
+      String json = om.writeValueAsString(err);
+
+      Response resp = mock(Response.class);
+      when(resp.getStatus()).thenReturn(500);
+      when(resp.readEntity(String.class)).thenReturn(json);
+
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenReturn(resp);
+
+      RuntimeException ex = assertThrows(
+          RuntimeException.class,
+          () -> client.callGpdPaymentOptionsVerify("X","Y","Z")
       );
 
-      assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
-      assertTrue(ex.getMessage().contains("Malformed GPD-Core endpoint"));
+      assertTrue(ex instanceof CreditorInstitutionException);
   } 
-
- @Test
- void callGpdPaymentOptionsVerifyShouldThrowSemanticaOnNullEndpoint() {
-   PaymentOptionsException ex =
-       assertThrows(
-           PaymentOptionsException.class,
-           () ->
-               creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-                   null, "77777777777", "311111111112222222", null));
-
-   assertNotNull(ex);
-   assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
-   assertTrue(ex.getMessage().contains("Malformed GPD-Core endpoint"));
- }
- 
- @Test
- void callGpdPaymentOptionsVerifyShouldMapBusinessErrorFromGpd() throws Exception {
-     String gpdEndpoint = "http://localhost:8080";
-
-     try (MockedStatic<RestClientBuilder> builderStatic = mockStatic(RestClientBuilder.class)) {
-         RestClientBuilder builder = mock(RestClientBuilder.class);
-         GpdCoreRestClientInterface gpdClient = mock(GpdCoreRestClientInterface.class);
-         Response response = mock(Response.class);
-
-         builderStatic.when(RestClientBuilder::newBuilder).thenReturn(builder);
-         when(builder.baseUrl(any(URL.class))).thenReturn(builder);
-         when(builder.build(GpdCoreRestClientInterface.class)).thenReturn(gpdClient);
-
-         OdPErrorResponse gpdError = OdPErrorResponse.builder()
-             .httpStatusCode(404)
-             .httpStatusDescription("Not Found")
-             .appErrorCode("ODP-404")
-             .timestamp(1724425035L)
-             .dateTime("2024-08-23T14:57:15.635528")
-             .errorMessage("PAA_SOME_ERROR details")
-             .build();
-         String body = new ObjectMapper().writeValueAsString(gpdError);
-
-         when(response.readEntity(String.class)).thenReturn(body);
-         when(response.getStatus()).thenReturn(404);
-
-         ClientWebApplicationException cwae =
-             new ClientWebApplicationException("404 from GPD", response);
-         when(gpdClient.verifyPaymentOptions(any(), any(), any())).thenThrow(cwae);
-
-         CreditorInstitutionException ex = assertThrows(
-             CreditorInstitutionException.class,
-             () -> creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-                 gpdEndpoint,
-                 "77777777777",
-                 "311111111111111111",
-                 null
-             )
-         );
-
-         assertNotNull(ex.getErrorResponse());
-         assertEquals(404, ex.getErrorResponse().getHttpStatusCode());
-         assertEquals("ODP-404", ex.getErrorResponse().getAppErrorCode());
-     }
- }
- 
- @Test
- void callGpdPaymentOptionsVerifyShouldMapNetworkErrorToPaymentOptionsException() {
-     String gpdEndpoint = "http://localhost:8080";
-
-     try (MockedStatic<RestClientBuilder> builderStatic = mockStatic(RestClientBuilder.class)) {
-         RestClientBuilder builder = mock(RestClientBuilder.class);
-         GpdCoreRestClientInterface gpdClient = mock(GpdCoreRestClientInterface.class);
-
-         builderStatic.when(RestClientBuilder::newBuilder).thenReturn(builder);
-         when(builder.baseUrl(any(URL.class))).thenReturn(builder);
-         when(builder.build(GpdCoreRestClientInterface.class)).thenReturn(gpdClient);
-
-         ClientWebApplicationException cwae = mock(ClientWebApplicationException.class);
-         when(cwae.getResponse()).thenReturn(null);
-         when(gpdClient.verifyPaymentOptions(any(), any(), any())).thenThrow(cwae);
-
-         PaymentOptionsException ex = assertThrows(
-             PaymentOptionsException.class,
-             () -> creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-                 gpdEndpoint,
-                 "77777777777",
-                 "311111111111111111",
-                 null
-             )
-         );
-
-         assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, ex.getErrorCode());
-     }
- }
-
- 
- @Test
- void callGpdPaymentOptionsVerifyShouldMapParsingErrorToCreditorInstitutionException() throws Exception {
-     String gpdEndpoint = "http://localhost:8080";
-
-     try (MockedStatic<RestClientBuilder> builderStatic = mockStatic(RestClientBuilder.class)) {
-         RestClientBuilder builder = mock(RestClientBuilder.class);
-         GpdCoreRestClientInterface gpdClient = mock(GpdCoreRestClientInterface.class);
-         Response response = mock(Response.class);
-
-         builderStatic.when(RestClientBuilder::newBuilder).thenReturn(builder);
-         when(builder.baseUrl(any(URL.class))).thenReturn(builder);
-         when(builder.build(GpdCoreRestClientInterface.class)).thenReturn(gpdClient);
-
-         when(gpdClient.verifyPaymentOptions(any(), any(), any())).thenReturn(response);
-         when(response.readEntity(String.class)).thenReturn("this-is-not-json");
-
-         CreditorInstitutionException ex = assertThrows(
-             CreditorInstitutionException.class,
-             () -> creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-                 gpdEndpoint,
-                 "77777777777",
-                 "311111111111111111",
-                 null
-             )
-         );
-
-         assertEquals(
-             CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
-             ex.getErrorResponse().getErrorMessage()
-         );
-     }
- }
- 
- @Test
- void manageGpdErrorResponseShouldThrowCreditorInstitutionException() throws Exception {
-     OdPErrorResponse gpdError =
-         OdPErrorResponse.builder()
-             .httpStatusCode(404)
-             .httpStatusDescription("Not Found")
-             .appErrorCode("ODP-404")
-             .timestamp(1724425035L)
-             .dateTime("2024-08-23T14:57:15.635528")
-             .errorMessage("PAA_SOME_ERROR details")
-             .build();
-
-     String json = new ObjectMapper().writeValueAsString(gpdError);
-
-     Response response = mock(Response.class);
-     when(response.readEntity(String.class)).thenReturn(json);
-
-     CreditorInstitutionRestClient localClient =
-         new CreditorInstitutionRestClient(new ObjectMapper());
-
-     RuntimeException thrown = assertThrows(
-         RuntimeException.class,
-         () -> invokeManageGpdErrorResponse(response, localClient)
-     );
-
-     assertTrue(thrown instanceof CreditorInstitutionException);
- }
-
- 
- @Test
- void manageGpdErrorResponseShouldThrowPaymentOptionsExceptionOnInvalidJson() {
-     Response response = mock(Response.class);
-     when(response.readEntity(String.class)).thenReturn("not-a-json");
-
-     Throwable thrown = assertThrows(
-         Throwable.class,
-         () -> invokeManageGpdErrorResponse(response, creditorInstitutionRestClient)
-     );
-
-     Throwable cause = (thrown.getCause() instanceof PaymentOptionsException)
-         ? thrown.getCause()
-         : thrown;
-
-     assertTrue(cause instanceof PaymentOptionsException);
-     assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ((PaymentOptionsException) cause).getErrorCode());
- }
- 
- private RuntimeException invokeManageGpdErrorResponse(
-		 Response response, CreditorInstitutionRestClient client) throws Exception {
-	 Method m =
-			 CreditorInstitutionRestClient.class.getDeclaredMethod(
-					 "manageGpdErrorResponse", Response.class);
-	 m.setAccessible(true);
-	 try {
-		 m.invoke(client, response);
-		 return null;
-	 } catch (InvocationTargetException ite) {
-		 Throwable cause = ite.getCause();
-		 if (cause instanceof RuntimeException re) {
-			 throw re;
-		 } else {
-			 throw new RuntimeException(cause);
-		 }
-	 }
- }
- 
   
 }
