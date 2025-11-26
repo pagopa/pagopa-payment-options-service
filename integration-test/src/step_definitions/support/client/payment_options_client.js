@@ -8,7 +8,7 @@ const API_TIMEOUT = process.env.API_TIMEOUT;
 const GPD_SUBKEY = process.env.GPD_SUBKEY;
 
 async function loadDebtPosition(filename, idOrg) {
-    const basePath = path.join(process.cwd(), 'src', 'config', 'gpd-data');
+    const basePath = path.join(process.cwd(), 'config', 'gpd-data');
     const fullPath = path.join(basePath, filename + '.json');
     fileContent = await fs.readFile(fullPath, 'utf8');
     fileContent = fileContent.replaceAll("XXXXXXXXXXX", idOrg)
