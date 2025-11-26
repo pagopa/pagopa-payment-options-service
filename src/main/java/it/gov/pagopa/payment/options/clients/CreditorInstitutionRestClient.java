@@ -210,20 +210,44 @@ public class CreditorInstitutionRestClient {
 		  } catch (ClientWebApplicationException e) {
 
 			  Response resp = e.getResponse();
+
 			  if (resp != null) {
-				  // business error inside ClientWebApplicationException
-				  return callGpdPaymentOptionsVerify(
-						  organizationFiscalCode, noticeNumber, segregationCodes
-						  );
+				  // business error from GPD-Core
+				  try {
+					  ErrorResponse errorResponse =
+							  objectMapper.readValue(resp.readEntity(String.class), ErrorResponse.class);
+
+					  errorResponse = validateAndBuildErrorResponse(
+							  resp.getStatus(),
+							  errorResponse,
+							  organizationFiscalCode
+							  );
+
+					  throw new CreditorInstitutionException(
+							  errorResponse,
+							  "[Payment Options] Encountered a managed error calling GPD-Core verifyPaymentOptions"
+							  );
+
+				  } catch (CreditorInstitutionException ex) {
+					  throw ex;
+
+				  } catch (Exception ex) {
+					  throw new PaymentOptionsException(
+							  AppErrorCodeEnum.ODP_SEMANTICA,
+							  ex.getMessage(),
+							  ex
+							  );
+				  }
 			  }
 
+			  // No response → networking error
 			  throw new PaymentOptionsException(
 					  AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
 					  "[Payment Options] Unable to reach GPD-Core endpoint",
 					  e
 					  );
-
-		  } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+		  }
+		  catch (com.fasterxml.jackson.core.JsonProcessingException e) {
 
 			  Instant now = Instant.now();
 			  ErrorResponse fallback = buildErrorResponse(
@@ -247,5 +271,4 @@ public class CreditorInstitutionRestClient {
 					  );
 		  }
 	  }
-
 }
