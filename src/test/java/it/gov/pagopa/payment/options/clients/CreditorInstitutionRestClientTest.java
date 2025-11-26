@@ -282,7 +282,7 @@ class CreditorInstitutionRestClientTest {
 
  
   @Test
-  void callGpdPaymentOptionsVerifyShouldMapParsingErrorToCreditorInstitutionException() throws Exception {
+  void callGpdPaymentOptionsVerifyShouldMapParsingErrorToCreditorInstitutionException() {
 
       GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
       ObjectMapper om = new ObjectMapper();
@@ -343,5 +343,35 @@ class CreditorInstitutionRestClientTest {
 
       assertTrue(ex instanceof CreditorInstitutionException);
   } 
+  
+  @Test
+  void callGpdPaymentOptionsVerifyShouldMapInvalidBusinessErrorJsonToPaymentOptionsException() throws Exception {
+
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
+
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
+
+      Response resp = mock(Response.class);
+      when(resp.readEntity(String.class)).thenReturn("THIS_IS_NOT_JSON");
+      when(resp.getStatus()).thenReturn(400);  // 4xx → business error
+
+      ClientWebApplicationException cwae = mock(ClientWebApplicationException.class);
+      when(cwae.getResponse()).thenReturn(resp);
+
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenThrow(cwae);
+
+      PaymentOptionsException ex = assertThrows(
+          PaymentOptionsException.class,
+          () -> client.callGpdPaymentOptionsVerify(
+              "77777777777", "311111111111111111", null
+          )
+      );
+
+      assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
+  }
+
   
 }
