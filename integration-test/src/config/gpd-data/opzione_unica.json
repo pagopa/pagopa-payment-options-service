@@ -1,0 +1,52 @@
+{
+  "iupd": "IUPD_XXXXXXXXXXX_348xxx1x",
+  "companyName": "Testing S.p.A.",
+  "officeName": "SkyLab - Sede via Washington",
+  "paymentOption": [
+    {
+      "validityDate": null,
+      "retentionDate": "2026-01-22T11:41:15.409Z",
+      "switchToExpired": false,
+      "debtor": {
+        "type": "F",
+        "fiscalCode": "VNTMHL76M09H501D",
+        "fullName": "Michele Ventimiglia",
+        "streetName": "via Washington",
+        "civicNumber": "11",
+        "postalCode": "89812",
+        "city": "Pizzo Calabro",
+        "province": "VV",
+        "region": "CA",
+        "country": "IT",
+        "email": "micheleventimiglia@skilabmail.com",
+        "phone": "333-123456789"
+      },
+      "installments": [
+        {
+          "nav": "348111111111111111",
+          "iuv": "48111111111111111",
+          "amount": 30000,
+          "description": "Installment",
+          "dueDate": "2025-11-28T11:41:15.409Z",
+          "transfer": [
+            {
+              "idTransfer": "1",
+              "amount": 10000,
+              "remittanceInformation": "Rata unica",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            },
+            {
+              "idTransfer": "2",
+              "organizationFiscalCode": "01020304059",
+              "amount": 20000,
+              "remittanceInformation": "Rata unica",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

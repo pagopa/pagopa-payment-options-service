@@ -25,6 +25,7 @@ locals {
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-payment-options-test[0].value : "",
+    "GPD_SUBKEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.key-apikey-service-gpd-test[0].value : "",
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,

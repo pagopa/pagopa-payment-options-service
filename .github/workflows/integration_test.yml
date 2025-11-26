@@ -51,6 +51,7 @@ jobs:
         env:
           CUCUMBER_PUBLISH_TOKEN: ${{ secrets.CUCUMBER_PUBLISH_TOKEN }}
           SUBKEY: ${{ secrets.SUBKEY }}
+          GPD_SUBKEY: ${{ secrets.GPD_SUBKEY }}
         run: |
           export CUCUMBER_PUBLISH_TOKEN=$CUCUMBER_PUBLISH_TOKEN
           export SUBKEY=$SUBKEY
