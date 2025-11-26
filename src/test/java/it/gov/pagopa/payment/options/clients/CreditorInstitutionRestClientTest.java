@@ -349,7 +349,7 @@ class CreditorInstitutionRestClientTest {
   } 
   
   @Test
-  void callGpdPaymentOptionsVerifyShouldMapInvalidBusinessErrorJsonToPaymentOptionsException() throws Exception {
+  void callGpdPaymentOptionsVerifyShouldMapInvalidBusinessErrorJsonToPaymentOptionsException() {
 
       GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
       ObjectMapper om = new ObjectMapper();
