@@ -231,8 +231,11 @@ class CreditorInstitutionRestClientTest {
       when(resp.getStatus()).thenReturn(404);
       when(resp.readEntity(String.class)).thenReturn(json);
 
+      ClientWebApplicationException cwae = mock(ClientWebApplicationException.class);
+      when(cwae.getResponse()).thenReturn(resp);
+
       when(gpdMock.verifyPaymentOptions(any(), any(), any()))
-          .thenReturn(resp);
+          .thenThrow(cwae);
 
       CreditorInstitutionException ex = assertThrows(
           CreditorInstitutionException.class,
@@ -242,18 +245,19 @@ class CreditorInstitutionRestClientTest {
 
       assertNotNull(ex.getErrorResponse());
       assertEquals(
-    		  ODP_ERRORE_EMESSO_DA_PAA.getStatus().getStatusCode(),
-    		  ex.getErrorResponse().getHttpStatusCode()
-    		  );
+          ODP_ERRORE_EMESSO_DA_PAA.getStatus().getStatusCode(),
+          ex.getErrorResponse().getHttpStatusCode()
+      );
       assertEquals(
-    		  ODP_ERRORE_EMESSO_DA_PAA.getErrorCode(),
-    		  ex.getErrorResponse().getAppErrorCode()
-    		  );
+          ODP_ERRORE_EMESSO_DA_PAA.getErrorCode(),
+          ex.getErrorResponse().getAppErrorCode()
+      );
       assertEquals(
-    		  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
-    		  ex.getErrorResponse().getErrorMessage()
-    		  );
+          CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
+          ex.getErrorResponse().getErrorMessage()
+      );
   }
+
 
  
   @Test
@@ -282,7 +286,7 @@ class CreditorInstitutionRestClientTest {
 
  
   @Test
-  void callGpdPaymentOptionsVerifyShouldMapParsingErrorToCreditorInstitutionException() throws Exception {
+  void callGpdPaymentOptionsVerifyShouldMapParsingErrorToCreditorInstitutionException() {
 
       GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
       ObjectMapper om = new ObjectMapper();
@@ -343,5 +347,35 @@ class CreditorInstitutionRestClientTest {
 
       assertTrue(ex instanceof CreditorInstitutionException);
   } 
+  
+  @Test
+  void callGpdPaymentOptionsVerifyShouldMapInvalidBusinessErrorJsonToPaymentOptionsException() throws Exception {
+
+      GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+      ObjectMapper om = new ObjectMapper();
+
+      CreditorInstitutionRestClient client =
+          new CreditorInstitutionRestClient(om, gpdMock);
+
+      Response resp = mock(Response.class);
+      when(resp.readEntity(String.class)).thenReturn("THIS_IS_NOT_JSON");
+      when(resp.getStatus()).thenReturn(400);  // 4xx → business error
+
+      ClientWebApplicationException cwae = mock(ClientWebApplicationException.class);
+      when(cwae.getResponse()).thenReturn(resp);
+
+      when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+          .thenThrow(cwae);
+
+      PaymentOptionsException ex = assertThrows(
+          PaymentOptionsException.class,
+          () -> client.callGpdPaymentOptionsVerify(
+              "77777777777", "311111111111111111", null
+          )
+      );
+
+      assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
+  }
+
   
 }
