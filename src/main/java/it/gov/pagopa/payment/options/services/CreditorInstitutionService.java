@@ -34,7 +34,7 @@ public class CreditorInstitutionService {
       @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
           String apimForwarderEndpoint,
       @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath") String apimForwarderPath,
-      @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint") String gpdRestEndpoint,
+      @ConfigProperty(name = "quarkus.rest-client.gpd-core-api.url") String gpdRestEndpoint,
       CreditorInstitutionRestClient creditorInstitutionRestClient) {
     this.apimForwarderEndpoint = apimForwarderEndpoint;
     this.apimForwarderPath = apimForwarderPath;

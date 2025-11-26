@@ -179,73 +179,25 @@ public class CreditorInstitutionRestClient {
 			  String noticeNumber,
 			  String segregationCodes
 			  ) {
-
 		  try (Response response = gpdClient.verifyPaymentOptions(
 				  organizationFiscalCode, noticeNumber, segregationCodes)) {
-
 
 			  return objectMapper.readValue(
 					  response.readEntity(String.class),
 					  PaymentOptionsResponse.class
 					  );
 
-
 		  } catch (ClientWebApplicationException e) {
 
-			  Response resp = e.getResponse();
+			  throw handleClientWebApplicationException(e, organizationFiscalCode);
 
-			  if (resp != null) {
-				  // business error from GPD-Core
-				  try {
-					  ErrorResponse errorResponse =
-							  objectMapper.readValue(resp.readEntity(String.class), ErrorResponse.class);
+		  } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
 
-					  errorResponse = validateAndBuildErrorResponse(
-							  resp.getStatus(),
-							  errorResponse,
-							  organizationFiscalCode
-							  );
-
-					  throw new CreditorInstitutionException(
-							  errorResponse,
-							  "[Payment Options] Encountered a managed error calling GPD-Core verifyPaymentOptions"
-							  );
-
-				  } catch (CreditorInstitutionException ex) {
-					  throw ex;
-
-				  } catch (Exception ex) {
-					  throw new PaymentOptionsException(
-							  AppErrorCodeEnum.ODP_SEMANTICA,
-							  ex.getMessage(),
-							  ex
-							  );
-				  }
-			  }
-
-			  // No response → networking error
-			  throw new PaymentOptionsException(
-					  AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
-					  "[Payment Options] Unable to reach GPD-Core endpoint",
-					  e
-					  );
-		  }
-		  catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-
-			  Instant now = Instant.now();
-			  ErrorResponse fallback = buildErrorResponse(
-					  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
-					  now.toEpochMilli(),
-					  now.truncatedTo(ChronoUnit.MILLIS).toString()
-					  );
-
-			  throw new CreditorInstitutionException(
-					  fallback,
-					  "[Payment Options] Unable to parse the GPD-Core response"
-					  );
+			  throw handleJsonProcessingException(e);
 
 		  } catch (CreditorInstitutionException e) {
 			  throw e;
+
 		  } catch (Exception e) {
 			  throw new PaymentOptionsException(
 					  AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
@@ -253,5 +205,72 @@ public class CreditorInstitutionRestClient {
 					  e
 					  );
 		  }
+	  }
+
+	  
+	  private RuntimeException handleClientWebApplicationException(
+			  ClientWebApplicationException e,
+			  String organizationFiscalCode
+			  ) {
+
+		  Response resp = e.getResponse();
+
+		  if (resp != null) {
+			  // business error from GPD-Core
+			  try {
+				  ErrorResponse errorResponse = objectMapper.readValue(
+						  resp.readEntity(String.class),
+						  ErrorResponse.class
+						  );
+
+				  errorResponse = validateAndBuildErrorResponse(
+						  resp.getStatus(),
+						  errorResponse,
+						  organizationFiscalCode
+						  );
+
+				  return new CreditorInstitutionException(
+						  errorResponse,
+						  "[Payment Options] Encountered a managed error calling GPD-Core verifyPaymentOptions"
+						  );
+
+			  } catch (CreditorInstitutionException ex) {
+				  return ex;
+
+			  } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+				  return handleJsonProcessingException(ex);
+
+			  } catch (Exception ex) {
+				  return new PaymentOptionsException(
+						  AppErrorCodeEnum.ODP_SEMANTICA,
+						  ex.getMessage(),
+						  ex
+						  );
+			  }
+		  }
+
+		  // No response → networking error
+		  return new PaymentOptionsException(
+				  AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
+				  "[Payment Options] Unable to reach GPD-Core endpoint",
+				  e
+				  );
+	  }
+
+
+	  private CreditorInstitutionException handleJsonProcessingException(
+			  com.fasterxml.jackson.core.JsonProcessingException e
+			  ) {
+		  Instant now = Instant.now();
+		  ErrorResponse fallback = buildErrorResponse(
+				  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
+				  now.toEpochMilli(),
+				  now.truncatedTo(ChronoUnit.MILLIS).toString()
+				  );
+
+		  return new CreditorInstitutionException(
+				  fallback,
+				  "[Payment Options] Unable to parse the GPD-Core response"
+				  );
 	  }
 }
