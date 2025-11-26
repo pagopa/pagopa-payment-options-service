@@ -62,6 +62,11 @@ data "azurerm_key_vault_secret" "key-apikey-service-payment-options-test" {
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "key-apikey-service-gpd-test" {
+  count        = var.env_short != "p" ? 1 : 0
+  name         = "integration-test-subkey"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
 
 data "azurerm_user_assigned_identity" "workload_identity_clientid" {
   name                = "payopt-workload-identity"
