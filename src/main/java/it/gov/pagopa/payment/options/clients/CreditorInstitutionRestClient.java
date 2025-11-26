@@ -183,29 +183,12 @@ public class CreditorInstitutionRestClient {
 		  try (Response response = gpdClient.verifyPaymentOptions(
 				  organizationFiscalCode, noticeNumber, segregationCodes)) {
 
-			  if (response.getStatus() >= 200 && response.getStatus() < 300) {
-				  return objectMapper.readValue(
-						  response.readEntity(String.class),
-						  PaymentOptionsResponse.class
-						  );
-			  }
 
-			  // business error → mapping come EC
-			  ErrorResponse errorResponse = objectMapper.readValue(
+			  return objectMapper.readValue(
 					  response.readEntity(String.class),
-					  ErrorResponse.class
+					  PaymentOptionsResponse.class
 					  );
 
-			  errorResponse = validateAndBuildErrorResponse(
-					  response.getStatus(),
-					  errorResponse,
-					  organizationFiscalCode
-					  );
-
-			  throw new CreditorInstitutionException(
-					  errorResponse,
-					  "[Payment Options] Encountered a managed error calling GPD-Core verifyPaymentOptions"
-					  );
 
 		  } catch (ClientWebApplicationException e) {
 

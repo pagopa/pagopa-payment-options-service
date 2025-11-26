@@ -11,7 +11,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -28,21 +27,21 @@ public class CreditorInstitutionService {
 
   private final String apimForwarderEndpoint;
   private final String apimForwarderPath;
+  private final String gpdRestEndpoint;
   private final CreditorInstitutionRestClient creditorInstitutionRestClient;
 
   CreditorInstitutionService(
       @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
           String apimForwarderEndpoint,
       @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath") String apimForwarderPath,
+      @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint") String gpdRestEndpoint,
       CreditorInstitutionRestClient creditorInstitutionRestClient) {
     this.apimForwarderEndpoint = apimForwarderEndpoint;
     this.apimForwarderPath = apimForwarderPath;
     this.creditorInstitutionRestClient = creditorInstitutionRestClient;
+    //endpoint "special guest" GPD-Core
+    this.gpdRestEndpoint = gpdRestEndpoint;
   }
-  
-  //endpoint "special guest" GPD-Core
-  @ConfigProperty(name = "CreditorInstitutionRestClient.gpdRestEndpoint")
-  Optional<String> gpdRestEndpoint;
 
   /**
    * Using the provided input attempts to call the creditor institution service to obtain the list
@@ -57,7 +56,7 @@ public class CreditorInstitutionService {
    * @return the payment option retrieved from creditor institution
    */
  public PaymentOptionsResponse getPaymentOptions(
-		 String noticeNumber, String fiscalCode, Station station, Long segregationCode) {
+		 String noticeNumber, String fiscalCode, Station station, long segregationCode) {
 
 	 // 1) Special guest: EC = GPD-Core
 	 if (isEcGpdSpecialGuest(station)) {
@@ -67,7 +66,7 @@ public class CreditorInstitutionService {
 		 return creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
 				 fiscalCode,
 				 noticeNumber,
-				 (segregationCode != null) ? String.valueOf(segregationCode) : null  // optional param
+				 String.valueOf(segregationCode) // optional param
 				 );
 	 }
 
@@ -162,7 +161,7 @@ public class CreditorInstitutionService {
 	      stationEndpoint = stationEndpoint.substring(0, stationEndpoint.length() - 1);
 	  }
 	 
-	  String gpdEndpoint = gpdRestEndpoint.get();
+	  String gpdEndpoint = gpdRestEndpoint;
 	  // removes possible final "/"
 	  while (gpdEndpoint.endsWith("/")) {
 	      gpdEndpoint = gpdEndpoint.substring(0, gpdEndpoint.length() - 1);

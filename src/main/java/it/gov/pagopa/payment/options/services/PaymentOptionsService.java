@@ -63,7 +63,7 @@ public class PaymentOptionsService {
 
     Station station = null;
     StationCreditorInstitution stationCreditorInstitution = null;
-    Long segregationCode = null;
+    long segregationCode;
 
     try {
 

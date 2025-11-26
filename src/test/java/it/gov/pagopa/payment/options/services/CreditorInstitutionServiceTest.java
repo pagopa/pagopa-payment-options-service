@@ -2,11 +2,10 @@ package it.gov.pagopa.payment.options.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-
-import java.util.Optional;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -46,7 +45,7 @@ class CreditorInstitutionServiceTest {
     Station station = buildStation("localhost", "http://localhost:8080/test");
 
     PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
+        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, 0L));
 
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient)
@@ -62,7 +61,7 @@ class CreditorInstitutionServiceTest {
     Station station = buildStation("localhost", "http://localhost/test");
 
     PaymentOptionsResponse paymentOptionsResponse =
-        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
+        assertDoesNotThrow(() -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, 0L));
 
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient)
@@ -76,7 +75,7 @@ class CreditorInstitutionServiceTest {
     PaymentOptionsException paymentOptionsException =
         assertThrows(
             PaymentOptionsException.class,
-            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, 0L));
 
     assertNotNull(paymentOptionsException);
     assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, paymentOptionsException.getErrorCode());
@@ -90,7 +89,7 @@ class CreditorInstitutionServiceTest {
     PaymentOptionsException paymentOptionsException =
         assertThrows(
             PaymentOptionsException.class,
-            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, 0L));
 
     assertNotNull(paymentOptionsException);
     assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, paymentOptionsException.getErrorCode());
@@ -103,7 +102,7 @@ class CreditorInstitutionServiceTest {
     PaymentOptionsException paymentOptionsException =
         assertThrows(
             PaymentOptionsException.class,
-            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, null));
+            () -> sut.getPaymentOptions(NOTICE_NUMBER, FISCAL_CODE, station, 0L));
 
     assertNotNull(paymentOptionsException);
     assertEquals(
@@ -112,135 +111,138 @@ class CreditorInstitutionServiceTest {
   }
   
   //----------------- GPD Special Guest Tests -----------------
+ 
   @Test
   void getPaymentOptionsGpdSpecialGuestRestEndpointMatches() {
 
-    String gpdEndpoint = "http://localhost:8080";
+      String gpdEndpoint = "http://localhost:8080";
 
-    when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-        any(), any(), any()))
-        .thenReturn(PaymentOptionsResponse.builder().build());
+      sut = new CreditorInstitutionService(
+              "http://forwarder.example.it",
+              "/path",
+              gpdEndpoint,
+              creditorInstitutionRestClient
+      );
 
-    PaymentOptionsResponse response = assertDoesNotThrow(
-        () -> sut.getPaymentOptions(
-            "000001", "000001",
-            Station.builder()
-                .stationCode("000001_01")
-                .connection(
-                    it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
-                        .ip("some-ip")
-                        .protocol(ProtocolEnum.HTTPS)
-                        .port(443L)
-                        .build()
-                )
-                .restEndpoint(gpdEndpoint)
-                .verifyPaymentOptionEnabled(true)
-                .build(),
-                null
-        )
-    );
+      when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+              any(), any(), any()))
+              .thenReturn(PaymentOptionsResponse.builder().build());
 
-    assertNotNull(response);
+      PaymentOptionsResponse response = sut.getPaymentOptions(
+              "000001", "000001",
+              Station.builder()
+                      .stationCode("000001_01")
+                      .connection(
+                              Connection.builder()
+                                      .ip("some-ip")
+                                      .protocol(ProtocolEnum.HTTPS)
+                                      .port(443L)
+                                      .build()
+                      )
+                      .restEndpoint(gpdEndpoint)
+                      .verifyPaymentOptionEnabled(true)
+                      .build(),
+              0L
+      );
 
-    // ONLY the GPD client should be called
-    verify(creditorInstitutionRestClient, Mockito.times(1))
-    .callGpdPaymentOptionsVerify(any(), any(), any());
+      assertNotNull(response);
 
-    verify(creditorInstitutionRestClient, Mockito.never())
-    .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
-
+      verify(creditorInstitutionRestClient).callGpdPaymentOptionsVerify(any(), any(), any());
+      verify(creditorInstitutionRestClient, never()).callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
+
   
   @Test
   void getPaymentOptionsMalformedUrlGpdToPaymentOptionsException() {
 
-	sut.gpdRestEndpoint = Optional.of("http://localhost:8080");
+      String badGpdEndpoint = "http://localhost:8080/bad-url";
 
-    PaymentOptionsException clientException = new PaymentOptionsException(
-        AppErrorCodeEnum.ODP_SEMANTICA,
-        "[Payment Options] Malformed GPD-Core endpoint"
-    );
+      sut = new CreditorInstitutionService(
+              "http://forwarder.example.it",
+              "/path",
+              badGpdEndpoint,
+              creditorInstitutionRestClient
+      );
 
-    when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-        any(), any(), any()))
-        .thenThrow(clientException);
+      PaymentOptionsException clientException = new PaymentOptionsException(
+              AppErrorCodeEnum.ODP_SEMANTICA,
+              "[Payment Options] Malformed GPD-Core endpoint"
+      );
 
-    Station station = Station.builder()
-        .stationCode("000001_01")
-        .connection(
-            it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
-                .ip("some-ip")
-                .protocol(ProtocolEnum.HTTPS)
-                .port(443L)
-                .build()
-        )
-        .restEndpoint("http://localhost:8080")
-        .verifyPaymentOptionEnabled(true)
-        .build();
+      when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+              any(), any(), any()))
+              .thenThrow(clientException);
 
-    PaymentOptionsException ex = assertThrows(
-        PaymentOptionsException.class,
-        () -> sut.getPaymentOptions(
-            "000001", "000001",
-            station,
-            null
-        )
-    );
+      Station station = Station.builder()
+              .stationCode("000001_01")
+              .connection(
+                      Connection.builder()
+                              .ip("some-ip")
+                              .protocol(ProtocolEnum.HTTPS)
+                              .port(443L)
+                              .build()
+              )
+              .restEndpoint(badGpdEndpoint)
+              .verifyPaymentOptionEnabled(true)
+              .build();
 
-    assertNotNull(ex);
-    assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
-    assertTrue(ex.getMessage().contains("Malformed GPD-Core endpoint"));
+      PaymentOptionsException ex = assertThrows(
+              PaymentOptionsException.class,
+              () -> sut.getPaymentOptions("000001", "000001", station, 0L)
+      );
 
-    verify(creditorInstitutionRestClient, Mockito.never())
-        .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+      assertSame(clientException, ex);
+      assertEquals(AppErrorCodeEnum.ODP_SEMANTICA, ex.getErrorCode());
+      assertTrue(ex.getMessage().contains("Malformed GPD-Core endpoint"));
+
+      verify(creditorInstitutionRestClient, never())
+              .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
   
   @Test
   void getPaymentOptionsGpdSpecialGuestPropagatesPaymentOptionsException() {
 
-    String gpdEndpoint = "http://localhost:8080";
+      String gpdEndpoint = "http://localhost:8080";
 
-    PaymentOptionsException clientException = new PaymentOptionsException(
-        AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
-        "Unable to reach GPD-Core endpoint"
-    );
+      sut = new CreditorInstitutionService(
+              "http://forwarder.example.it",
+              "/path",
+              gpdEndpoint,
+              creditorInstitutionRestClient
+      );
 
-    when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
-        any(), any(), any()))
-        .thenThrow(clientException);
-    
-    Station station = Station.builder()
-        .stationCode("000001_01")
-        .connection(
-            it.gov.pagopa.payment.options.models.clients.cache.Connection.builder()
-                .ip("some-ip")
-                .protocol(ProtocolEnum.HTTPS)
-                .port(443L)
-                .build()
-        )
-        .restEndpoint(gpdEndpoint)
-        .verifyPaymentOptionEnabled(true)
-        .build();
+      PaymentOptionsException clientException = new PaymentOptionsException(
+              AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
+              "Unable to reach GPD-Core endpoint"
+      );
 
-    PaymentOptionsException ex = assertThrows(
-        PaymentOptionsException.class,
-        () -> sut.getPaymentOptions(
-            "000001", 
-            "000001",
-            station,
-            null
-        )
-    );
-    
-    assertSame(clientException, ex);
-    assertSame(clientException.getErrorCode(), ex.getErrorCode());
+      when(creditorInstitutionRestClient.callGpdPaymentOptionsVerify(any(), any(), any()))
+              .thenThrow(clientException);
 
-    verify(creditorInstitutionRestClient, Mockito.times(1))
-    .callGpdPaymentOptionsVerify(any(), any(), any());
+      Station station = Station.builder()
+              .stationCode("000001_01")
+              .connection(
+                      Connection.builder()
+                              .ip("some-ip")
+                              .protocol(ProtocolEnum.HTTPS)
+                              .port(443L)
+                              .build()
+              )
+              .restEndpoint(gpdEndpoint)
+              .verifyPaymentOptionEnabled(true)
+              .build();
 
-    verify(creditorInstitutionRestClient, Mockito.never())
-    .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+      PaymentOptionsException ex = assertThrows(
+              PaymentOptionsException.class,
+              () -> sut.getPaymentOptions("000001", "000001", station, 0L)
+      );
+
+      assertSame(clientException, ex);
+
+      verify(creditorInstitutionRestClient).callGpdPaymentOptionsVerify(any(), any(), any());
+      verify(creditorInstitutionRestClient, never()).callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
   }
+
 
   private Station buildStation(String connectionIp, String restEndpoint) {
     return Station.builder()
