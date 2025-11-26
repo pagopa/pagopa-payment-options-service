@@ -28,7 +28,7 @@ defineParameterType({
     transformer: (s) => s === "true"
 });
 
-// After all Scenarios
+// Before all Scenarios
 BeforeAll({tags: '@setup-gpd-required'}, async function () {
     console.log("Setting up GPD with required debt positions...");
     // Given debt position "opzione_unica" is configured in APD

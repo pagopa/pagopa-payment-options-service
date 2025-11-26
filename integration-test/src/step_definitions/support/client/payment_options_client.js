@@ -17,7 +17,6 @@ async function loadDebtPosition(filename, idOrg) {
 }
 
 async function createDebtPosition(org, jsonBody) {
-
     const data = await post(GPD_V3_HOST +
         `/organizations/` + org + `/debtpositions?toPublish=true`,
         jsonBody,
