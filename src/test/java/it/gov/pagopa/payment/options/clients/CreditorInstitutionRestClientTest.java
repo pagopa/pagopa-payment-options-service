@@ -3,6 +3,7 @@ package it.gov.pagopa.payment.options.clients;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -388,6 +389,69 @@ class CreditorInstitutionRestClientTest {
           ex.getErrorResponse().getErrorMessage()
       );
   }
+  
+  @Test
+  void callGpdPaymentOptionsVerifyShouldPropagateExistingCreditorInstitutionException() {
 
+	  GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+	  ObjectMapper om = new ObjectMapper();
+
+	  CreditorInstitutionRestClient client =
+			  new CreditorInstitutionRestClient(om, gpdMock);
+
+	  ErrorResponse err = ErrorResponse.builder()
+			  .httpStatusCode(500)
+			  .httpStatusDescription("Internal Server Error")
+			  .appErrorCode("PAA_SYSTEM_ERROR")
+			  .timestamp(1L)
+			  .dateTime("2024-01-01T00:00:00")
+			  .errorMessage("details")
+			  .build();
+
+	  CreditorInstitutionException original =
+			  new CreditorInstitutionException(err, "Already mapped error");
+
+	  when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+	  .thenThrow(original);
+
+	  CreditorInstitutionException ex = assertThrows(
+			  CreditorInstitutionException.class,
+			  () -> client.callGpdPaymentOptionsVerify(
+					  "77777777777",
+					  "311111111111111111",
+					  null
+					  )
+			  );
+
+	  assertSame(original, ex);
+  }
+  
+  @Test
+  void callGpdPaymentOptionsVerifyShouldWrapGenericExceptionIntoPaymentOptionsException() {
+
+	  GpdCoreRestClientInterface gpdMock = mock(GpdCoreRestClientInterface.class);
+	  ObjectMapper om = new ObjectMapper();
+
+	  CreditorInstitutionRestClient client =
+			  new CreditorInstitutionRestClient(om, gpdMock);
+
+	  RuntimeException generic = new RuntimeException("generic failure");
+
+	  when(gpdMock.verifyPaymentOptions(any(), any(), any()))
+	  .thenThrow(generic);
+
+	  PaymentOptionsException ex = assertThrows(
+			  PaymentOptionsException.class,
+			  () -> client.callGpdPaymentOptionsVerify(
+					  "77777777777",
+					  "311111111111111111",
+					  null
+					  )
+			  );
+
+	  assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE, ex.getErrorCode());
+	  assertEquals("generic failure", ex.getMessage());
+	  assertSame(generic, ex.getCause());
+  }
   
 }
