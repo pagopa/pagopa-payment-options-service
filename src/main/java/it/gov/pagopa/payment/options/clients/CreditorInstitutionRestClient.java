@@ -168,7 +168,6 @@ public class CreditorInstitutionRestClient {
 	  /**
 	   * Calls GPD-Core verifyPaymentOptions API (EC GPD "special guest").
 	   *
-	   * @param gpdBaseEndpoint base endpoint, e.g. https://api.<env>.platform.pagopa.it/gpd/api/v1
 	   * @param organizationFiscalCode fiscal code of the organization
 	   * @param noticeNumber notice number (NAV)
 	   * @param segregationCodes optional segregation codes
@@ -193,7 +192,7 @@ public class CreditorInstitutionRestClient {
 
 		  } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
 
-			  throw handleJsonProcessingException(e);
+			  throw handleJsonProcessingException();
 
 		  } catch (CreditorInstitutionException e) {
 			  throw e;
@@ -238,7 +237,7 @@ public class CreditorInstitutionRestClient {
 				  return ex;
 
 			  } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
-				  return handleJsonProcessingException(ex);
+				  return handleJsonProcessingException();
 
 			  } catch (Exception ex) {
 				  return new PaymentOptionsException(
@@ -258,9 +257,7 @@ public class CreditorInstitutionRestClient {
 	  }
 
 
-	  private CreditorInstitutionException handleJsonProcessingException(
-			  com.fasterxml.jackson.core.JsonProcessingException e
-			  ) {
+	  private CreditorInstitutionException handleJsonProcessingException() {
 		  Instant now = Instant.now();
 		  ErrorResponse fallback = buildErrorResponse(
 				  CreditorInstitutionErrorEnum.PAA_SYSTEM_ERROR.name(),
