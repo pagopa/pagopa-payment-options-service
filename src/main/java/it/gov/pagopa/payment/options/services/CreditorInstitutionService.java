@@ -11,6 +11,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +27,20 @@ public class CreditorInstitutionService {
 
   private final String apimForwarderEndpoint;
   private final String apimForwarderPath;
+  private final String gpdRestEndpoint;
   private final CreditorInstitutionRestClient creditorInstitutionRestClient;
 
   CreditorInstitutionService(
       @ConfigProperty(name = "CreditorInstitutionRestClient.apimEndpoint")
           String apimForwarderEndpoint,
       @ConfigProperty(name = "CreditorInstitutionRestClient.apimPath") String apimForwarderPath,
+      @ConfigProperty(name = "quarkus.rest-client.gpd-core-api.url") String gpdRestEndpoint,
       CreditorInstitutionRestClient creditorInstitutionRestClient) {
     this.apimForwarderEndpoint = apimForwarderEndpoint;
     this.apimForwarderPath = apimForwarderPath;
     this.creditorInstitutionRestClient = creditorInstitutionRestClient;
+    //endpoint "special guest" GPD-Core
+    this.gpdRestEndpoint = gpdRestEndpoint;
   }
 
   /**
@@ -50,49 +55,62 @@ public class CreditorInstitutionService {
    * @param station station containing the connection config to use
    * @return the payment option retrieved from creditor institution
    */
-  public PaymentOptionsResponse getPaymentOptions(
-      String noticeNumber, String fiscalCode, Station station) {
+ public PaymentOptionsResponse getPaymentOptions(
+		 String noticeNumber, String fiscalCode, Station station, long segregationCode) {
 
-    if (station.getConnection().getIp() == null
-        || !this.apimForwarderEndpoint.contains(station.getConnection().getIp())) {
-      throw new PaymentOptionsException(
-          AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
-          "[Payment Options] Station not configured to pass through the APIM Forwarder");
-    }
+	 // 1) Special guest: EC = GPD-Core
+	 if (isEcGpdSpecialGuest(station)) {
+		 logger.info("[Payment Options] Using GPD-Core special guest endpoint for station {}",
+				 station.getStationCode());
 
-    if (station.getRestEndpoint() == null) {
-      throw new PaymentOptionsException(
-          AppErrorCodeEnum.ODP_SEMANTICA,
-          "[Payment Options] Station new verify endpoint not provided");
-    }
+		 return creditorInstitutionRestClient.callGpdPaymentOptionsVerify(
+				 fiscalCode,
+				 noticeNumber,
+				 String.valueOf(segregationCode) // optional param
+				 );
+	 }
 
-    String targetHost;
-    long targetPort;
-    String targetPath;
-    try {
-      String[] verifyEndpointParts = station.getRestEndpoint().split("/", 4);
-      targetHost = verifyEndpointParts[2];
-      targetPort = getTargetPort(verifyEndpointParts);
-      String formattedPath =
-          String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber);
-      targetPath =
-          verifyEndpointParts.length > 3
-              ? verifyEndpointParts[3].concat(formattedPath)
-              : formattedPath;
-    } catch (Exception e) {
-      logger.error("[Payment Options] Malformed Target URL", e);
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
-    }
+	 // 2) "Normal" behavior: EC via APIM forwarder
+	 if (station.getConnection().getIp() == null
+			 || !this.apimForwarderEndpoint.contains(station.getConnection().getIp())) {
+		 throw new PaymentOptionsException(
+				 AppErrorCodeEnum.ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE,
+				 "[Payment Options] Station not configured to pass through the APIM Forwarder");
+	 }
 
-    URL forwarderUrl = buildForwarderUrl(station.getConnection());
-    return this.creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-        forwarderUrl,
-        station.getProxy() != null ? station.getProxy().getProxyHost() : null,
-        station.getProxy() != null ? station.getProxy().getProxyPort() : null,
-        targetHost,
-        targetPort,
-        targetPath);
-  }
+	 if (station.getRestEndpoint() == null) {
+		 throw new PaymentOptionsException(
+				 AppErrorCodeEnum.ODP_SEMANTICA,
+				 "[Payment Options] Station new verify endpoint not provided");
+	 }
+
+	 String targetHost;
+	 long targetPort;
+	 String targetPath;
+	 try {
+		 String[] verifyEndpointParts = station.getRestEndpoint().split("/", 4);
+		 targetHost = verifyEndpointParts[2];
+		 targetPort = getTargetPort(verifyEndpointParts);
+		 String formattedPath =
+				 String.format(PAYMENT_OPTIONS_SERVICE_SUFFIX, fiscalCode, noticeNumber);
+		 targetPath =
+				 verifyEndpointParts.length > 3
+				 ? verifyEndpointParts[3].concat(formattedPath)
+						 : formattedPath;
+	 } catch (Exception e) {
+		 logger.error("[Payment Options] Malformed Target URL", e);
+		 throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SEMANTICA, e.getMessage());
+	 }
+
+	 URL forwarderUrl = buildForwarderUrl(station.getConnection());
+	 return this.creditorInstitutionRestClient.callEcPaymentOptionsVerify(
+			 forwarderUrl,
+			 station.getProxy() != null ? station.getProxy().getProxyHost() : null,
+					 station.getProxy() != null ? station.getProxy().getProxyPort() : null,
+							 targetHost,
+							 targetPort,
+							 targetPath);
+ }
 
   private long getTargetPort(String[] verifyEndpointParts) {
     String[] hostSplit = verifyEndpointParts[2].split(":");
@@ -130,5 +148,25 @@ public class CreditorInstitutionService {
       return protocol.name().toLowerCase();
     }
     return ProtocolEnum.HTTP.name().toLowerCase();
+  }
+  
+  private boolean isEcGpdSpecialGuest(Station station) {
+	  if (station.getRestEndpoint() == null || gpdRestEndpoint.isEmpty()) {
+		  return false;
+	  }
+	  
+	  String stationEndpoint = station.getRestEndpoint();
+	  // removes possible final "/"
+	  while (stationEndpoint.endsWith("/")) {
+	      stationEndpoint = stationEndpoint.substring(0, stationEndpoint.length() - 1);
+	  }
+	 
+	  String gpdEndpoint = gpdRestEndpoint;
+	  // removes possible final "/"
+	  while (gpdEndpoint.endsWith("/")) {
+	      gpdEndpoint = gpdEndpoint.substring(0, gpdEndpoint.length() - 1);
+	  }
+	  
+	  return stationEndpoint.equalsIgnoreCase(gpdEndpoint);
   }
 }
