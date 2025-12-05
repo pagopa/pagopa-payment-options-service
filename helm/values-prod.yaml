@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.8.0"
+    tag: "0.9.3"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -98,6 +98,7 @@ microservice-chart:
     VERIFY_RE_EVT_HOST: 'pagopa-p-itn-payopt-evh.servicebus.windows.net:9093'
     VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
     JAVA_TOOL_OPTIONS: "-XX:MaxHeapSize=1780m -XX:MinHeapSize=64m"
+    GPD_REST_ENDPOINT: 'https://api.platform.pagopa.it/gpd/api/v1'
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'

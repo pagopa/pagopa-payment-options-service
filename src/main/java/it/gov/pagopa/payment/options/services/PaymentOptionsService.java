@@ -63,6 +63,7 @@ public class PaymentOptionsService {
 
     Station station = null;
     StationCreditorInstitution stationCreditorInstitution = null;
+    long segregationCode;
 
     try {
 
@@ -74,7 +75,7 @@ public class PaymentOptionsService {
             "Notice number contains a nav not valid for the OdP service");
       }
 
-      long segregationCode = Long.parseLong(noticeNumber.substring(1, 3));
+      segregationCode = Long.parseLong(noticeNumber.substring(1, 3));
 
       ConfigDataV1 configCacheData = getConfigData();
 
@@ -89,18 +90,18 @@ public class PaymentOptionsService {
 
       station = stationMap.get(stationCreditorInstitution.getStationCode());
       if (station == null) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
-            "Station not found using station code " + stationCreditorInstitution.getStationCode());
-      } else if (!station.getEnabled()) {
-        throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
-            "Station found using station code " +
-                stationCreditorInstitution.getStationCode() + " disabled");
-      } else if (!station.getVerifyPaymentOptionEnabled()) {
-        throw new PaymentOptionsException(
-            AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
-            "Station found using station code " +
-                stationCreditorInstitution.getStationCode() + " has the OdP verify service disabled."
-                + " Use the standard verification flow");
+    	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
+    			  "Station not found using station code " + stationCreditorInstitution.getStationCode());
+      } else if (!Boolean.TRUE.equals(station.getEnabled())) {
+    	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
+    			  "Station found using station code " +
+    					  stationCreditorInstitution.getStationCode() + " disabled");
+      } else if (!Boolean.TRUE.equals(station.getVerifyPaymentOptionEnabled())) {
+    	  throw new PaymentOptionsException(
+    			  AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
+    			  "Station found using station code " +
+    					  stationCreditorInstitution.getStationCode() + " has the OdP verify service disabled."
+    					  + " Use the standard verification flow");
       }
 
     } catch (PaymentOptionsException e) {
@@ -141,7 +142,7 @@ public class PaymentOptionsService {
       );
 
       PaymentOptionsResponse paymentOptionsResponse =
-          creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station);
+          creditorInstitutionService.getPaymentOptions(noticeNumber, fiscalCode, station, segregationCode);
 
 
       Instant instantForEcRes = Instant.now();
@@ -275,7 +276,7 @@ public class PaymentOptionsService {
     if (creditorInstitution == null) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
           "Creditor institution with id " + fiscalCode + " not found");
-    } else if (!creditorInstitution.getEnabled()) {
+    } else if (!Boolean.TRUE.equals(creditorInstitution.getEnabled())) {
       throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
           "Creditor institution with id " + fiscalCode + " disabled");
     }

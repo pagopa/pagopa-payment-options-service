@@ -5,7 +5,7 @@
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
   <name>Payment Options Service</name>
-  <version>0.8.0</version>
+  <version>0.9.3</version>
 
   <properties>
     <jacoco.version>0.8.7</jacoco.version>
@@ -116,7 +116,6 @@
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

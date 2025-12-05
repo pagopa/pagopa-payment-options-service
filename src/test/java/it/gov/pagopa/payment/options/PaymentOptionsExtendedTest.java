@@ -2,6 +2,7 @@ package it.gov.pagopa.payment.options;
 
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -10,6 +11,7 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.QuarkusTestResource.List;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectSpy;
+import it.gov.pagopa.payment.options.models.clients.cache.Station;
 import it.gov.pagopa.payment.options.services.ConfigCacheService;
 import it.gov.pagopa.payment.options.services.CreditorInstitutionService;
 import it.gov.pagopa.payment.options.services.EventService;
@@ -49,7 +51,11 @@ public class PaymentOptionsExtendedTest {
         eq("00001"), eq("00001"),
         eq("77777777777"),eq("311111111112222222"), any());
     verify(creditorInstitutionService).getPaymentOptions(
-        eq("311111111112222222"), eq("77777777777"), any());
+            eq("311111111112222222"),
+            eq("77777777777"),
+            any(Station.class),
+            anyLong()
+        );
     verify(eventService, times(0)).sendVerifyKoEvent(
         any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
 
