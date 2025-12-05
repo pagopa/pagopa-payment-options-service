@@ -55,7 +55,7 @@
         "errorStatusCode": {
           "type": "string",
           "pattern": "^ODP-\\d{3}$",
-          "description": "Qui per riferimenti https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-payment-options-service/main/openapi/openapi.json"
+          "description": "Qui per riferimenti https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-payment-options-service/main/openapi/openapi.json"
         },
         "sessionId": {
           "type": "string"

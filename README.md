@@ -29,7 +29,7 @@ Expose APIs that will be used by IO to retrieve the PDF receipts
 ## Api Documentation 📖
 
 See
-the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-payment-options-service/main/openapi/openapi.json)
+the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-payment-options-service/main/openapi/openapi.json)
 
 In local env typing following url on browser for ui interface:
 

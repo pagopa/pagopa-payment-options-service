@@ -17,8 +17,7 @@ RUN  microdnf  install -y wget
 # install jmx agent
 RUN cd /code && \
     wget https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.19.0/jmx_prometheus_javaagent-0.19.0.jar && \
-    curl -o 'opentelemetry-javaagent.jar' -L 'https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.25.1/opentelemetry-javaagent.jar' && \
-    curl -o 'applicationinsights-agent.jar' -L 'https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.17/applicationinsights-agent-3.4.17.jar'
+    curl -o 'opentelemetry-javaagent.jar' -L 'https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.25.1/opentelemetry-javaagent.jar'
 
 # build the application
 RUN ./mvnw package -DskipTests=true
@@ -27,17 +26,13 @@ RUN mkdir -p /code/target/otel && \
     chmod 777 /code/opentelemetry-javaagent.jar && \
     cp /code/opentelemetry-javaagent.jar /code/target/otel/opentelemetry-javaagent.jar
 
-RUN mkdir -p /code/target/appins && \
-    chmod 777 /code/applicationinsights-agent.jar && \
-    cp /code/applicationinsights-agent.jar /code/target/appins/applicationinsights-agent.jar
-
 RUN mkdir -p /code/target/jmx && \
     cp /code/agent/config.yaml /code/target/jmx/config.yaml
 
 RUN chmod 777 /code/jmx_prometheus_javaagent-0.19.0.jar && \
     cp /code/jmx_prometheus_javaagent-0.19.0.jar /code/target/jmx/jmx_prometheus_javaagent-0.19.0.jar
 
-FROM registry.access.redhat.com/ubi8/openjdk-17:1.19@sha256:e8cc2e476282b75d89c73057bfa713db22d72bdb2808d62d981a84c33beb2575
+FROM registry.access.redhat.com/ubi9/openjdk-17@sha256:d0cf07c2c91892c47c2c3e5c029431254cb7ea375b7db7bab45ef2fcff68b3d9
 
 ENV LANGUAGE='en_US:en'
 
@@ -48,7 +43,6 @@ COPY --from=build /code/target/quarkus-app/app/ /deployments/app/
 COPY --from=build /code/target/quarkus-app/quarkus/ /deployments/quarkus/
 COPY --from=build /code/target/jmx/ /deployments/
 COPY --from=build /code/target/otel/ /deployments/
-COPY --from=build /code/target/appins/ /deployments/
 
 EXPOSE 8080
 EXPOSE 12345
