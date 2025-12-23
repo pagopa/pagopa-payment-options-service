@@ -1,0 +1,145 @@
+{
+  "iupd": "IUPD_99999000013_348xxx2x",
+  "companyName": "Testing S.p.A.",
+  "officeName": "SkyLab - Sede via Washington",
+  "paymentOption": [
+    {
+      "validityDate": null,
+      "retentionDate": "2026-02-22T11:41:15.409Z",
+      "switchToExpired": false,
+      "debtor": {
+        "type": "F",
+        "fiscalCode": "VNTMHL76M09H501D",
+        "fullName": "Michele Ventimiglia",
+        "streetName": "via Washington",
+        "civicNumber": "11",
+        "postalCode": "89812",
+        "city": "Pizzo Calabro",
+        "province": "VV",
+        "region": "CA",
+        "country": "IT",
+        "email": "micheleventimiglia@skilabmail.com",
+        "phone": "333-123456789"
+      },
+      "installments": [
+        {
+          "nav": "348111111111111121",
+          "iuv": "48111111111111121",
+          "amount": 30000,
+          "description": "Installment",
+          "dueDate": "2026-01-28T11:41:15.409Z",
+          "transfer": [
+            {
+              "idTransfer": "1",
+              "amount": 10000,
+              "remittanceInformation": "Rata unica",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            },
+            {
+              "idTransfer": "2",
+              "organizationFiscalCode": "01020304059",
+              "amount": 20000,
+              "remittanceInformation": "Rata unica",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "validityDate": null,
+      "retentionDate": "2026-02-22T11:41:15.409Z",
+      "switchToExpired": false,
+      "debtor": {
+        "type": "F",
+        "fiscalCode": "VNTMHL76M09H501D",
+        "fullName": "Michele Ventimiglia",
+        "streetName": "via Washington",
+        "civicNumber": "11",
+        "postalCode": "89812",
+        "city": "Pizzo Calabro",
+        "province": "VV",
+        "region": "CA",
+        "country": "IT",
+        "email": "micheleventimiglia@skilabmail.com",
+        "phone": "333-123456789"
+      },
+      "installments": [
+        {
+          "nav": "348111111111111122",
+          "iuv": "48111111111111122",
+          "amount": 10000,
+          "description": "Installment",
+          "dueDate": "2026-01-28T11:41:15.409Z",
+          "transfer": [
+            {
+              "idTransfer": "1",
+              "amount": 5000,
+              "remittanceInformation": "Rata 1",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            },
+            {
+              "idTransfer": "2",
+              "organizationFiscalCode": "01020304059",
+              "amount": 5000,
+              "remittanceInformation": "Rata 1",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            }
+          ]
+        },
+        {
+          "nav": "348111111111111123",
+          "iuv": "48111111111111123",
+          "amount": 10000,
+          "description": "Installment",
+          "dueDate": "2026-01-28T11:41:15.409Z",
+          "transfer": [
+            {
+              "idTransfer": "1",
+              "amount": 5000,
+              "remittanceInformation": "Rata 2",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            },
+            {
+              "idTransfer": "2",
+              "organizationFiscalCode": "01020304059",
+              "amount": 5000,
+              "remittanceInformation": "Rata 2",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            }
+          ]
+        },
+        {
+          "nav": "348111111111111124",
+          "iuv": "48111111111111124",
+          "amount": 10000,
+          "description": "Installment",
+          "dueDate": "2026-01-28T11:41:15.409Z",
+          "transfer": [
+            {
+              "idTransfer": "1",
+              "amount": 5000,
+              "remittanceInformation": "Rata 3",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            },
+            {
+              "idTransfer": "2",
+              "organizationFiscalCode": "01020304059",
+              "amount": 5000,
+              "remittanceInformation": "Rata 3",
+              "category": "9/0101108TS/",
+              "iban": "mockIban"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

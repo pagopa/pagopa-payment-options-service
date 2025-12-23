@@ -1,6 +1,6 @@
 const assert = require('assert');
-const {defineParameterType, Given, When, Then, After, AfterAll} = require('@cucumber/cucumber');
-const {getPaymentOptions} = require("./support/client/payment_options_client");
+const {defineParameterType, Given, When, Then, After, BeforeAll, AfterAll} = require('@cucumber/cucumber');
+const {getPaymentOptions, createDebtPosition, loadDebtPosition} = require("./support/client/payment_options_client");
 
 const idOrg = process.env.VALID_ORGANIZATIONAL_FISCAL_CODE;
 const missingOrg = process.env.MISSING_ORGANIZATIONAL_FISCAL_CODE;
@@ -28,8 +28,21 @@ defineParameterType({
     transformer: (s) => s === "true"
 });
 
+// Before all Scenarios
+BeforeAll({tags: '@setup-gpd-required'}, async function () {
+    console.log("Setting up GPD with required debt positions...");
+    // Given debt position "opzione_unica" is configured in APD
+    // Given debt position "opzione_unica_unico_piano_rateale" is configured in APD
+    // Given debt position "opzione_unica_molteplici_piani_rateali" is configured in APD
+    // Given debt position "co-obbligati" is configured in APD
+    assert.strictEqual(await loadDebtPosition("opzione_unica", idOrg), true);
+    assert.strictEqual(await loadDebtPosition("opzione_unica_unico_piano_rateale", idOrg), true);
+    assert.strictEqual(await loadDebtPosition("opzione_unica_molteplici_piani_rateali", idOrg), true);
+    assert.strictEqual(await loadDebtPosition("co-obbligati", idOrg), true);
+});
 
-// After each Scenario
+
+// After all Scenarios
 AfterAll(async function () {
 
     this.paymentOptions = [];
@@ -89,6 +102,9 @@ When('an Http GET request is sent to recover payment options for taxCode {string
           case "invalidResponseStatusCode":
             selectedNoticeNumber = invalidResponseStatusCodeNoticeNumber;
             break;
+          default:
+            selectedNoticeNumber = noticeNumber;
+            break;
         }
 
         switch (idPsp) {
@@ -99,8 +115,7 @@ When('an Http GET request is sent to recover payment options for taxCode {string
             selectedPsp = validPsp;
         }
 
-        this.response = await getPaymentOptions(
-        selectedTaxCode, selectedNoticeNumber, selectedPsp);
+        this.response = await getPaymentOptions(selectedTaxCode, selectedNoticeNumber, selectedPsp);
 
    });
 
@@ -109,12 +124,32 @@ Then('payments options has size {int}', function (expectedSize) {
 });
 
 Then('payments option n {int} has {int} installments', function (i, expectedSize) {
-//    console.log(this.response?.data?.paymentOptions);
     assert.strictEqual(this.response?.data?.paymentOptions[i - 1].installments.length, expectedSize);
 });
 
+Then('payments option n {int} has {int} installments with noticeNumber {string}', function (i, expectedSize, noticeNumber) {
+    // `i` must be ignored because GPD does not guarantee the order of payment options
+    let noticeNumberFound = false;
+    let poLength = -1
+    for (let ii = 0; ii < this.response?.data?.paymentOptions.length; ii++) {
+        for (let j = 0; j < this.response?.data?.paymentOptions[ii].installments.length; j++) {
+            if (this.response?.data?.paymentOptions[ii].installments[j].nav === noticeNumber) {
+                noticeNumberFound = true;
+                poLength = this.response?.data?.paymentOptions[ii].installments.length
+                break;
+            }
+        }
+        if (noticeNumberFound) {
+            break;
+        }
+    }
+
+    assert.strictEqual(noticeNumberFound, true);
+    assert.strictEqual(poLength, expectedSize);
+});
+
 Then('response has a {int} Http status', function (expectedStatus) {
-    assert.strictEqual(this.response.status, expectedStatus);
+    assert.strictEqual(this.response?.status, expectedStatus);
 });
 
 
