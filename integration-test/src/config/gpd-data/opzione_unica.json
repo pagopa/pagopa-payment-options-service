@@ -4,7 +4,7 @@
   "officeName": "SkyLab - Sede via Washington",
   "paymentOption": [
     {
-      "validityDate": "2025-11-29T11:41:15.409Z",
+      "validityDate": null,
       "retentionDate": "2026-01-22T11:41:15.409Z",
       "switchToExpired": false,
       "debtor": {

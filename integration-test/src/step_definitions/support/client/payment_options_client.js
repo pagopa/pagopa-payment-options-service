@@ -11,8 +11,24 @@ async function loadDebtPosition(filename, idOrg) {
     const basePath = path.join(process.cwd(), 'config', 'gpd-data');
     const fullPath = path.join(basePath, filename + '.json');
     let fileContent = await fs.readFile(fullPath, 'utf8');
-    fileContent = fileContent.replaceAll("XXXXXXXXXXX", idOrg)
-    const resp = await createDebtPosition(idOrg, JSON.parse(fileContent));
+    fileContent = fileContent.replaceAll("XXXXXXXXXXX", idOrg);
+    let payload = JSON.parse(fileContent);
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowISO = tomorrow.toISOString();
+
+    if (payload.paymentOption) {
+        payload.paymentOption.forEach(option => {
+            if (option.installments) {
+                option.installments.forEach(installment => {
+                    installment.dueDate = tomorrowISO;
+                });
+            }
+        });
+    }
+    const resp = await createDebtPosition(idOrg, payload);
+
     if (resp.status !== 201 && resp.status !== 409) {
         console.error(`Failed to load debt position ${filename}. Status: ${resp.status}, Data: ${JSON.stringify(resp.data)}`);
     }
