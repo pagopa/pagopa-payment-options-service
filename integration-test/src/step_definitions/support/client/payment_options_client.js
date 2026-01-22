@@ -1,4 +1,4 @@
-const {get, post} = require("../utility/axios_common");
+const { get, post } = require("../utility/axios_common");
 const fs = require('fs/promises');
 const path = require('path');
 
@@ -10,14 +10,17 @@ const GPD_SUBKEY = process.env.GPD_SUBKEY;
 async function loadDebtPosition(filename, idOrg) {
     const basePath = path.join(process.cwd(), 'config', 'gpd-data');
     const fullPath = path.join(basePath, filename + '.json');
-    fileContent = await fs.readFile(fullPath, 'utf8');
+    let fileContent = await fs.readFile(fullPath, 'utf8');
     fileContent = fileContent.replaceAll("XXXXXXXXXXX", idOrg)
-    resp = await createDebtPosition(idOrg, JSON.parse(fileContent));
+    const resp = await createDebtPosition(idOrg, JSON.parse(fileContent));
+    if (resp.status !== 201 && resp.status !== 409) {
+        console.error(`Failed to load debt position ${filename}. Status: ${resp.status}, Data: ${JSON.stringify(resp.data)}`);
+    }
     return (resp.status === 201 || resp.status === 409)
 }
 
 async function createDebtPosition(org, jsonBody) {
-    const data = await post(GPD_V3_HOST +
+    return await post(GPD_V3_HOST +
         `/organizations/` + org + `/debtpositions?toPublish=true`,
         jsonBody,
         {
@@ -26,9 +29,7 @@ async function createDebtPosition(org, jsonBody) {
                 "Ocp-Apim-Subscription-Key": GPD_SUBKEY,
                 "Content-Type": "application/json"
             }
-    });
-
-    return data;
+        });
 }
 
 
@@ -42,8 +43,8 @@ async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
         params.idBrokerPsp = idPsp;
     }
 
-    const data = await get(PAY_OPT_HOST +
-     `/payment-options/organizations/`+taxCode+`/notices/`+noticeNumber, {
+    return await get(PAY_OPT_HOST +
+        `/payment-options/organizations/` + taxCode + `/notices/` + noticeNumber, {
         timeout: API_TIMEOUT,
         params,
         headers: {
@@ -51,8 +52,6 @@ async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
             "Content-Type": "application/json"
         }
     });
-
-    return data;
 }
 
 module.exports = {
