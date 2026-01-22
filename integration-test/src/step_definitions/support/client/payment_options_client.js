@@ -25,6 +25,11 @@ async function loadDebtPosition(filename, idOrg) {
                     installment.dueDate = tomorrowISO;
                 });
             }
+            if (option.retentionDate) {
+                const futureRetention = new Date();
+                futureRetention.setDate(futureRetention.getDate() + 2);
+                option.retentionDate = futureRetention.toISOString();
+            }
         });
     }
     const resp = await createDebtPosition(idOrg, payload);
