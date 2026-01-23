@@ -71,8 +71,6 @@ jobs:
           cd ./docker
           chmod +x ./run_docker.sh
           ./run_docker.sh local
-          echo "Sleeping 30 seconds..."
-          sleep 30
 
       - name: Run Integration Tests
         shell: bash
