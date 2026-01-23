@@ -35,8 +35,7 @@ BeforeAll({tags: '@setup-gpd-required'}, async function () {
     // Given debt position "opzione_unica_unico_piano_rateale" is configured in APD
     // Given debt position "opzione_unica_molteplici_piani_rateali" is configured in APD
     // Given debt position "co-obbligati" is configured in APD
-    let res1 = await loadDebtPosition("opzione_unica", idOrg);
-    console.log(`[DEBUG] Setup opzione_unica result: ${res1}`);
+    assert.strictEqual(await loadDebtPosition("opzione_unica", idOrg), true);
     assert.strictEqual(await loadDebtPosition("opzione_unica_unico_piano_rateale", idOrg), true);
     assert.strictEqual(await loadDebtPosition("opzione_unica_molteplici_piani_rateali", idOrg), true);
     assert.strictEqual(await loadDebtPosition("co-obbligati", idOrg), true);
@@ -115,24 +114,9 @@ When('an Http GET request is sent to recover payment options for taxCode {string
           case "valid":
             selectedPsp = validPsp;
         }
-        console.log(`\n[DEBUG REQUEST] ------------------------------------------------`);
-        console.log(`[DEBUG REQUEST] TaxCode: ${selectedTaxCode}`);
-        console.log(`[DEBUG REQUEST] Notice:  ${selectedNoticeNumber}`);
-        console.log(`[DEBUG REQUEST] PSP:     ${selectedPsp}`);
-        console.log(`[DEBUG REQUEST] ------------------------------------------------\n`);
 
         this.response = await getPaymentOptions(selectedTaxCode, selectedNoticeNumber, selectedPsp);
 
-        if (this.response?.status !== 200) {
-            console.log(`\n[DEBUG ERROR] ------------------------------------------------`);
-            console.log(`[DEBUG ERROR] Status: ${this.response?.status}`);
-            try {
-                console.log(`[DEBUG ERROR] Body:   ${JSON.stringify(this.response?.data, null, 2)}`);
-            } catch (e) {
-                console.log(`[DEBUG ERROR] Body:   ${this.response?.data}`);
-            }
-            console.log(`[DEBUG ERROR] ------------------------------------------------\n`);
-        }
    });
 
 Then('payments options has size {int}', function (expectedSize) {
