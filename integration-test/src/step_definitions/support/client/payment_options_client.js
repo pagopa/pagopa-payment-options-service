@@ -33,6 +33,10 @@ async function loadDebtPosition(filename, idOrg) {
         });
     }
     const resp = await createDebtPosition(idOrg, payload);
+
+    if (resp.status !== 201 && resp.status !== 409) {
+        console.error(`Failed to load debt position ${filename}. Status: ${resp.status}, Data: ${JSON.stringify(resp.data)}`);
+    }
     return (resp.status === 201 || resp.status === 409)
 }
 
