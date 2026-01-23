@@ -34,7 +34,7 @@ module "apim_payment_options_api_v1" {
   name                  = format("%s-payment-options-service-api", var.env_short)
   api_management_name   = local.apim.name
   resource_group_name   = local.apim.rg
-  product_ids           = [local.apim.payments_options_product_id, local.apim.nodo_auth_product_id]
+  product_ids           = [local.apim.payments_options_product_id]
   subscription_required = local.apim_payment_options.subscription_required
   version_set_id        = azurerm_api_management_api_version_set.api_payment_options_service.id
   api_version           = "v1"
