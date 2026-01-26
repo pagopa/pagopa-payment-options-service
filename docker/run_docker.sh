@@ -10,7 +10,7 @@ then
   echo "No environment specified: local is used."
 fi
 
-pip3 install yq
+#pip3 install yq
 
 if [ "$ENV" = "local" ]; then
   image="service-local:latest"
