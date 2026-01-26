@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # sh ./run_docker.sh <local|dev|uat|prod>
 
