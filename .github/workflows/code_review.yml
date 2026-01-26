@@ -47,7 +47,7 @@ jobs:
 
   smoke-test:
     name: Smoke Test
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted-job, "${{ inputs.environment }}" ]
     environment:
       name: dev
     steps:
