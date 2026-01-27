@@ -50,11 +50,6 @@ jobs:
     runs-on: [ self-hosted-job, "dev" ]
     environment:
       name: dev
-    container:
-      image: ghcr.io/pagopa/pagopa-github-actions-runner-k8s:latest
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-      options: --user root
     steps:
       - name: Checkout
         id: checkout

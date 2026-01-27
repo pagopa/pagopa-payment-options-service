@@ -1,10 +1,6 @@
-#!/bin/bash
+#!/bin/bash -x
 
-if docker compose version >/dev/null 2>&1; then
-    DOCKER_COMPOSE_CMD="docker compose"
-else
-    DOCKER_COMPOSE_CMD="docker-compose"
-fi
+# sh ./run_docker.sh <local|dev|uat|prod>
 
 ENV=$1
 
@@ -14,60 +10,47 @@ then
   echo "No environment specified: local is used."
 fi
 
+#pip3 install yq
+
 if [ "$ENV" = "local" ]; then
   image="service-local:latest"
   ENV="dev"
 else
-  if [ ! -f "../helm/values-$ENV.yaml" ]; then
-    echo "Error: File ../helm/values-$ENV.yaml not found."
-    exit 1
-  fi
-  repository=$(yq -o=json -r '."microservice-chart".image.repository' ../helm/values-$ENV.yaml)
+  repository=$(yq -r '."microservice-chart".image.repository' ../helm/values-$ENV.yaml)
   image="${repository}:latest"
 fi
 export image=${image}
 
-rm -f .env
-touch .env
-
-echo "Generating .env file from values-$ENV.yaml..."
-
-yq -o=json -r '."microservice-chart".envConfig' ../helm/values-$ENV.yaml | \
-jq -r 'to_entries[] | "\(.key)=\(.value)"' >> .env
-
-keyvault=$(yq -o=json -r '."microservice-chart".keyvault.name' ../helm/values-$ENV.yaml)
-
-yq -o=json -r '."microservice-chart".envSecret' ../helm/values-$ENV.yaml | \
-jq -r 'to_entries[] | "\(.key)=\(.value)"' | \
-while IFS='=' read -r env_key secret_name; do
-
-  secret_name=$(echo "$secret_name" | tr -d '\r')
-
-  if [ -n "$secret_name" ]; then
-      response=$(az keyvault secret show --vault-name "$keyvault" --name "$secret_name" 2>/dev/null)
-
-      if [ -n "$response" ]; then
-          value=$(echo "$response" | jq -r '.value')
-          echo "$env_key=$value" >> .env
-      else
-          echo "WARNING: Secret '$secret_name' not found in KeyVault '$keyvault'"
-      fi
-  fi
+FILE=.env
+if test -f "$FILE"; then
+    rm .env
+fi
+config=$(yq  -r '."microservice-chart".envConfig' ../helm/values-$ENV.yaml)
+for line in $(echo $config | jq -r '. | to_entries[] | select(.key) | "\(.key)=\(.value)"'); do
+    echo $line >> .env
 done
 
-echo "Starting Docker Compose using command: $DOCKER_COMPOSE_CMD"
+keyvault=$(yq  -r '."microservice-chart".keyvault.name' ../helm/values-$ENV.yaml)
+secret=$(yq  -r '."microservice-chart".envSecret' ../helm/values-$ENV.yaml)
+for line in $(echo $secret | jq -r '. | to_entries[] | select(.key) | "\(.key)=\(.value)"'); do
+  IFS='=' read -r -a array <<< "$line"
+  name=$(printf '%s' "${array[1]}" | tr -d '\r')
+  response=$(az keyvault secret show --vault-name $keyvault --name "$name")
+  value=$(echo $response | jq -r '.value')
+  echo "${array[0]}=$value" >> .env
+done
 
-$DOCKER_COMPOSE_CMD up -d --remove-orphans --force-recreate --build
+stack_name=$(cd .. && basename "$PWD")
+docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build
 
+
+# waiting the containers
 printf 'Waiting for the service'
 attempt_counter=0
 max_attempts=50
-
 until [ "$(curl -s -w '%{http_code}' -o /dev/null "http://localhost:8080/q/health/live")" -eq 200 ]; do
     if [ ${attempt_counter} -eq ${max_attempts} ];then
-      echo ""
-      echo "Max attempts reached. Service failed to start."
-      $DOCKER_COMPOSE_CMD logs
+      echo "Max attempts reached"
       exit 1
     fi
 
@@ -75,6 +58,4 @@ until [ "$(curl -s -w '%{http_code}' -o /dev/null "http://localhost:8080/q/healt
     attempt_counter=$((attempt_counter+1))
     sleep 5
 done
-
-echo ''
 echo 'Service Started'
