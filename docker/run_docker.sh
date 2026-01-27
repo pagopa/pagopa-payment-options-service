@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker compose"
+else
+    DOCKER_COMPOSE_CMD="docker-compose"
+fi
+
 ENV=$1
 
 if [ -z "$ENV" ]
@@ -16,7 +22,7 @@ else
     echo "Error: File ../helm/values-$ENV.yaml not found."
     exit 1
   fi
-  repository=$(yq -r '."microservice-chart".image.repository' ../helm/values-$ENV.yaml)
+  repository=$(yq -o=json -r '."microservice-chart".image.repository' ../helm/values-$ENV.yaml)
   image="${repository}:latest"
 fi
 export image=${image}
@@ -26,12 +32,12 @@ touch .env
 
 echo "Generating .env file from values-$ENV.yaml..."
 
-yq -r '."microservice-chart".envConfig' ../helm/values-$ENV.yaml | \
+yq -o=json -r '."microservice-chart".envConfig' ../helm/values-$ENV.yaml | \
 jq -r 'to_entries[] | "\(.key)=\(.value)"' >> .env
 
-keyvault=$(yq -r '."microservice-chart".keyvault.name' ../helm/values-$ENV.yaml)
+keyvault=$(yq -o=json -r '."microservice-chart".keyvault.name' ../helm/values-$ENV.yaml)
 
-yq -r '."microservice-chart".envSecret' ../helm/values-$ENV.yaml | \
+yq -o=json -r '."microservice-chart".envSecret' ../helm/values-$ENV.yaml | \
 jq -r 'to_entries[] | "\(.key)=\(.value)"' | \
 while IFS='=' read -r env_key secret_name; do
 
@@ -49,9 +55,9 @@ while IFS='=' read -r env_key secret_name; do
   fi
 done
 
-echo "Starting Docker Compose..."
+echo "Starting Docker Compose using command: $DOCKER_COMPOSE_CMD"
 
-docker compose up -d --remove-orphans --force-recreate --build
+$DOCKER_COMPOSE_CMD up -d --remove-orphans --force-recreate --build
 
 printf 'Waiting for the service'
 attempt_counter=0
@@ -61,7 +67,7 @@ until [ "$(curl -s -w '%{http_code}' -o /dev/null "http://localhost:8080/q/healt
     if [ ${attempt_counter} -eq ${max_attempts} ];then
       echo ""
       echo "Max attempts reached. Service failed to start."
-      docker compose logs
+      $DOCKER_COMPOSE_CMD logs
       exit 1
     fi
 
