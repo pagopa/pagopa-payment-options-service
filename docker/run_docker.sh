@@ -25,14 +25,14 @@ FILE=.env
 if test -f "$FILE"; then
     rm .env
 fi
-config=$(yq  -r '."microservice-chart".envConfig' ../helm/values-$ENV.yaml)
-for line in $(echo $config | jq -r '. | to_entries[] | select(.key) | "\(.key)=\(.value)"'); do
+config=$(yq  -r -o=json '."microservice-chart".envConfig' ../helm/values-$ENV.yaml)
+for line in $(echo "$config" | jq -r '. | to_entries[] | select(.key) | "\(.key)=\(.value)"'); do
     echo $line >> .env
 done
 
 keyvault=$(yq  -r '."microservice-chart".keyvault.name' ../helm/values-$ENV.yaml)
-secret=$(yq  -r '."microservice-chart".envSecret' ../helm/values-$ENV.yaml)
-for line in $(echo $secret | jq -r '. | to_entries[] | select(.key) | "\(.key)=\(.value)"'); do
+secret=$(yq  -r -o=json '."microservice-chart".envSecret' ../helm/values-$ENV.yaml)
+for line in $(echo "$secret" | jq -r '. | to_entries[] | select(.key) | "\(.key)=\(.value)"'); do
   IFS='=' read -r -a array <<< "$line"
   name=$(printf '%s' "${array[1]}" | tr -d '\r')
   response=$(az keyvault secret show --vault-name $keyvault --name "$name")
@@ -41,7 +41,7 @@ for line in $(echo $secret | jq -r '. | to_entries[] | select(.key) | "\(.key)=\
 done
 
 stack_name=$(cd .. && basename "$PWD")
-docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build
+docker-compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build
 
 
 # waiting the containers
