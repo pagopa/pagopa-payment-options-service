@@ -1,4 +1,4 @@
-const { get, post } = require("../utility/axios_common");
+const {get, post} = require("../utility/axios_common");
 const fs = require('fs/promises');
 const path = require('path');
 
@@ -10,34 +10,14 @@ const GPD_SUBKEY = process.env.GPD_SUBKEY;
 async function loadDebtPosition(filename, idOrg) {
     const basePath = path.join(process.cwd(), 'config', 'gpd-data');
     const fullPath = path.join(basePath, filename + '.json');
-    let fileContent = await fs.readFile(fullPath, 'utf8');
-    fileContent = fileContent.replaceAll("XXXXXXXXXXX", idOrg);
-    let payload = JSON.parse(fileContent);
-
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowISO = tomorrow.toISOString();
-
-    if (payload.paymentOption) {
-        payload.paymentOption.forEach(option => {
-            if (option.installments) {
-                option.installments.forEach(installment => {
-                    installment.dueDate = tomorrowISO;
-                });
-            }
-            if (option.retentionDate) {
-                const futureRetention = new Date();
-                futureRetention.setDate(futureRetention.getDate() + 2);
-                option.retentionDate = futureRetention.toISOString();
-            }
-        });
-    }
-    const resp = await createDebtPosition(idOrg, payload);
+    fileContent = await fs.readFile(fullPath, 'utf8');
+    fileContent = fileContent.replaceAll("XXXXXXXXXXX", idOrg)
+    resp = await createDebtPosition(idOrg, JSON.parse(fileContent));
     return (resp.status === 201 || resp.status === 409)
 }
 
 async function createDebtPosition(org, jsonBody) {
-    return await post(GPD_V3_HOST +
+    const data = await post(GPD_V3_HOST +
         `/organizations/` + org + `/debtpositions?toPublish=true`,
         jsonBody,
         {
@@ -47,6 +27,8 @@ async function createDebtPosition(org, jsonBody) {
                 "Content-Type": "application/json"
             }
         });
+
+    return data;
 }
 
 
@@ -60,8 +42,8 @@ async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
         params.idBrokerPsp = idPsp;
     }
 
-    return await get(PAY_OPT_HOST +
-        `/payment-options/organizations/` + taxCode + `/notices/` + noticeNumber, {
+    const data = await get(PAY_OPT_HOST +
+        `/payment-options/organizations/`+taxCode+`/notices/`+noticeNumber, {
         timeout: API_TIMEOUT,
         params,
         headers: {
@@ -69,6 +51,8 @@ async function getPaymentOptions(taxCode, noticeNumber, idPsp) {
             "Content-Type": "application/json"
         }
     });
+
+    return data;
 }
 
 module.exports = {
