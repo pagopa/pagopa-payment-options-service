@@ -77,10 +77,12 @@ jobs:
         id: run_integration_test
         env:
           CUCUMBER_PUBLISH_TOKEN: ${{ secrets.CUCUMBER_PUBLISH_TOKEN }}
-          SUBKEY: ${{ secrets.SUBKEY }}
+          SUBKEY_ENV: ${{ secrets.SUBKEY }}
+          GPD_SUBKEY_ENV: ${{ secrets.GPD_SUBKEY }}
         run: |
           export CUCUMBER_PUBLISH_TOKEN=$CUCUMBER_PUBLISH_TOKEN
-          export SUBKEY=$SUBKEY
+          export SUBKEY=$SUBKEY_ENV
+          export GPD_SUBKEY=$GPD_SUBKEY_ENV
 
           cd ./integration-test
           chmod +x ./run_integration_test.sh
