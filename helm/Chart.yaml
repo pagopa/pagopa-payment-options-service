@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-payment-options
 description: Microservice that handles services for payment options
 type: application
-version: 0.118.0
-appVersion: 0.10.1
+version: 0.119.0
+appVersion: 0.11.0
 dependencies:
   - name: microservice-chart
     version: 8.0.2
