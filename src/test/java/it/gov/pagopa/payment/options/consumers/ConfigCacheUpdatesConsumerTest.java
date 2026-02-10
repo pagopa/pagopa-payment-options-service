@@ -56,4 +56,12 @@ class ConfigCacheUpdatesConsumerTest {
 
 		verify(configCacheService).checkAndUpdateCache(any());
 	}
+	
+	@Test
+	void consumeWithNullEvent_shouldSkipAndNotInvokeService() {
+	  // when cache update event is null, the consumer must skip processing and not call the service at all
+	  assertDoesNotThrow(() -> configCacheUpdatesConsumer.consume(null));
+	  org.mockito.Mockito.verifyNoInteractions(configCacheService);
+	}
+
 }
