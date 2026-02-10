@@ -35,8 +35,6 @@ public class ConfigCacheService {
 	@RestClient
 	public ApiConfigCacheClient apiConfigCacheClient;
 
-	// private ConfigCacheData configCacheData;
-
 	/**
 	 * Provides a thread-safe, "all-or-nothing" reference to the cache. 
 	 * Readers will always retrieve a fully formed ConfigCacheData object, 
@@ -72,13 +70,6 @@ public class ConfigCacheService {
 	 * it will call the checkAndUpdate method
 	 * @return local instance of the configCacheData
 	 */
-	/*
-  public ConfigDataV1 getConfigCacheData() {
-    return this.configCacheData != null && this.configCacheData.getConfigDataV1() != null ?
-        this.configCacheData.getConfigDataV1() :
-        checkAndUpdateCache(null).getConfigDataV1();
-  }*/
-
 	public ConfigDataV1 getConfigCacheData() {
 		// Fast path: return current snapshot without locking.
 		ConfigCacheData current = cacheRef.get();
@@ -109,58 +100,6 @@ public class ConfigCacheService {
 	 * @return instance of the configCacheData
 	 */
 	@SneakyThrows
-	/*
-  public ConfigCacheData checkAndUpdateCache(CacheUpdateEvent cacheUpdateEvent) {
-
-    if (configCacheData == null || cacheUpdateEvent == null ||
-          configCacheData.getVersion() == null ||
-          configCacheData.getCacheVersion() == null ||
-          !cacheUpdateEvent.getCacheVersion().equals(configCacheData.getCacheVersion()) ||
-          cacheUpdateEvent.getVersion().compareTo(configCacheData.getVersion()) > 0)
-    {
-
-      if (configCacheData == null) {
-        configCacheData = ConfigCacheData.builder().cacheVersion(
-            cacheUpdateEvent != null ?
-                cacheUpdateEvent.getCacheVersion() :
-                null
-        )
-        .version(cacheUpdateEvent != null ?
-            cacheUpdateEvent.getVersion() :
-            null)
-        .build();
-      }
-
-      ConfigDataV1 configDataV1 = apiConfigCacheClient.getCache(
-          List.of(new String[]{
-              "stations", "creditorInstitutions",
-              "psps", "creditorInstitutionStations",
-              "pspBrokers"
-          })
-      );
-
-      if (logger.isTraceEnabled()) {
-        logger.trace("[Payment Options] Retrieved data {}",
-                new ObjectMapper().writeValueAsString(configDataV1));
-      }
-
-      if (configDataV1.getVersion() == null || configCacheData.getVersion() == null ||
-          configDataV1.getVersion().compareTo(configCacheData.getVersion()) >= 0) {
-        configCacheData.setConfigDataV1(configDataV1);
-        if (configDataV1.getVersion() != null) {
-          configCacheData.setVersion(configDataV1.getVersion());
-        }
-        configCacheData.setCacheVersion(cacheUpdateEvent != null &&
-            cacheUpdateEvent.getCacheVersion() != null ?
-            cacheUpdateEvent.getCacheVersion() : null);
-      }
-
-    }
-
-    return this.configCacheData;
-
-  }*/
-
 	public ConfigCacheData checkAndUpdateCache(CacheUpdateEvent cacheUpdateEvent) {
 
 		// Fast, lock-free check: if cache is present and the event doesn't represent a newer version,
