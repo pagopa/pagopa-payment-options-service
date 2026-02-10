@@ -17,7 +17,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class PaymentOptionsService {
 
   private final DateTimeFormatter formatter = DateTimeFormatter
       .ofPattern("yyyy-MM-dd'T'HH:mm'Z'")
-      .withZone(ZoneOffset.systemDefault());
+      .withZone(ZoneId.systemDefault());
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -61,7 +61,6 @@ public class PaymentOptionsService {
       String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber, String sessionId) {
 
     Station station = null;
-    //StationCreditorInstitution stationCreditorInstitution = null;
     long segregationCode;
     
     String creditorInstitutionCode = null;
@@ -89,12 +88,6 @@ public class PaymentOptionsService {
         throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
             "Configuration data currently not available");
       }
-
-      /*
-      stationCreditorInstitution = getStationCreditorInstitution(idPsp, idBrokerPsp, fiscalCode,
-          segregationCode, configCacheData);
-      station = stationMap.get(stationCreditorInstitution.getStationCode());
-      */
       
       // Resolve creditor institution: keep only primitive codes to minimize retained memory.
       CreditorInstitution creditorInstitution = getCreditorInstitution(fiscalCode, configCacheData);
@@ -113,22 +106,6 @@ public class PaymentOptionsService {
 
       station = stationMap.get(stationCode);
 
-      
-      /*
-      if (station == null) {
-    	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
-    			  "Station not found using station code " + stationCreditorInstitution.getStationCode());
-      } else if (!Boolean.TRUE.equals(station.getEnabled())) {
-    	  throw new PaymentOptionsException(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA,
-    			  "Station found using station code " +
-    					  stationCreditorInstitution.getStationCode() + " disabled");
-      } else if (!Boolean.TRUE.equals(station.getVerifyPaymentOptionEnabled())) {
-    	  throw new PaymentOptionsException(
-    			  AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA,
-    			  "Station found using station code " +
-    					  stationCreditorInstitution.getStationCode() + " has the OdP verify service disabled."
-    					  + " Use the standard verification flow");
-      }*/
       
       if (station == null) {
     	  throw new PaymentOptionsException(
@@ -155,7 +132,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station != null ? station.getStationCode() : null, sessionId, LocalDateTime
-              .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
+              .ofInstant(instantForPspReq, ZoneId.systemDefault())
               .format(formatter),
           Status.KO, EventType.REQ, null,
           e.getErrorCode().getErrorCode(), e.getMessage()
@@ -169,7 +146,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
-              .ofInstant(instantForPspReq, ZoneOffset.systemDefault())
+              .ofInstant(instantForPspReq, ZoneId.systemDefault())
               .format(formatter),
           Status.OK, EventType.REQ,
           null, null, null
@@ -179,7 +156,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
-              .ofInstant(instantForEcReq, ZoneOffset.systemDefault())
+              .ofInstant(instantForEcReq, ZoneId.systemDefault())
               .format(formatter),
           Status.OK, EventType.REQ,
           null, null, null
@@ -193,7 +170,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
-              .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
+              .ofInstant(instantForEcRes, ZoneId.systemDefault())
               .format(formatter),
           Status.OK, EventType.RES,
           objectMapper.writeValueAsString(paymentOptionsResponse)
@@ -203,7 +180,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
-              .ofInstant(instantForPspRes, ZoneOffset.systemDefault())
+              .ofInstant(instantForPspRes, ZoneId.systemDefault())
               .format(formatter),
           Status.OK, EventType.RES,
           objectMapper.writeValueAsString(paymentOptionsResponse),
@@ -219,7 +196,7 @@ public class PaymentOptionsService {
         eventService.sendEvent(
             idPsp, idBrokerPsp, noticeNumber, fiscalCode,
             station.getStationCode(), sessionId, LocalDateTime
-                .ofInstant(instant, ZoneOffset.systemDefault())
+                .ofInstant(instant, ZoneId.systemDefault())
                 .format(formatter),
             Status.KO, EventType.RES,
             objectMapper.writeValueAsString(e.getErrorResponse()),
@@ -229,17 +206,7 @@ public class PaymentOptionsService {
       } catch (JsonProcessingException ex) {
         throw new RuntimeException(ex);
       }
-      /*
-      eventService.sendVerifyKoEvent(
-          idPsp, idBrokerPsp, noticeNumber, fiscalCode,
-          station.getStationCode(),
-          stationCreditorInstitution.getCreditorInstitutionCode(),
-          e.getErrorResponse().getAppErrorCode(),
-          e.getErrorResponse().getErrorMessage(),
-          instant.getEpochSecond(),
-          LocalDateTime
-              .ofInstant(instant, ZoneOffset.systemDefault())
-              .format(formatter));*/
+    
       eventService.sendVerifyKoEvent(
     		    idPsp, idBrokerPsp, noticeNumber, fiscalCode,
     		    station.getStationCode(),
@@ -247,7 +214,7 @@ public class PaymentOptionsService {
     		    e.getErrorResponse().getAppErrorCode(),
     		    e.getErrorResponse().getErrorMessage(),
     		    instant.getEpochSecond(),
-    		    LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()).format(formatter)
+    		    LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(formatter)
     		);
 
       throw e;
@@ -257,7 +224,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
-              .ofInstant(instant, ZoneOffset.systemDefault())
+              .ofInstant(instant, ZoneId.systemDefault())
               .format(formatter),
           Status.KO, EventType.REQ,
           null, e.getErrorCode().getErrorCode(), e.getMessage()
@@ -274,7 +241,7 @@ public class PaymentOptionsService {
       eventService.sendEvent(
           idPsp, idBrokerPsp, noticeNumber, fiscalCode,
           station.getStationCode(), sessionId, LocalDateTime
-              .ofInstant(instantForEcRes, ZoneOffset.systemDefault())
+              .ofInstant(instantForEcRes, ZoneId.systemDefault())
               .format(formatter),
           Status.KO, EventType.REQ, null,
           paymentOptionsException.getErrorCode().getErrorCode(),
@@ -286,75 +253,6 @@ public class PaymentOptionsService {
     }
 
   }
-/*
-  private static StationCreditorInstitution getStationCreditorInstitution(String idPsp,
-      String idBrokerPsp, String fiscalCode,
-      long segregationCode, ConfigDataV1 configCacheData) {
-    Map<String, PaymentServiceProvider> paymentOptionsServiceMap = configCacheData.getPsps();
-    if (paymentOptionsServiceMap == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-          "Configuration data currently not available");
-    }
-
-    PaymentServiceProvider paymentServiceProvider = paymentOptionsServiceMap.get(idPsp);
-    if (paymentServiceProvider == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO,
-          "PSP with id " + idPsp + " not found");
-    } else if (!paymentServiceProvider.isEnabled()) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_PSP_DISABILITATO,
-          "PSP with id " + idPsp + " disabled");
-    }
-
-    Map<String, BrokerPsp> pspBrokers = configCacheData.getPspBrokers();
-    if (pspBrokers == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-          "Configuration data currently not available");
-    }
-
-    BrokerPsp brokerPsp = pspBrokers.get(idBrokerPsp);
-    if (brokerPsp == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO,
-          "PSP Broker with id " + idBrokerPsp + " not found");
-    } else if (!brokerPsp.isEnabled()) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_DISABILITATO,
-          "PSP Broker with id " + idBrokerPsp + " disabled");
-    }
-
-    Map<String, CreditorInstitution> creditorInstitutionMap =
-        configCacheData.getCreditorInstitutions();
-    if (creditorInstitutionMap == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-          "Configuration data currently not available");
-    }
-
-    CreditorInstitution creditorInstitution = creditorInstitutionMap.get(fiscalCode);
-    if (creditorInstitution == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO,
-          "Creditor institution with id " + fiscalCode + " not found");
-    } else if (!Boolean.TRUE.equals(creditorInstitution.getEnabled())) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO,
-          "Creditor institution with id " + fiscalCode + " disabled");
-    }
-
-    Map<String, StationCreditorInstitution> stationCreditorInstitutionMap =
-        configCacheData.getCreditorInstitutionStations();
-    if (stationCreditorInstitutionMap == null) {
-      throw new PaymentOptionsException(AppErrorCodeEnum.ODP_SYSTEM_ERROR,
-          "Configuration data currently not available");
-    }
-
-    return stationCreditorInstitutionMap.values()
-        .stream().filter(item ->
-            item.getSegregationCode() != null &&
-                item.getSegregationCode().equals(segregationCode) &&
-            item.getCreditorInstitutionCode() != null &&
-                item.getCreditorInstitutionCode()
-                    .equals(creditorInstitution.getCreditorInstitutionCode()))
-        .findFirst().orElseThrow(() ->
-            new PaymentOptionsException(
-                AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA,
-                "Station related to the creditor institution not found"));
-  }*/
 
   private ConfigDataV1 getConfigData() {
     ConfigDataV1 configCacheData;
@@ -392,25 +290,6 @@ public class PaymentOptionsService {
           "Missing input noticeNumber");
     }
   }
-
-  /*
-  private void sendKoEvent(String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber,
-      Station station, StationCreditorInstitution stationCreditorInstitution, Instant instant,
-      PaymentOptionsException e) {
-    logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
-    String formattedDateTime = LocalDateTime
-        .ofInstant(instant, ZoneOffset.systemDefault())
-        .format(formatter);
-    eventService.sendVerifyKoEvent(
-        idPsp, idBrokerPsp, noticeNumber, fiscalCode,
-        station != null ? station.getStationCode() : null,
-        stationCreditorInstitution != null ?
-            stationCreditorInstitution.getCreditorInstitutionCode() : null,
-        e.getErrorCode().getErrorCode(),
-        e.getErrorCode().getErrorMessage(),
-        instant.getEpochSecond(),
-        formattedDateTime);
-  }*/
   
   private void sendKoEvent(
 		  String idPsp, String idBrokerPsp, String fiscalCode, String noticeNumber,
@@ -420,7 +299,7 @@ public class PaymentOptionsService {
 	  logger.error("[Payment Options] encountered a managed error: {}", e.getMessage());
 
 	  String formattedDateTime = LocalDateTime
-			  .ofInstant(instant, ZoneOffset.systemDefault())
+			  .ofInstant(instant, ZoneId.systemDefault())
 			  .format(formatter);
 
 	  eventService.sendVerifyKoEvent(
