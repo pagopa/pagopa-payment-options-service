@@ -35,8 +35,6 @@ public class ConfigCacheService {
 	@RestClient
 	public ApiConfigCacheClient apiConfigCacheClient;
 
-	// private ConfigCacheData configCacheData;
-
 	/**
 	 * Provides a thread-safe, "all-or-nothing" reference to the cache. 
 	 * Readers will always retrieve a fully formed ConfigCacheData object, 
@@ -72,13 +70,6 @@ public class ConfigCacheService {
 	 * it will call the checkAndUpdate method
 	 * @return local instance of the configCacheData
 	 */
-	/*
-  public ConfigDataV1 getConfigCacheData() {
-    return this.configCacheData != null && this.configCacheData.getConfigDataV1() != null ?
-        this.configCacheData.getConfigDataV1() :
-        checkAndUpdateCache(null).getConfigDataV1();
-  }*/
-
 	public ConfigDataV1 getConfigCacheData() {
 		// Fast path: return current snapshot without locking.
 		ConfigCacheData current = cacheRef.get();
@@ -109,58 +100,6 @@ public class ConfigCacheService {
 	 * @return instance of the configCacheData
 	 */
 	@SneakyThrows
-	/*
-  public ConfigCacheData checkAndUpdateCache(CacheUpdateEvent cacheUpdateEvent) {
-
-    if (configCacheData == null || cacheUpdateEvent == null ||
-          configCacheData.getVersion() == null ||
-          configCacheData.getCacheVersion() == null ||
-          !cacheUpdateEvent.getCacheVersion().equals(configCacheData.getCacheVersion()) ||
-          cacheUpdateEvent.getVersion().compareTo(configCacheData.getVersion()) > 0)
-    {
-
-      if (configCacheData == null) {
-        configCacheData = ConfigCacheData.builder().cacheVersion(
-            cacheUpdateEvent != null ?
-                cacheUpdateEvent.getCacheVersion() :
-                null
-        )
-        .version(cacheUpdateEvent != null ?
-            cacheUpdateEvent.getVersion() :
-            null)
-        .build();
-      }
-
-      ConfigDataV1 configDataV1 = apiConfigCacheClient.getCache(
-          List.of(new String[]{
-              "stations", "creditorInstitutions",
-              "psps", "creditorInstitutionStations",
-              "pspBrokers"
-          })
-      );
-
-      if (logger.isTraceEnabled()) {
-        logger.trace("[Payment Options] Retrieved data {}",
-                new ObjectMapper().writeValueAsString(configDataV1));
-      }
-
-      if (configDataV1.getVersion() == null || configCacheData.getVersion() == null ||
-          configDataV1.getVersion().compareTo(configCacheData.getVersion()) >= 0) {
-        configCacheData.setConfigDataV1(configDataV1);
-        if (configDataV1.getVersion() != null) {
-          configCacheData.setVersion(configDataV1.getVersion());
-        }
-        configCacheData.setCacheVersion(cacheUpdateEvent != null &&
-            cacheUpdateEvent.getCacheVersion() != null ?
-            cacheUpdateEvent.getCacheVersion() : null);
-      }
-
-    }
-
-    return this.configCacheData;
-
-  }*/
-
 	public ConfigCacheData checkAndUpdateCache(CacheUpdateEvent cacheUpdateEvent) {
 
 		// Fast, lock-free check: if cache is present and the event doesn't represent a newer version,
@@ -209,30 +148,31 @@ public class ConfigCacheService {
 			// creditorInstitutionStations is the heaviest collection.
 			// After building the index, it is safe to remove it to reduce retained memory.
 			configDataV1.setCreditorInstitutionStations(null);
+			
+			// Determine the version we are currently serving (to prevent downgrades).
+			String servedVersion = (current != null) ? current.getVersion() : null;
 
-			// Update snapshot only if fetched version is >= current version (or current version is null).
-			if (configDataV1.getVersion() == null || base.getVersion() == null ||
-					configDataV1.getVersion().compareTo(base.getVersion()) >= 0) {
+			// Update snapshot only if fetched version is >= served version (or served version is null).
+			if (isNewerOrEqual(configDataV1.getVersion(), servedVersion)) {
 
-				ConfigCacheData newSnapshot = ConfigCacheData.builder()
-						// event-driven cacheVersion: if event is present, store it; else keep previous value
-						.cacheVersion(cacheUpdateEvent != null && cacheUpdateEvent.getCacheVersion() != null
-						? cacheUpdateEvent.getCacheVersion()
-								: base.getCacheVersion())
-						// version comes from fetched payload when present
-						.version(configDataV1.getVersion() != null ? configDataV1.getVersion() : base.getVersion())
-						.configDataV1(configDataV1)
-						.stationCodeByCiAndSeg(stationIndex)
-						.build();
-
-				// Atomic swap: from now on, all readers see the updated snapshot.
-				cacheRef.set(newSnapshot);
-				return newSnapshot;
+			    ConfigCacheData newSnapshot = ConfigCacheData.builder()
+			            .cacheVersion(cacheUpdateEvent != null && cacheUpdateEvent.getCacheVersion() != null
+			                    ? cacheUpdateEvent.getCacheVersion()
+			                    : base.getCacheVersion())
+			            // version comes from fetched payload when present
+			            .version(configDataV1.getVersion() != null ? configDataV1.getVersion() : base.getVersion())
+			            .configDataV1(configDataV1)
+			            .stationCodeByCiAndSeg(stationIndex)
+			            .build();
+			    
+			    // Atomic swap: from now on, all readers see the updated snapshot.
+			    cacheRef.set(newSnapshot);
+			    return newSnapshot;
 			}
 
-			// fallback -> If fetched an older version, keep serving the baseline snapshot.
-			// This prevents accidental downgrade of cached data.
-			return base;
+			// Fetched payload is older than what we are currently serving -> DO NOT downgrade.
+			// Keep serving the current snapshot if present, otherwise fallback to base.
+			return (current != null) ? current : base;
 
 		} catch (Exception e) {
 			logger.error("[Payment Options] Error updating api-config cache: {}", e.getMessage(), e);
@@ -305,6 +245,23 @@ public class ConfigCacheService {
 
 		java.util.Map<Long, String> bySeg = snap.getStationCodeByCiAndSeg().get(creditorInstitutionCode);
 		return bySeg != null ? bySeg.get(segregationCode) : null;
+	}
+	
+	private boolean isNewerOrEqual(String fetchedVersion, String servedVersion) {
+		// If we don't know one of the versions, assume we need to refresh to be safe (prevents blocking updates when version info is missing).
+		if (fetchedVersion == null || servedVersion == null) {
+			return true;
+		}
+
+		// Numeric compare if both versions are numeric (e.g., timestamps or simple version numbers).
+		try {
+			long fetched = Long.parseLong(fetchedVersion);
+			long served = Long.parseLong(servedVersion);
+			return fetched >= served;
+		} catch (NumberFormatException ignored) {
+			// Fallback to lexicographical comparison if versions are not numeric.
+			return fetchedVersion.compareTo(servedVersion) >= 0;
+		}
 	}
 
 }

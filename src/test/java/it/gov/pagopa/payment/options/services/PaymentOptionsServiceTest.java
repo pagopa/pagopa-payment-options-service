@@ -540,5 +540,25 @@ class PaymentOptionsServiceTest {
     verify(configCacheService).getConfigCacheData();
     assertEquals(AppErrorCodeEnum.ODP_SYSTEM_ERROR, paymentOptionsException.getErrorCode());
   }
+  
+  @Test
+  void getPaymentOptions_shouldCallResolveStationCodeWithExpectedSegregation() {
+    when(configCacheService.getConfigCacheData()).thenReturn(ConfigDataV1.builder()
+        .psps(Map.of("00001", PaymentServiceProvider.builder().enabled(true).build()))
+        .stations(Map.of("00001", Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()))
+        .creditorInstitutions(Map.of("00001", CreditorInstitution.builder().creditorInstitutionCode("00001").enabled(true).build()))
+        .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
+        .creditorInstitutionBrokers(Map.of("00001", BrokerCreditorInstitution.builder().enabled(true).build()))
+        .build());
 
+    when(configCacheService.resolveStationCode("00001", 0L)).thenReturn("00001");
+    when(creditorInstitutionService.getPaymentOptions(any(), any(), any(), anyLong()))
+        .thenReturn(PaymentOptionsResponse.builder().build());
+
+    assertDoesNotThrow(() ->
+        paymentOptionsService.getPaymentOptions("00001", "00001", "00001", "3000000000", null)
+    );
+
+    verify(configCacheService).resolveStationCode("00001", 0L);
+  }
 }
