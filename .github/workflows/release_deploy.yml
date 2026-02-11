@@ -27,12 +27,15 @@ on:
           - skip_or_promote
           - new_release
           - breaking_change
-
-      beta:
-        required: false
+      is_canary:
         type: boolean
-        description: deploy beta version on AKS
+        description: 'Mark the release as canary on AKS'
         default: false
+      traffic_weight:
+        required: false
+        type: number
+        default: 0
+        description: 'The percentage of traffic to be sent to the canary version'
 
 
 permissions:
@@ -116,7 +119,6 @@ jobs:
         with:
           semver: ${{ needs.setup.outputs.semver }}
           github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          beta: ${{ inputs.beta }}
           skip_ci: false
 
   image:
@@ -139,6 +141,10 @@ jobs:
     uses: ./.github/workflows/deploy_with_github_runner.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
+      suffix_name: ${{ inputs.is_canary == true && '-canary' || '' }}
+      is_canary: ${{ inputs.is_canary == true }}
+      traffic_weight: ${{ inputs.traffic_weight || 0 }}
+      branch: ${{ github.ref_name }}
     secrets: inherit
 
 
