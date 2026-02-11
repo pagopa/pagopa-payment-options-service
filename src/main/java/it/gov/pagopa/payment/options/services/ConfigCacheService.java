@@ -121,9 +121,10 @@ public class ConfigCacheService {
 			ConfigCacheData base = current;
 			if (base == null) {
 				base = ConfigCacheData.builder()
-						.cacheVersion(cacheUpdateEvent != null ? cacheUpdateEvent.getCacheVersion() : null)
-						.version(cacheUpdateEvent != null ? cacheUpdateEvent.getVersion() : null)
-						.build();
+					    .cacheVersion(cacheUpdateEvent != null ? cacheUpdateEvent.getCacheVersion() : null)
+					    .version(null) // apiVersion is unknown until we fetch the payload, so we keep it null for now.
+					    .eventVersion(cacheUpdateEvent != null ? cacheUpdateEvent.getVersion() : null)
+					    .build();
 			}
 
 			ConfigDataV1 configDataV1 = apiConfigCacheClient.getCache(
@@ -150,25 +151,44 @@ public class ConfigCacheService {
 			configDataV1.setCreditorInstitutionStations(null);
 			
 			// Determine the version we are currently serving (to prevent downgrades).
-			String servedVersion = (current != null) ? current.getVersion() : null;
+			String servedApiVersion = current != null ? current.getVersion() : null;        // apiVersion
+			String servedEventVersion = current != null ? current.getEventVersion() : null; // eventVersion
+
+			String incomingCacheVersion = cacheUpdateEvent != null ? cacheUpdateEvent.getCacheVersion() : null;
+			String incomingEventVersion = cacheUpdateEvent != null ? cacheUpdateEvent.getVersion() : null;
+
+			String fetchedApiVersion = configDataV1.getVersion(); // apiVersion fetched (actually null in DEV/UAT)
+			
+			// Guard 1: If we have an event and it's not newer than the one already applied (same stream), DO NOT apply anything.
+			if (cacheUpdateEvent != null
+			    && current != null
+			    && incomingCacheVersion != null
+			    && incomingCacheVersion.equals(current.getCacheVersion())
+			    && !isNewer(incomingEventVersion, servedEventVersion)) {
+			  return current;
+			}
+			
+			// Guard 2 (future-proof): if apiVersion is provided, prevent downgrade on content.
+			boolean apiOk = isNewerOrEqual(fetchedApiVersion, servedApiVersion);
 
 			// Update snapshot only if fetched version is >= served version (or served version is null).
-			if (isNewerOrEqual(configDataV1.getVersion(), servedVersion)) {
+			if (apiOk) {
+				ConfigCacheData newSnapshot = ConfigCacheData.builder()
+						.cacheVersion(incomingCacheVersion != null ? incomingCacheVersion : base.getCacheVersion())
+						// version = apiVersion (if it exists), otherwise keep the previous one
+						.version(fetchedApiVersion != null ? fetchedApiVersion : servedApiVersion)
+						// eventVersion = event version (if there is an event), otherwise keep the previous one
+						.eventVersion(incomingEventVersion != null ? incomingEventVersion : servedEventVersion)
+						.configDataV1(configDataV1)
+						.stationCodeByCiAndSeg(stationIndex)
+						.build();
 
-			    ConfigCacheData newSnapshot = ConfigCacheData.builder()
-			            .cacheVersion(cacheUpdateEvent != null && cacheUpdateEvent.getCacheVersion() != null
-			                    ? cacheUpdateEvent.getCacheVersion()
-			                    : base.getCacheVersion())
-			            // version comes from fetched payload when present
-			            .version(configDataV1.getVersion() != null ? configDataV1.getVersion() : base.getVersion())
-			            .configDataV1(configDataV1)
-			            .stationCodeByCiAndSeg(stationIndex)
-			            .build();
-			    
-			    // Atomic swap: from now on, all readers see the updated snapshot.
-			    cacheRef.set(newSnapshot);
-			    return newSnapshot;
+				cacheRef.set(newSnapshot);
+				return newSnapshot;
 			}
+
+			logger.warn("[Payment Options] Ignoring fetched cache payload because it would downgrade apiVersion (served={}, fetched={})",
+				    servedApiVersion, fetchedApiVersion);
 
 			// Fetched payload is older than what we are currently serving -> DO NOT downgrade.
 			// Keep serving the current snapshot if present, otherwise fallback to base.
@@ -188,25 +208,28 @@ public class ConfigCacheService {
 			refreshLock.unlock();
 		}
 	}
-
+	
 	private boolean needsRefresh(ConfigCacheData current, CacheUpdateEvent evt) {
 		// If no snapshot exists, must refresh.
 		if (current == null) return true;
 
-		// If no event is provided, refresh only when we don't have a valid payload yet (prevents re-downloading the whole cache on every access).
+		// refresh only if we don't have a valid payload yet (prevents re-downloading the whole cache on every access)
 		if (evt == null) {
-		  return current.getConfigDataV1() == null;
+			return current.getConfigDataV1() == null;
 		}
 
-		// If current snapshot has missing version fields, refresh to rebuild a consistent snapshot.
-		if (current.getVersion() == null || current.getCacheVersion() == null) return true;
+		// if I have no payload, I need to refresh to get it, regardless of the event version (prevents blocking updates when version info is missing).
+		if (current.getConfigDataV1() == null) return true;
 
-		// If cacheVersion differs, refresh (event indicates a new cache content stream).
+		// different stream => refresh
+		if (current.getCacheVersion() == null) return true;
 		if (evt.getCacheVersion() == null || !evt.getCacheVersion().equals(current.getCacheVersion())) return true;
 
-		// If event version is newer than current, refresh.
-		return evt.getVersion() != null && evt.getVersion().compareTo(current.getVersion()) > 0;
+		// newest event => refresh
+		return isNewer(evt.getVersion(), current.getEventVersion());
 	}
+
+
 
 	private Map<String, Map<Long, String>> buildStationIndex(ConfigDataV1 data) {
 		// Transforms the "creditorInstitutionStations" payload into a compact index:
@@ -246,7 +269,7 @@ public class ConfigCacheService {
 		java.util.Map<Long, String> bySeg = snap.getStationCodeByCiAndSeg().get(creditorInstitutionCode);
 		return bySeg != null ? bySeg.get(segregationCode) : null;
 	}
-	
+	/*
 	private boolean isNewerOrEqual(String fetchedVersion, String servedVersion) {
 		// If we don't know one of the versions, assume we need to refresh to be safe (prevents blocking updates when version info is missing).
 		if (fetchedVersion == null || servedVersion == null) {
@@ -262,6 +285,27 @@ public class ConfigCacheService {
 			// Fallback to lexicographical comparison if versions are not numeric.
 			return fetchedVersion.compareTo(servedVersion) >= 0;
 		}
+	}*/
+	
+	private int compareVersions(String a, String b) {
+		if (a == null && b == null) return 0;
+		if (a == null) return -1;
+		if (b == null) return 1;
+
+		try {
+			return new java.math.BigInteger(a).compareTo(new java.math.BigInteger(b));
+		} catch (NumberFormatException e) {
+			return a.compareTo(b); // fallback
+		}
 	}
+
+	private boolean isNewer(String a, String b) {
+		return compareVersions(a, b) > 0;
+	}
+
+	private boolean isNewerOrEqual(String a, String b) {
+		return compareVersions(a, b) >= 0;
+	}
+
 
 }

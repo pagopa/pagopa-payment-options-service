@@ -325,10 +325,42 @@ class ConfigCacheServiceTest {
 
     // After the first refresh, cacheVersion should be updated to "CACHE", 
     //so the second thread with the same event should not trigger another refresh and just return the cached value, which has cacheVersion "CACHE"
-    assertEquals("CACHE", configCacheService.checkAndUpdateCache(evt).getCacheVersion());
+    assertEquals("CACHE", r1.getCacheVersion());
+    assertEquals("CACHE", r2.getCacheVersion());
+    assertEquals("1", r1.getEventVersion());
+    assertEquals("1", r2.getEventVersion());
 
     // only one remote call should have been made, because the second thread should have waited for the first to complete and then read the cached value
     verify(apiConfigCacheClient, times(1)).getCache(any());
   }
+  
+  @Test
+  void checkAndUpdateCache_shouldNotDowngradeOnOlderEventVersion_whenApiVersionNull() throws Exception {
+	  // payload always has apiVersion null (DEV/UAT real behavior)
+	  when(apiConfigCacheClient.getCache(any()))
+	  .thenReturn(ConfigDataV1.builder().version(null).build());
 
+	  CacheUpdateEvent v10 = CacheUpdateEvent.builder().cacheVersion("CACHE").version("10").build();
+	  CacheUpdateEvent v9  = CacheUpdateEvent.builder().cacheVersion("CACHE").version("9").build();
+
+	  // first event triggers refresh
+	  configCacheService.checkAndUpdateCache(v10);
+	  verify(apiConfigCacheClient, times(1)).getCache(any());
+
+	  // reset mock invocations counter
+	  reset(apiConfigCacheClient);
+
+	  // older event must NOT refresh
+	  configCacheService.checkAndUpdateCache(v9);
+	  verify(apiConfigCacheClient, never()).getCache(any());
+
+	  // assert eventVersion stayed 10
+	  Field f = ConfigCacheService.class.getDeclaredField("cacheRef");
+	  f.setAccessible(true);
+	  @SuppressWarnings("unchecked")
+	  AtomicReference<ConfigCacheData> ref =
+	  (AtomicReference<ConfigCacheData>) f.get(configCacheService);
+
+	  assertEquals("10", ref.get().getEventVersion());
+  }
 }
