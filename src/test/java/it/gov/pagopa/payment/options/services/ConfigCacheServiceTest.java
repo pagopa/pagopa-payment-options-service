@@ -240,7 +240,6 @@ class ConfigCacheServiceTest {
   
   @Test
   void checkAndUpdateCache_concurrentFirstLoad_shouldCallApiConfigOnlyOnce() throws Exception {
-   
     CountDownLatch firstCallEntered = new CountDownLatch(1);
     CountDownLatch releaseRemote = new CountDownLatch(1);
 
@@ -283,6 +282,53 @@ class ConfigCacheServiceTest {
     // only one remote call should have been made, because the second thread should have waited for the first to complete and then read the cached value
     verify(apiConfigCacheClient, times(1)).getCache(any());
   }
+  
+  @Test
+  void checkAndUpdateCache_concurrentSameEvent_shouldCallApiConfigOnlyOnce() throws Exception {
+    CountDownLatch firstCallEntered = new CountDownLatch(1);
+    CountDownLatch releaseRemote = new CountDownLatch(1);
 
+    when(apiConfigCacheClient.getCache(any())).thenAnswer(inv -> {
+      firstCallEntered.countDown();            // thread 1 comes here -> I report that it is inside getCache()
+      if (!releaseRemote.await(2, TimeUnit.SECONDS)) {
+        throw new RuntimeException("timeout waiting test release");
+      }
+      return ConfigDataV1.builder().version("1").build();
+    });
+
+    CacheUpdateEvent evt = CacheUpdateEvent.builder()
+        .cacheVersion("CACHE")
+        .version("1")
+        .build();
+
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    Callable<ConfigCacheData> task = () -> configCacheService.checkAndUpdateCache(evt);
+
+    Future<ConfigCacheData> f1 = pool.submit(task);
+
+    assertTrue(firstCallEntered.await(2, TimeUnit.SECONDS),
+        "First thread did not reach remote call in time");
+
+    // second thread starts with the same event while the first is blocked on the remote call -> it should wait for the first to complete and then return the same cached result without calling remote again
+    Future<ConfigCacheData> f2 = pool.submit(task);
+
+    // unlocks the remote call, so thread 1 can complete and set cacheRef -> thread 2 should then read the cached value and return
+    releaseRemote.countDown();
+
+    ConfigCacheData r1 = f1.get(2, TimeUnit.SECONDS);
+    ConfigCacheData r2 = f2.get(2, TimeUnit.SECONDS);
+
+    pool.shutdownNow();
+
+    assertNotNull(r1);
+    assertNotNull(r2);
+
+    // After the first refresh, cacheVersion should be updated to "CACHE", 
+    //so the second thread with the same event should not trigger another refresh and just return the cached value, which has cacheVersion "CACHE"
+    assertEquals("CACHE", configCacheService.checkAndUpdateCache(evt).getCacheVersion());
+
+    // only one remote call should have been made, because the second thread should have waited for the first to complete and then read the cached value
+    verify(apiConfigCacheClient, times(1)).getCache(any());
+  }
 
 }
