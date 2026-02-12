@@ -145,6 +145,7 @@ jobs:
       is_canary: ${{ inputs.is_canary == true }}
       traffic_weight: ${{ inputs.traffic_weight || 0 }}
       branch: ${{ github.ref_name }}
+      image_tag: ${{ needs.release.outputs.version }}
     secrets: inherit
 
 

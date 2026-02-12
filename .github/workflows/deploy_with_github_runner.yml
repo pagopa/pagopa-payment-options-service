@@ -17,13 +17,17 @@ on:
          type: string
       traffic_weight:
          required: false
-         type: string
-         default: "0"
+         type: number
+         default: 0
          description: 'The percentage of traffic to be sent to the canary version'
       is_canary:
          type: boolean
          description: 'Mark the release as canary on AKS'
          default: false
+      image_tag:
+        required: false
+        type: string
+        default: ''
 
 env:
   APP_NAME: payment-options-service
@@ -56,6 +60,7 @@ jobs:
             --set microservice-chart.canaryDelivery.create=${{ inputs.is_canary }}
             --set microservice-chart.canaryDelivery.ingress.weightPercent=${{ inputs.traffic_weight }}
             ${{ inputs.is_canary && '--set microservice-chart.fullnameOverride=payment-options-canary' || '' }}
+            ${{ inputs.is_canary && inputs.image_tag != '' && format('--set microservice-chart.canaryDelivery.image.tag={0}', inputs.image_tag) || '' }}
           timeout: '10m0s'
 
   update_openapi:
