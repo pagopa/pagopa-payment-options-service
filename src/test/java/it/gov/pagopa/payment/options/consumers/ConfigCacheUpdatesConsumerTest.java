@@ -6,6 +6,7 @@ import it.gov.pagopa.payment.options.models.events.CacheUpdateEvent;
 import it.gov.pagopa.payment.options.models.ConfigCacheData;
 import it.gov.pagopa.payment.options.services.ConfigCacheService;
 import jakarta.inject.Inject;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,39 +19,49 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 class ConfigCacheUpdatesConsumerTest {
 
-  @InjectMock
-  ConfigCacheService configCacheService;
+	@InjectMock
+	ConfigCacheService configCacheService;
 
-  @Inject
-  ConfigCacheUpdatesConsumer configCacheUpdatesConsumer;
+	@Inject
+	ConfigCacheUpdatesConsumer configCacheUpdatesConsumer;
 
-  @BeforeEach
-  public void init() {
-    Mockito.reset(configCacheService);
-  }
 
-  @Test
-  void consumeWithOk() {
-    when(configCacheService.checkAndUpdateCache(any()))
-        .thenReturn(ConfigCacheData.builder().build());
-    configCacheUpdatesConsumer.consume(CacheUpdateEvent.builder()
-            .cacheVersion("CACHE")
-            .version("11221")
-            .timestamp("12121212")
-        .build());
-    verify(configCacheService).checkAndUpdateCache(any());
-  }
+	@BeforeEach
+	void init() {
+		Mockito.reset(configCacheService);
+	}
+	
+	@Test
+	void consumeWithOk() {
+		when(configCacheService.checkAndUpdateCache(any()))
+		.thenReturn(ConfigCacheData.builder().build());
+		configCacheUpdatesConsumer.consume(CacheUpdateEvent.builder()
+				.cacheVersion("CACHE")
+				.version("11221")
+				.timestamp("12121212")
+				.build());
+		verify(configCacheService).checkAndUpdateCache(any());
+	}
 
-  @Test
-  void consumeWithKo() {
-    when(configCacheService.checkAndUpdateCache(any()))
-        .thenThrow(new RuntimeException());
-    assertThrows(Exception.class, () -> configCacheUpdatesConsumer.consume(CacheUpdateEvent.builder()
-        .cacheVersion("CACHE")
-        .version("11221")
-        .timestamp("12121212")
-        .build()));
-    verify(configCacheService).checkAndUpdateCache(any());
-  }
+	@Test
+	void consumeWithKo() {
+		when(configCacheService.checkAndUpdateCache(any()))
+		.thenThrow(new RuntimeException("exception"));
+		// changed behavior to best-effort
+		assertDoesNotThrow(() -> configCacheUpdatesConsumer.consume(CacheUpdateEvent.builder()
+				.cacheVersion("CACHE")
+				.version("11221")
+				.timestamp("12121212")
+				.build()));
+
+		verify(configCacheService).checkAndUpdateCache(any());
+	}
+	
+	@Test
+	void consumeWithNullEvent_shouldSkipAndNotInvokeService() {
+	  // when cache update event is null, the consumer must skip processing and not call the service at all
+	  assertDoesNotThrow(() -> configCacheUpdatesConsumer.consume(null));
+	  org.mockito.Mockito.verifyNoInteractions(configCacheService);
+	}
 
 }

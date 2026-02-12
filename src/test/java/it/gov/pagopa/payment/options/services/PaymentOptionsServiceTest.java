@@ -46,8 +46,14 @@ class PaymentOptionsServiceTest {
   public PaymentOptionsService paymentOptionsService;
 
   @BeforeEach
-  public void init() {
-    Mockito.reset(configCacheService, creditorInstitutionService);
+  void init() {
+	  Mockito.reset(configCacheService, creditorInstitutionService, eventService);
+
+	  // Default stub for the new station resolution path:
+	  // PaymentOptionsService now calls ConfigCacheService.resolveStationCode(...) instead of
+	  // scanning creditorInstitutionStations from ConfigDataV1. Since ConfigCacheService is mocked,
+	  // we must stub this method to drive the expected results in tests.
+	  when(configCacheService.resolveStationCode(any(), anyLong())).thenReturn("00001");
   }
 
   @Test
@@ -148,8 +154,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA);
+    assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -181,8 +186,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA);
+    assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_DISABILITATA, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -214,8 +218,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA);
+    assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -245,8 +248,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SYSTEM_ERROR);
+    assertEquals(AppErrorCodeEnum.ODP_SYSTEM_ERROR, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -257,6 +259,9 @@ class PaymentOptionsServiceTest {
     when(configCacheService.getConfigCacheData()).thenReturn(ConfigDataV1
         .builder()
         .psps(Map.of("00001", PaymentServiceProvider.builder().enabled(true).build()))
+        // The service checks that stations data is available before attempting station resolution.
+        .stations(Map.of("00001",
+                Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()))
         .creditorInstitutions(Map.of("00001",
             CreditorInstitution.builder()
                 .creditorInstitutionCode("00001").enabled(true).build()))
@@ -270,14 +275,15 @@ class PaymentOptionsServiceTest {
             Map.of("00001", BrokerCreditorInstitution.builder().enabled(true).build())
         )
         .build());
+    
+    when(configCacheService.resolveStationCode("00001", 0L)).thenReturn(null);
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA);
+    assertEquals(AppErrorCodeEnum.ODP_STAZIONE_INT_PA_SCONOSCIUTA, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -296,14 +302,19 @@ class PaymentOptionsServiceTest {
             Map.of("00001", BrokerCreditorInstitution.builder().enabled(true).build())
         )
         .build());
+    
+    when(configCacheService.resolveStationCode(any(), anyLong()))
+    .thenThrow(new PaymentOptionsException(
+        AppErrorCodeEnum.ODP_SYSTEM_ERROR,
+        "Configuration data currently not available"
+    ));
 
     PaymentOptionsException paymentOptionsException = assertThrows(
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SYSTEM_ERROR);
+    assertEquals(AppErrorCodeEnum.ODP_SYSTEM_ERROR, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -314,6 +325,9 @@ class PaymentOptionsServiceTest {
     when(configCacheService.getConfigCacheData()).thenReturn(ConfigDataV1
         .builder()
         .psps(Map.of("00001", PaymentServiceProvider.builder().enabled(true).build()))
+        // The service checks that stations data is available before attempting station resolution.
+        .stations(Map.of("00001",
+                Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()))
         .creditorInstitutions(Map.of("00001",
             CreditorInstitution.builder()
                 .creditorInstitutionCode("00001").enabled(false).build()))
@@ -328,8 +342,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO);
+    assertEquals(AppErrorCodeEnum.ODP_DOMINIO_DISABILITATO, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -340,6 +353,10 @@ class PaymentOptionsServiceTest {
     when(configCacheService.getConfigCacheData()).thenReturn(ConfigDataV1
         .builder()
         .psps(Map.of("00001", PaymentServiceProvider.builder().enabled(true).build()))
+        // The service requires the stations map to be present before performing downstream validations.
+        .stations(Map.of(
+        	    "00001", Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()
+        ))
         .creditorInstitutions(Map.of("30001",
             CreditorInstitution.builder()
                 .creditorInstitutionCode("30001").enabled(false).build()))
@@ -354,8 +371,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO);
+    assertEquals(AppErrorCodeEnum.ODP_DOMINIO_SCONOSCIUTO, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -380,8 +396,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO);
+    assertEquals(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -406,8 +421,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO);
+    assertEquals(AppErrorCodeEnum.ODP_INTERMEDIARIO_PSP_SCONOSCIUTO, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -432,8 +446,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_PSP_DISABILITATO);
+    assertEquals(AppErrorCodeEnum.ODP_PSP_DISABILITATO, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -458,8 +471,7 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO);
+    assertEquals(AppErrorCodeEnum.ODP_PSP_SCONOSCIUTO, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -471,8 +483,7 @@ class PaymentOptionsServiceTest {
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             "00001", "00001", "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU);
+    assertEquals(AppErrorCodeEnum.ODP_PSP_NAV_NOT_NMU, paymentOptionsException.getErrorCode());
     verify(eventService).sendVerifyKoEvent(
         any(),any(),any(),any(),any(),any(),any(),any(),any(),any());
   }
@@ -484,9 +495,7 @@ class PaymentOptionsServiceTest {
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             null, "00001", "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SINTASSI);
-
+    assertEquals(AppErrorCodeEnum.ODP_SINTASSI, paymentOptionsException.getErrorCode());
   }
 
   @Test
@@ -496,9 +505,7 @@ class PaymentOptionsServiceTest {
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             "00001", null, "00001", "0000000000", null));
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SINTASSI);
-
+    assertEquals(AppErrorCodeEnum.ODP_SINTASSI, paymentOptionsException.getErrorCode());
   }
 
   @Test
@@ -508,9 +515,7 @@ class PaymentOptionsServiceTest {
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             "00001", "00001", null, "0000000000", null));
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SINTASSI);
-
+    assertEquals(AppErrorCodeEnum.ODP_SINTASSI, paymentOptionsException.getErrorCode());
   }
 
   @Test
@@ -520,9 +525,7 @@ class PaymentOptionsServiceTest {
         PaymentOptionsException.class, () -> paymentOptionsService.getPaymentOptions(
             "00001", "00001", "00001", null, null));
     assertNotNull(paymentOptionsException);
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SINTASSI);
-
+    assertEquals(AppErrorCodeEnum.ODP_SINTASSI, paymentOptionsException.getErrorCode());
   }
 
   @Test
@@ -535,9 +538,27 @@ class PaymentOptionsServiceTest {
             "00001", "00001", "00001", "3000000000", null));
     assertNotNull(paymentOptionsException);
     verify(configCacheService).getConfigCacheData();
-    assertEquals(paymentOptionsException.getErrorCode(),
-        AppErrorCodeEnum.ODP_SYSTEM_ERROR);
-
+    assertEquals(AppErrorCodeEnum.ODP_SYSTEM_ERROR, paymentOptionsException.getErrorCode());
   }
+  
+  @Test
+  void getPaymentOptions_shouldCallResolveStationCodeWithExpectedSegregation() {
+    when(configCacheService.getConfigCacheData()).thenReturn(ConfigDataV1.builder()
+        .psps(Map.of("00001", PaymentServiceProvider.builder().enabled(true).build()))
+        .stations(Map.of("00001", Station.builder().enabled(true).verifyPaymentOptionEnabled(true).build()))
+        .creditorInstitutions(Map.of("00001", CreditorInstitution.builder().creditorInstitutionCode("00001").enabled(true).build()))
+        .pspBrokers(Map.of("00001", BrokerPsp.builder().enabled(true).build()))
+        .creditorInstitutionBrokers(Map.of("00001", BrokerCreditorInstitution.builder().enabled(true).build()))
+        .build());
 
+    when(configCacheService.resolveStationCode("00001", 0L)).thenReturn("00001");
+    when(creditorInstitutionService.getPaymentOptions(any(), any(), any(), anyLong()))
+        .thenReturn(PaymentOptionsResponse.builder().build());
+
+    assertDoesNotThrow(() ->
+        paymentOptionsService.getPaymentOptions("00001", "00001", "00001", "3000000000", null)
+    );
+
+    verify(configCacheService).resolveStationCode("00001", 0L);
+  }
 }

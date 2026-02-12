@@ -1,10 +1,11 @@
 microservice-chart:
   namespace: "payopt"
   nameOverride: ""
+  # NOTE: for canary deploy pipeline overrides fullnameOverride to avoid Helm ownership conflict
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.11.0"
+    tag: "0.11.0-7-PIDM-1485-service-crash-loop-backoff"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -69,7 +70,7 @@ microservice-chart:
       memory: "512Mi"
       cpu: "0.5"
   autoscaling:
-    enable: true
+    enable: false
     minReplica: 1
     maxReplica: 1
     pollingInterval: 30 # seconds
@@ -84,7 +85,7 @@ microservice-chart:
         metadata:
           # Required
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "70"
+          value: "85"
   envConfig:
     APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: 'payment-options-service' # required to show cloud role name in application insights
@@ -104,6 +105,7 @@ microservice-chart:
     VERIFY_RE_EVT_HOST: 'pagopa-d-itn-payopt-evh.servicebus.windows.net:9093'
     VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
     GPD_REST_ENDPOINT: 'https://api.dev.platform.pagopa.it/gpd/api/v1'
+    JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=15 -XX:MaxRAMPercentage=40 -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'app-insight-connection-string'
@@ -130,19 +132,13 @@ microservice-chart:
   canaryDelivery:
     create: false
     ingress:
-      create: true
-      canary:
-        type: header
-        headerName: X-Canary
-        headerValue: canary
-        weightPercent: 0
-    service:
-      create: true
-    deployment:
-      create: true
-      image:
-        repository: ghcr.io/pagopa/pagopa-payment-options-service
-        tag: "0.0.0"
-        pullPolicy: Always
-      envConfig: {}
-      envSecret: {}
+      type: header
+      headerName: X-Canary
+      headerValue: canary
+      weightPercent: 0
+    image:
+      repository: ghcr.io/pagopa/pagopa-payment-options-service
+      tag: "0.0.0"
+      pullPolicy: Always
+    envConfig: {}
+    envSecret: {}
