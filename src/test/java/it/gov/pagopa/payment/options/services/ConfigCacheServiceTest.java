@@ -4,6 +4,7 @@ import it.gov.pagopa.payment.options.clients.ApiConfigCacheClient;
 import it.gov.pagopa.payment.options.exception.PaymentOptionsException;
 import it.gov.pagopa.payment.options.models.ConfigCacheData;
 import it.gov.pagopa.payment.options.models.clients.cache.ConfigDataV1;
+import it.gov.pagopa.payment.options.models.clients.cache.StationCreditorInstitution;
 import it.gov.pagopa.payment.options.models.enums.AppErrorCodeEnum;
 import it.gov.pagopa.payment.options.models.events.CacheUpdateEvent;
 import org.junit.jupiter.api.BeforeEach;
@@ -363,4 +364,162 @@ class ConfigCacheServiceTest {
 
 	  assertEquals("10", ref.get().getEventVersion());
   }
+  
+  @Test
+  void onStart_whenCacheAlreadyInitialized_shouldSkipRefresh() throws Exception {
+    // preload cacheRef with a valid snapshot
+    Field f = ConfigCacheService.class.getDeclaredField("cacheRef");
+    f.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    AtomicReference<ConfigCacheData> ref = (AtomicReference<ConfigCacheData>) f.get(configCacheService);
+
+    ref.set(ConfigCacheData.builder()
+        .configDataV1(ConfigDataV1.builder().version(null).build())
+        .build());
+
+    // call onStart
+    configCacheService.onStart(null);
+
+    verify(apiConfigCacheClient, never()).getCache(any());
+  }
+  
+  @Test
+  void onStart_whenFirstLoadFails_shouldCatchAndNotThrow() {
+    when(apiConfigCacheClient.getCache(any())).thenThrow(new RuntimeException("exception during first load"));
+
+    assertDoesNotThrow(() -> configCacheService.onStart(null));
+    verify(apiConfigCacheClient, times(1)).getCache(any());
+  }
+  
+  @Test
+  void needsRefresh_whenEventCacheVersionNull_shouldRefresh() {
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(ConfigDataV1.builder().version(null).build());
+
+    // first load to create snapshot with cacheVersion "CACHE"
+    configCacheService.checkAndUpdateCache(CacheUpdateEvent.builder().cacheVersion("CACHE").version("1").build());
+    reset(apiConfigCacheClient);
+
+    // now event with null cacheVersion -> must refresh
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(ConfigDataV1.builder().version(null).build());
+
+    configCacheService.checkAndUpdateCache(CacheUpdateEvent.builder().cacheVersion(null).version("2").build());
+
+    verify(apiConfigCacheClient, times(1)).getCache(any());
+  }
+  
+  @Test
+  void needsRefresh_whenCurrentCacheVersionNull_shouldRefresh() throws Exception {
+    Field f = ConfigCacheService.class.getDeclaredField("cacheRef");
+    f.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    AtomicReference<ConfigCacheData> ref = (AtomicReference<ConfigCacheData>) f.get(configCacheService);
+
+    ref.set(ConfigCacheData.builder()
+        .cacheVersion(null)
+        .eventVersion("1")
+        .configDataV1(ConfigDataV1.builder().version(null).build())
+        .stationCodeByCiAndSeg(Map.of())
+        .build());
+
+    when(apiConfigCacheClient.getCache(any())).thenReturn(ConfigDataV1.builder().version(null).build());
+
+    configCacheService.checkAndUpdateCache(CacheUpdateEvent.builder().cacheVersion("CACHE").version("2").build());
+    verify(apiConfigCacheClient, times(1)).getCache(any());
+  }
+  
+  @Test
+  void checkAndUpdateCache_shouldNotRefreshOnSameEventVersion_sameStream() {
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(ConfigDataV1.builder().version(null).build());
+
+    CacheUpdateEvent v10 = CacheUpdateEvent.builder().cacheVersion("CACHE").version("10").build();
+    configCacheService.checkAndUpdateCache(v10);
+    verify(apiConfigCacheClient, times(1)).getCache(any());
+
+    reset(apiConfigCacheClient);
+
+    // same version again -> must not refresh
+    CacheUpdateEvent v10b = CacheUpdateEvent.builder().cacheVersion("CACHE").version("10").build();
+    configCacheService.checkAndUpdateCache(v10b);
+
+    verify(apiConfigCacheClient, never()).getCache(any());
+  }
+  
+  @Test
+  void checkAndUpdateCache_shouldIgnoreFetchedPayloadWhenApiVersionWouldDowngrade() {
+    // first load serves apiVersion=10
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(
+            ConfigDataV1.builder().version("10").build(),
+            ConfigDataV1.builder().version("9").build()
+        );
+
+    configCacheService.checkAndUpdateCache(CacheUpdateEvent.builder().cacheVersion("CACHE").version("1").build());
+    assertEquals("10", configCacheService.getConfigCacheData().getVersion());
+
+    // second refresh attempt fetches "9" -> must keep serving "10"
+    configCacheService.checkAndUpdateCache(CacheUpdateEvent.builder().cacheVersion("CACHE").version("2").build());
+    assertEquals("10", configCacheService.getConfigCacheData().getVersion());
+
+    verify(apiConfigCacheClient, times(2)).getCache(any());
+  }
+  
+  @Test
+  void checkAndUpdateCache_whenCreditorInstitutionStationsMissing_shouldBuildEmptyIndex() throws Exception {
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(ConfigDataV1.builder()
+            .version(null)
+            .creditorInstitutionStations(null)
+            .build());
+
+    ConfigCacheData snap = configCacheService.checkAndUpdateCache(null);
+
+    assertNotNull(snap.getStationCodeByCiAndSeg());
+    assertTrue(snap.getStationCodeByCiAndSeg().isEmpty());
+  }
+  
+  @Test
+  void checkAndUpdateCache_shouldSkipInvalidStationCreditorInstitutionEntries() throws Exception {
+    StationCreditorInstitution bad = StationCreditorInstitution.builder()
+        .creditorInstitutionCode(null)
+        .segregationCode(0L)
+        .stationCode("S1")
+        .build();
+
+    StationCreditorInstitution good = StationCreditorInstitution.builder()
+        .creditorInstitutionCode("CI1")
+        .segregationCode(0L)
+        .stationCode("ST1")
+        .build();
+
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(ConfigDataV1.builder()
+            .version(null)
+            .creditorInstitutionStations(Map.of("a", bad, "b", good))
+            .build());
+
+    ConfigCacheData snap = configCacheService.checkAndUpdateCache(null);
+
+    assertEquals("ST1", snap.getStationCodeByCiAndSeg().get("CI1").get(0L));
+    assertNull(snap.getStationCodeByCiAndSeg().get(null)); // never created
+  }
+  
+  @Test
+  void checkAndUpdateCache_shouldCompareNonNumericVersionsLexicographically() throws Exception {
+    when(apiConfigCacheClient.getCache(any()))
+        .thenReturn(ConfigDataV1.builder().version(null).build());
+
+    CacheUpdateEvent vA = CacheUpdateEvent.builder().cacheVersion("CACHE").version("b").build();
+    CacheUpdateEvent vB = CacheUpdateEvent.builder().cacheVersion("CACHE").version("a").build();
+
+    configCacheService.checkAndUpdateCache(vA);
+    reset(apiConfigCacheClient);
+
+    // "a" is not newer than "b" lexicographically -> must not refresh
+    configCacheService.checkAndUpdateCache(vB);
+    verify(apiConfigCacheClient, never()).getCache(any());
+  }
+
 }
