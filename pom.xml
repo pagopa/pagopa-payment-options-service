@@ -5,7 +5,7 @@
   <groupId>it.gov.pagopa</groupId>
   <artifactId>payment-options-service</artifactId>
   <name>Payment Options Service</name>
-  <version>0.11.0-4-PIDM-1485-service-crash-loop-backoff</version>
+  <version>0.11.0-5-PIDM-1485-service-crash-loop-backoff</version>
 
   <properties>
     <jacoco.version>0.8.7</jacoco.version>
