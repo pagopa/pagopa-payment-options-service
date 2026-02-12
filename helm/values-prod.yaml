@@ -5,7 +5,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.11.0-4-PIDM-1485-service-crash-loop-backoff"
+    tag: "0.11.0-5-PIDM-1485-service-crash-loop-backoff"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
