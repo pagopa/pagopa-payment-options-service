@@ -1,6 +1,7 @@
 microservice-chart:
   namespace: "payopt"
   nameOverride: ""
+  # NOTE: for canary deploy pipeline overrides fullnameOverride to avoid Helm ownership conflict
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
