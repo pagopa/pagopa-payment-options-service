@@ -25,7 +25,7 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
-    replicas: 2 # same as HPA minReplica
+    replicas: 3 # same as HPA minReplica
     strategy:
       type: RollingUpdate
       rollingUpdate:
@@ -64,10 +64,10 @@ microservice-chart:
         mountPath: /logs
   resources:
     requests:
-      memory: "1024Mi"
+      memory: "1536Mi"
       cpu: "0.5"
     limits:
-      memory: "2048Mi"
+      memory: "2560Mi"
       cpu: "1.5"
   autoscaling:
     enable: true
@@ -105,7 +105,7 @@ microservice-chart:
     VERIFY_RE_EVT_HOST: 'pagopa-p-itn-payopt-evh.servicebus.windows.net:9093'
     VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
     #JAVA_TOOL_OPTIONS: "-XX:MaxHeapSize=1780m -XX:MinHeapSize=64m"
-    JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=55 -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp"
+    JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=60 -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp"
     GPD_REST_ENDPOINT: 'https://api.platform.pagopa.it/gpd/api/v1'
   envSecret:
     # required
