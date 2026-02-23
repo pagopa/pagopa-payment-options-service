@@ -133,7 +133,7 @@ public class ConfigCacheService {
 
 			// Avoid logging the entire payload to prevent huge allocations and GC pressure.
 			// Log only high-level sizes and versions.
-			logger.info("[Payment Options] api-config cache fetched - apiVersion={}, stations={}, ci={}, psps={}, pspBrokers={}, eventCacheVersion={}, eventVersion={}",
+			logger.debug("[Payment Options] api-config cache fetched - apiVersion={}, stations={}, ci={}, psps={}, pspBrokers={}, eventCacheVersion={}, eventVersion={}",
 					configDataV1.getVersion(),
 					configDataV1.getStations() != null ? configDataV1.getStations().size() : 0,
 							configDataV1.getCreditorInstitutions() != null ? configDataV1.getCreditorInstitutions().size() : 0,
@@ -209,6 +209,12 @@ public class ConfigCacheService {
 		}
 	}
 	
+	// IMPORTANT: the order of these checks is intentional.
+	// Each condition acts as a guard with different semantics:
+	// - Short-circuit early when the snapshot or payload is missing.
+	// - The evt == null branch handles access without an event and avoids unnecessary refreshes.
+	// - cacheVersion checks must precede version comparison to ensure we are on the same stream
+	//   and have consistent metadata before calling isNewer(...).
 	private boolean needsRefresh(ConfigCacheData current, CacheUpdateEvent evt) {
 		// If no snapshot exists, must refresh.
 		if (current == null) return true;
@@ -269,23 +275,6 @@ public class ConfigCacheService {
 		java.util.Map<Long, String> bySeg = snap.getStationCodeByCiAndSeg().get(creditorInstitutionCode);
 		return bySeg != null ? bySeg.get(segregationCode) : null;
 	}
-	/*
-	private boolean isNewerOrEqual(String fetchedVersion, String servedVersion) {
-		// If we don't know one of the versions, assume we need to refresh to be safe (prevents blocking updates when version info is missing).
-		if (fetchedVersion == null || servedVersion == null) {
-			return true;
-		}
-
-		// Numeric compare if both versions are numeric (e.g., timestamps or simple version numbers).
-		try {
-			long fetched = Long.parseLong(fetchedVersion);
-			long served = Long.parseLong(servedVersion);
-			return fetched >= served;
-		} catch (NumberFormatException ignored) {
-			// Fallback to lexicographical comparison if versions are not numeric.
-			return fetchedVersion.compareTo(servedVersion) >= 0;
-		}
-	}*/
 	
 	private int compareVersions(String a, String b) {
 		if (a == null && b == null) return 0;

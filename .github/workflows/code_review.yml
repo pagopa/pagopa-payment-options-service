@@ -45,22 +45,6 @@ jobs:
           cpd_exclusions: "**/models/**,**/clients/model/**,**/entity/*"
           coverage_report_path: "./target/jacoco-report/jacoco.xml"
           
-      - name: Debug coverage files
-        if: always()
-        run: |
-          echo "== find jacoco.xml =="
-          find . -name "jacoco.xml" -print || true
-      
-          echo "== list target =="
-          ls -la target || true
-      
-          echo "== list common quarkus/surefire locations =="
-          ls -la target/jacoco-report || true
-          ls -la target/site/jacoco || true
-          ls -la target/surefire-reports || true
-          ls -la target/failsafe-reports || tru
-       
-
   smoke-test:
     name: Smoke Test
     runs-on: ubuntu-latest
