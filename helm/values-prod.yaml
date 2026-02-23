@@ -67,7 +67,7 @@ microservice-chart:
       memory: "1536Mi"
       cpu: "0.5"
     limits:
-      memory: "2560Mi"
+      memory: "2048Mi"
       cpu: "1.5"
   autoscaling:
     enable: true
