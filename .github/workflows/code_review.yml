@@ -44,7 +44,7 @@ jobs:
           coverage_exclusions: "**/config/*,**/*Mock*,**/models/**,**/clients/model/**,**/entity/*,**/exception/**,**/resources/Generic.java,**/App.java"
           cpd_exclusions: "**/models/**,**/clients/model/**,**/entity/*"
           coverage_report_path: "./target/jacoco-report/jacoco.xml"
-
+          
   smoke-test:
     name: Smoke Test
     runs-on: ubuntu-latest
