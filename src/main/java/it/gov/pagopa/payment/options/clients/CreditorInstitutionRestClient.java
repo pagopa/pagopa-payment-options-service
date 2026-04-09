@@ -47,8 +47,6 @@ public class CreditorInstitutionRestClient {
 	/**
 	   * Call the creditor institution service to obtain the list paymentOptions related to the input
 	   *
-	   * @param proxyHost proxy host, optional
-	   * @param proxyPort proxy port, optional
 	   * @param targetHost verify service host
 	   * @param targetPort verify service port
 	   * @param targetPath verify service path
@@ -59,19 +57,14 @@ public class CreditorInstitutionRestClient {
 	   */
 	  public PaymentOptionsResponse callEcPaymentOptionsVerify(
 	      URL baseUrl,
-	      String proxyHost,
-	      Long proxyPort,
-	      String targetHost,
+		  String targetHost,
 	      Long targetPort,
 	      String targetPath) {
 
-	    RestClientBuilder builder = RestClientBuilder.newBuilder().baseUrl(baseUrl);
-
-	    if (proxyHost != null && proxyPort != null) {
-	      builder = builder.proxyAddress(proxyHost, proxyPort.intValue());
-	    }
 	    CreditorInstitutionRestClientInterface ecRestClientInterface =
-	        builder.build(CreditorInstitutionRestClientInterface.class);
+				RestClientBuilder.newBuilder()
+						.baseUrl(baseUrl)
+						.build(CreditorInstitutionRestClientInterface.class);
 
 	    try {
 	      return getPaymentOptions(targetHost, targetPort, targetPath, ecRestClientInterface);

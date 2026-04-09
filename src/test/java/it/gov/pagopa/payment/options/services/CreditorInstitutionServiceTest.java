@@ -39,7 +39,7 @@ class CreditorInstitutionServiceTest {
   @Test
   void getPaymentOptionsShouldReturnData() {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-            any(), any(), any(), any(), any(), any()))
+            any(), any(), any(), any()))
         .thenReturn(PaymentOptionsResponse.builder().build());
 
     Station station = buildStation("localhost", "http://localhost:8080/test");
@@ -49,13 +49,13 @@ class CreditorInstitutionServiceTest {
 
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient)
-        .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+        .callEcPaymentOptionsVerify(any(), any(), any(), any());
   }
 
   @Test
   void getPaymentOptionsShouldReturnDataWithDefaultPort() {
     when(creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-            any(), any(), any(), any(), any(), any()))
+            any(), any(), any(), any()))
         .thenReturn(PaymentOptionsResponse.builder().build());
 
     Station station = buildStation("localhost", "http://localhost/test");
@@ -65,7 +65,7 @@ class CreditorInstitutionServiceTest {
 
     assertNotNull(paymentOptionsResponse);
     verify(creditorInstitutionRestClient)
-        .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+        .callEcPaymentOptionsVerify(any(), any(), any(), any());
   }
 
   @Test
@@ -148,7 +148,7 @@ class CreditorInstitutionServiceTest {
       assertNotNull(response);
 
       verify(creditorInstitutionRestClient).callGpdPaymentOptionsVerify(any(), any(), any());
-      verify(creditorInstitutionRestClient, never()).callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+      verify(creditorInstitutionRestClient, never()).callEcPaymentOptionsVerify(any(), any(), any(), any());
   }
 
   
@@ -196,7 +196,7 @@ class CreditorInstitutionServiceTest {
       assertTrue(ex.getMessage().contains("Malformed GPD-Core endpoint"));
 
       verify(creditorInstitutionRestClient, never())
-              .callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+              .callEcPaymentOptionsVerify(any(), any(), any(), any());
   }
   
   @Test
@@ -240,7 +240,7 @@ class CreditorInstitutionServiceTest {
       assertSame(clientException, ex);
 
       verify(creditorInstitutionRestClient).callGpdPaymentOptionsVerify(any(), any(), any());
-      verify(creditorInstitutionRestClient, never()).callEcPaymentOptionsVerify(any(), any(), any(), any(), any(), any());
+      verify(creditorInstitutionRestClient, never()).callEcPaymentOptionsVerify(any(), any(), any(), any());
   }
 
 
