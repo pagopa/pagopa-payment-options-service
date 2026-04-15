@@ -77,7 +77,7 @@ jobs:
           cd ./dashboard/azure-dashboard
           
           export ARM_CLIENT_ID="$CLIENT_ID"
-          export ARM_TENANT_ID="$$TENANT_ID"
+          export ARM_TENANT_ID="$TENANT_ID"
           export ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
           export ARM_USE_OIDC=true
 
