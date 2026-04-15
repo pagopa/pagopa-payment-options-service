@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.4",
+  "openapi": "3.1.0",
   "components": {
     "schemas": {
       "AppInfo": {
@@ -261,16 +261,21 @@
       "description": "Localhost base URL"
     },
     {
-      "url": "https://{host}/odp/service/v1",
-      "description": "Base URL",
+      "url": "{host}{basePath}",
       "variables": {
         "host": {
+          "default": "https://api.platform.pagopa.it",
           "enum": [
-            "api.dev.platform.pagopa.it",
-            "api.uat.platform.pagopa.it",
-            "api.platform.pagopa.it"
-          ],
-          "default": "api.dev.platform.pagopa.it"
+            "https://api.dev.platform.pagopa.it",
+            "https://api.uat.platform.pagopa.it",
+            "https://api.platform.pagopa.it"
+          ]
+        },
+        "basePath": {
+          "default": "/odp/service/v1",
+          "enum": [
+            "/odp/service/v1"
+          ]
         }
       }
     }
