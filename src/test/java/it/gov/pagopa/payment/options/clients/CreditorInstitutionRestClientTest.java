@@ -59,9 +59,7 @@ class CreditorInstitutionRestClientTest {
             () ->
                 creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                     new URL(wiremockUrl),
-                    null,
-                    null,
-                    TARGET_HOST,
+                        TARGET_HOST,
                     TARGET_PORT,
                     "/payment-options/organizations/77777777777/notices/311111111112222222"));
 
@@ -82,7 +80,7 @@ class CreditorInstitutionRestClientTest {
             CreditorInstitutionException.class,
             () ->
                 creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                    url, null, null, TARGET_HOST, TARGET_PORT, targetPath));
+                    url, TARGET_HOST, TARGET_PORT, targetPath));
 
     assertNotNull(exception);
     assertEquals(
@@ -107,9 +105,7 @@ class CreditorInstitutionRestClientTest {
             () ->
                 creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                     url,
-                    null,
-                    null,
-                    TARGET_HOST,
+                        TARGET_HOST,
                     TARGET_PORT,
                     "/payment-options/organizations/67777777777/notices/311111111112222222"));
 
@@ -138,9 +134,7 @@ class CreditorInstitutionRestClientTest {
             () ->
                 creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                     url,
-                    null,
-                    null,
-                    TARGET_HOST,
+                        TARGET_HOST,
                     TARGET_PORT,
                     "/payment-options/organizations/08888888888/notices/88888888888"));
 
@@ -157,27 +151,11 @@ class CreditorInstitutionRestClientTest {
         () ->
             creditorInstitutionRestClient.callEcPaymentOptionsVerify(
                 new URL("AAAAAAA"),
-                null,
-                null,
-                TARGET_HOST,
+                    TARGET_HOST,
                 TARGET_PORT,
                 "/payment-options/organizations/08888888888/notices/88888888888"));
   }
 
-  @Test
-  void callEcPaymentOptionsVerifyShouldReturnExceptionOnWrongProxy() {
-    assertThrows(
-        Exception.class,
-        () ->
-            creditorInstitutionRestClient.callEcPaymentOptionsVerify(
-                new URL("AAAAAAA"),
-                "AAAAAAA%%%",
-                8081L,
-                TARGET_HOST,
-                TARGET_PORT,
-                "/payment-options/organizations/08888888888/notices/88888888888"));
-  }
-  
  //============================================================
  //  GPD-Core "special guest"
  // ============================================================

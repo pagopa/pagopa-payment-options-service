@@ -105,11 +105,10 @@ public class CreditorInstitutionService {
 	 URL forwarderUrl = buildForwarderUrl(station.getConnection());
 	 return this.creditorInstitutionRestClient.callEcPaymentOptionsVerify(
 			 forwarderUrl,
-			 station.getProxy() != null ? station.getProxy().getProxyHost() : null,
-					 station.getProxy() != null ? station.getProxy().getProxyPort() : null,
-							 targetHost,
-							 targetPort,
-							 targetPath);
+			 targetHost,
+			 targetPort,
+			 targetPath
+	 );
  }
 
   private long getTargetPort(String[] verifyEndpointParts) {
@@ -149,24 +148,24 @@ public class CreditorInstitutionService {
     }
     return ProtocolEnum.HTTP.name().toLowerCase();
   }
-  
+
   private boolean isEcGpdSpecialGuest(Station station) {
 	  if (station.getRestEndpoint() == null || gpdRestEndpoint.isEmpty()) {
 		  return false;
 	  }
-	  
+
 	  String stationEndpoint = station.getRestEndpoint();
 	  // removes possible final "/"
 	  while (stationEndpoint.endsWith("/")) {
 	      stationEndpoint = stationEndpoint.substring(0, stationEndpoint.length() - 1);
 	  }
-	 
+
 	  String gpdEndpoint = gpdRestEndpoint;
 	  // removes possible final "/"
 	  while (gpdEndpoint.endsWith("/")) {
 	      gpdEndpoint = gpdEndpoint.substring(0, gpdEndpoint.length() - 1);
 	  }
-	  
+
 	  return stationEndpoint.equalsIgnoreCase(gpdEndpoint);
   }
 }
