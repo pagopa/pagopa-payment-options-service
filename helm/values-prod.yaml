@@ -5,7 +5,7 @@ microservice-chart:
   fullnameOverride: "payment-options"
   image:
     repository: ghcr.io/pagopa/pagopa-payment-options-service
-    tag: "0.11.1-1-PIDM-1813-remove-proxy-from-forwarder-invocation"
+    tag: "0.11.2"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
