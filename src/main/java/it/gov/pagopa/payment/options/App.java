@@ -123,11 +123,15 @@ import org.slf4j.LoggerFactory;
                 description = "placeholder-for-replace"),
         servers = {
                 @Server(url = "http://localhost:8080", description = "Localhost base URL"),
-                @Server(url = "https://{host}/odp/service/v1", description = "Base URL",
+                @Server(url = "{host}{basePath}", description = "Base URL",
                         variables = {
                                 @ServerVariable(name = "host",
-                                        enumeration = {"api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it"},
-                                        defaultValue = "api.dev.platform.pagopa.it")})
+                                        enumeration = {"https://api.dev.platform.pagopa.it", "https://api.uat.platform.pagopa.it", "https://api.platform.pagopa.it"},
+                                        defaultValue = "https://api.platform.pagopa.it"),
+                                @ServerVariable(name = "basePath",
+                                        enumeration = {"/odp/service/v1"},
+                                        defaultValue = "/odp/service/v1")
+                })
         }
 )
 @Startup
