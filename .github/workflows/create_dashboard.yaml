@@ -42,13 +42,13 @@ jobs:
           venv/bin/opex_dashboard generate \
             --template-name azure-dashboard \
             --package ./dashboard \
-            --config-file .opex/${{ matrix.product }}/env/${{ matrix.environment }}/config.yaml
+            --config-file .opex/env/${{ matrix.environment }}/config.yaml
 
       # we need to set env variables in the folder /azure-dashboard
       - name: Copy Environments
         shell: bash
         run: |
-          cp -R .opex/${{ matrix.product }}/env ./dashboard/azure-dashboard
+          cp -R .opex/env ./dashboard/azure-dashboard
 
       - name: Setup Terraform
         id: setup_terraform
