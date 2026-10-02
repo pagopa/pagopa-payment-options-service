@@ -1,0 +1,677 @@
+openapi: 3.1.0
+info:
+  title: CI x pagoPA - Payment Options and DownPayment management
+  description: |
+    Creditor Instituions API for pagoPA Payment Options service
+    ### APP ERROR CODES ###
+
+    <details><summary>Details</summary>
+    **NAME** | **HTTP STATUS CODE** | **DESCRIPTION** 
+    - | - | - 
+    **ODP-101** | *400 Bad Request* | PAA_SINTASSI Custom error description
+    **ODP-102** | *422 Unprocessable Entity* | PAA_SEMANTICA Custom error description
+    **ODP-103** | *500 Internal Server Error* | PAA_SYSTEM_ERROR Custom error description
+    **ODP-104** | *400 Bad Request* | PAA_ID_DOMINIO_ERRATO Custom error description
+    **ODP-105** | *400 Bad Request* | PAA_ID_INTERMEDIARIO_ERRATO Custom error description
+    **ODP-106** | *400 Bad Request* | PAA_STAZIONE_INT_ERRATA Custom error description
+    **ODP-107** | *404 Not Found* | PAA_PAGAMENTO_SCONOSCIUTO Custom error description
+    **ODP-108** | *409 Conflict* | PAA_PAGAMENTO_DUPLICATO Custom error description
+    **ODP-109** | *409 Conflict* | PAA_PAGAMENTO_IN_CORSO Custom error description
+    **ODP-110** | *422 Unprocessable Entity* | PAA_PAGAMENTO_SCADUTO Custom error description
+    **ODP-111** | *422 Unprocessable Entity* | PAA_PAGAMENTO_ANNULLATO Custom error description 
+    </details>
+  termsOfService: https://www.pagopa.gov.it/
+  version: 0.0.1
+
+security:
+  - mTLS: []
+
+paths:
+  /payment-options:
+    get:
+      tags:
+        - Payment Options
+      summary: PA Get Payment Options
+      description: Search for all payment options for a debt position, using a Notice Number (NAV) and the Creditor Institution tax code as input.
+      parameters:
+        - in: query
+          name: organizations
+          required: true
+          schema:
+            type: string
+          description: Creditor Institution Tax Code.
+        - in: query
+          name: notice
+          required: true
+          schema:
+            type: string
+          description: Notice Number (NAV).
+      responses:
+        '200':
+          description: OK. Returns debt position details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtPosition'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '409':
+          $ref: '#/components/responses/ErrorResponse409'
+        '422':
+          $ref: '#/components/responses/ErrorResponse422'
+        '500':
+          $ref: '#/components/responses/ErrorResponse500'
+
+  /debt-positions/{debt-position-id}/payment-options/{payment-option-id}/installments/{notice-number}:
+    put:
+      tags:
+        - Downpayment
+      summary: PA Setup Downpayment
+      description: Update the downpayment amount. The balance will be updated accordingly.
+      parameters:
+        - in: path
+          name: debt-position-id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: payment-option-id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: notice-number
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: organization-fiscal-code
+          required: true
+          schema:
+            type: string
+          description: Creditor Institution Tax Code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: integer
+                  format: int64
+                  description: Amount (in euro cents) of the down-payment.
+      responses:
+        '200':
+          description: OK. It returns only the DownPayment Payment Option, with the new amounts for the down-payment and the balance applied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentOption'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '409':
+          $ref: '#/components/responses/ErrorResponse409'
+        '422':
+          $ref: '#/components/responses/ErrorResponse422'
+        '500':
+          $ref: '#/components/responses/ErrorResponse500'
+
+components:
+  securitySchemes:
+    mTLS:
+      type: mutualTLS
+      description: Mutual TLS authentication
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        httpStatusCode:
+          type: integer
+          format: int32
+          examples:
+            - 500
+        httpStatusDescription:
+          type: string
+          examples:
+            - Internal Server Error
+        errorMessage:
+          type: string
+          examples:
+            - An unexpected error has occurred. Please contact support.
+        appErrorCode:
+          type: string
+          examples:
+            - ODP-<ERR_ID>
+        timestamp:
+          type: integer
+          format: int64
+          examples:
+            - 1724425035
+        dateTime:
+          type: string
+          examples:
+            - "2024-08-23T14:57:15.635528"
+
+    DebtPosition:
+      type: object
+      description: The Debt Position contains the main information related to the payment position.
+      required:
+        - iupd
+        - organizationFiscalCode
+        - companyName
+        - subject
+        - status
+        - standin
+      examples:
+        - iupd: "550e8400-e29b-41d4-a716-446655440000"
+          organizationFiscalCode: "12345678910"
+          companyName: "Comune di Fantasia"
+          officeName: "Ufficio Tributi"
+          subject:
+            defaultValue: "Tassa Rifiuti 2026"
+            additionalLanguage:
+              it: "Tassa Rifiuti 2026"
+          status: "DP_UNPAID_PAYABLE"
+          standin: false
+          paymentOptions:
+            - paymentOptionId: "opt-12345"
+              index: 1
+              type: "SINGLE"
+              title:
+                defaultValue: "Rata unica"
+              numberOfInstallments: 2
+              amount: 150000
+              status: "PO_UNPAID_PAYABLE"
+              nominalDueDate: "2029-06-10T12:00:00+02:00"
+              validFrom: "2026-06-10T12:00:00+02:00"
+              installments:
+                - nav: 123
+                  iuv: 123
+                  index: 1
+                  description:
+                    defaultValue: "Immobile Via Placeholder"
+                  dueDate: "2029-06-10T12:00:00+02:00"
+                  validFrom: "2026-06-10T12:00:00+02:00"
+                  status: "POI_UNPAID_PAYABLE"
+                  allCCP: false
+                  type: "INSTALLMENT"
+                  amount: 150000
+      properties:
+        iupd:
+          type: string
+          description: Unique Debt Position Identifier (UUID format).
+          examples:
+            - "550e8400-e29b-41d4-a716-446655440000"
+        organizationFiscalCode:
+          type: string
+          description: Creditor Institution tax code.
+          minLength: 11
+          maxLength: 11
+          pattern: '^[0-9]{11}$'
+          examples:
+            - "12345678910"
+        companyName:
+          type: string
+          description: Creditor Institution name.
+          minLength: 1
+          maxLength: 140
+          examples:
+            - "Comune di Fantasia"
+        officeName:
+          type: string
+          description: Office identification string.
+          minLength: 1
+          maxLength: 140
+          examples:
+            - "Ufficio Tributi"
+        subject:
+          $ref: '#/components/schemas/LocalizedDescription90'
+        status:
+          type: string
+          description: Debt position status.
+          enum:
+            - DP_SCHEDULED
+            - DP_UNPAID_PAYABLE
+            - DP_PAID
+            - DP_PARTIALLY_PAID
+            - DP_EXPIRED
+            - DP_REVOKED
+          examples:
+            - "DP_UNPAID_PAYABLE"
+        standin:
+          type: boolean
+          description: Creditor Institution station in standin mode.
+          examples:
+            - false
+        paymentOptions:
+          type: array
+          description: Set of alternative options available for the payment.
+          items:
+            $ref: '#/components/schemas/PaymentOption'
+          minItems: 1
+          maxItems: 10
+
+    PaymentOption:
+      type: object
+      required:
+        - paymentOptionId
+        - index
+        - type
+        - title
+        - numberOfInstallments
+        - validFrom
+        - amount
+        - status
+      examples:
+        - paymentOptionId: "opt-12345"
+          index: 1
+          type: "DOWNPAYMENT"
+          title:
+            defaultValue: "Pagamento con acconto e saldo"
+            additionalLanguage:
+              en: "Payment with downpayment and balance"
+          numberOfInstallments: 2
+          nominalDueDate: "2026-12-31T23:59:59+02:00"
+          validFrom: "2026-01-01T00:00:00+02:00"
+          amount: 100000
+          handlingCost:
+            - type: "DOWN_PAYMENT_COST"
+              amount: 150
+          status: "PO_UNPAID_PAYABLE"
+      properties:
+        paymentOptionId:
+          type: string
+          description: Unique Payment Option Identifier.
+          examples:
+            - "opt-12345"
+        index:
+          type: integer
+          description: Specifies the order of the options. Minimum 1, maximum 10.
+          minimum: 1
+          maximum: 10
+          examples:
+            - 1
+        type:
+          type: string
+          description: Payment Option type.
+          enum: [SINGLE, INSTALLMENTS, DOWNPAYMENT]
+          examples:
+            - "DOWNPAYMENT"
+        title:
+          $ref: '#/components/schemas/LocalizedDescription90'
+        numberOfInstallments:
+          type: integer
+          description: Number of Installments for the Option. Must be greater than 0.
+          minimum: 1
+          examples:
+            - 2
+        nominalDueDate:
+          type: string
+          format: date-time
+          description: Option due date (informative).
+          examples:
+            - "2029-06-10T12:00:00+02:00"
+        validFrom:
+          type: string
+          format: date-time
+          description: Option validity date.
+          examples:
+            - "2026-06-10T12:00:00+02:00"
+        amount:
+          type: integer
+          format: int64
+          description: Total amount of the Option (euro cents).
+          examples:
+            - 100000
+        handlingCost:
+          type: array
+          description: Additional handling costs applied by the Creditor Institution.
+          items:
+            $ref: '#/components/schemas/HandlingCostItem'
+        status:
+          type: string
+          description: Option status.
+          enum:
+            - PO_SCHEDULED
+            - PO_UNPAID_PAYABLE
+            - PO_PAID
+            - PO_PARTIALLY_PAID
+            - PO_EXPIRED_NOT_PAYABLE
+            - PO_EXPIRED_PAYABLE
+            - PO_REVOKED
+            - PO_DISCARDED
+          examples:
+            - "PO_UNPAID_PAYABLE"
+        installments:
+          type: array
+          description: Set of Installments relating to the Payment Option.
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Installment'
+
+    HandlingCostItem:
+      type: object
+      required:
+        - type
+        - amount
+      examples:
+        - type: "DOWN_PAYMENT_COST"
+          amount: 150
+      properties:
+        type:
+          type: string
+          description: Handling cost identifier. Supported value is 'DOWN_PAYMENT_COST'.
+          examples:
+            - "DOWN_PAYMENT_COST"
+        amount:
+          type: integer
+          format: int64
+          description: Specific cost amount expressed in euro cents.
+          examples:
+            - 150
+
+    Installment:
+      type: object
+      description: Essential information that each instalment must contain.
+      required:
+        - nav
+        - iuv
+        - index
+        - description
+        - dueDate
+        - validFrom
+        - status
+        - allCCP
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          INSTALLMENT: '#/components/schemas/StandardInstallment'
+          DOWNPAYMENT: '#/components/schemas/DownpaymentInstallment'
+          BALANCE: '#/components/schemas/BalanceInstallment'
+      properties:
+        nav:
+          type: string
+          description: Installment Notice Number.
+          examples:
+            - "302123456789012345"
+        iuv:
+          type: string
+          description: Identificativo Univoco Versamento (IUV).
+          examples:
+            - "123456789012345"
+        index:
+          type: integer
+          description: Specifies the order of the installments. Minimum 1, maximum 100.
+          minimum: 1
+          maximum: 100
+          examples:
+            - 1
+        description:
+          $ref: '#/components/schemas/LocalizedDescription140'
+        dueDate:
+          type: string
+          format: date-time
+          description: Installment due date.
+          examples:
+            - "2029-06-10T12:00:00+02:00"
+        validFrom:
+          type: string
+          format: date-time
+          description: Validity date. Date from which the instalment can be paid.
+          examples:
+            - "2026-06-10T12:00:00+02:00"
+        status:
+          type: string
+          description: Installment status.
+          enum:
+            - POI_SCHEDULED
+            - POI_UNPAID_PAYABLE
+            - POI_PAID
+            - POI_EXPIRED_NOT_PAYABLE
+            - POI_EXPIRED_PAYABLE
+            - POI_REVOKED
+            - POI_DISCARDED
+          examples:
+            - "POI_UNPAID_PAYABLE"
+        allCCP:
+          type: boolean
+          description: Indicates whether the installment is associated with all postal current accounts.
+          examples:
+            - true
+        type:
+          type: string
+          description: Installment type (defines the subtype through polymorphism).
+          enum: [INSTALLMENT, DOWNPAYMENT, BALANCE]
+
+    StandardInstallment:
+      description: Represents an Installment with a predefined amount (Single and Installment plan).
+      allOf:
+        - $ref: '#/components/schemas/Installment'
+        - type: object
+          required:
+            - amount
+          examples:
+            - nav: "302123456789012345"
+              iuv: "123456789012345"
+              index: 1
+              description:
+                defaultValue: "Rata 1 - Tassa Rifiuti"
+              dueDate: "2026-06-10T12:00:00+02:00"
+              validFrom: "2026-01-01T12:00:00+02:00"
+              status: "POI_UNPAID_PAYABLE"
+              allCCP: true
+              type: "INSTALLMENT"
+              amount: 5000
+          properties:
+            amount:
+              type: integer
+              format: int64
+              description: Installment amount in euro cents.
+              examples:
+                - 5000
+
+    DownpaymentInstallment:
+      description: Downpayment Installment without a predefined amount, but defined within a range.
+      allOf:
+        - $ref: '#/components/schemas/Installment'
+        - type: object
+          required:
+            - minAmount
+            - maxAmount
+          examples:
+            - nav: "302987654321098765"
+              iuv: "987654321098765"
+              index: 1
+              description:
+                defaultValue: "Rata Acconto"
+              dueDate: "2026-06-10T12:00:00+02:00"
+              validFrom: "2026-01-01T12:00:00+02:00"
+              status: "POI_UNPAID_PAYABLE"
+              allCCP: false
+              type: "DOWNPAYMENT"
+              minAmount: 1
+              maxAmount: 99999
+              amount: 50000
+          properties:
+            minAmount:
+              type: integer
+              format: int64
+              description: Minimum amount of the downpayment installment (minimum 0.01 euro).
+              examples:
+                - 1
+            maxAmount:
+              type: integer
+              format: int64
+              description: Maximum amount of the downpayment installment.
+              examples:
+                - 99999
+            amount:
+              type: integer
+              format: int64
+              description: Amount of the Downpayment paid. Mandatory only after payment.
+              examples:
+                - 50000
+
+    BalanceInstallment:
+      description: Balance Installment.
+      allOf:
+        - $ref: '#/components/schemas/Installment'
+        - type: object
+          examples:
+            - nav: "302555555555555555"
+              iuv: "555555555555555"
+              index: 2
+              description:
+                defaultValue: "Rata Saldo"
+              dueDate: "2026-12-31T12:00:00+02:00"
+              validFrom: "2026-06-11T12:00:00+02:00"
+              status: "POI_SCHEDULED"
+              allCCP: false
+              type: "BALANCE"
+              amount: 50000
+          properties:
+            amount:
+              type: integer
+              format: int64
+              description: Balance amount. Mandatory after the downpayment is paid.
+              examples:
+                - 50000
+
+    LocalizedDescription90:
+      type: object
+      description: Multi-language management for descriptions. Limit 90 chars for Debt Position description and Payment Option title.
+      required:
+        - defaultValue
+      examples:
+        - defaultValue: "Tassa Rifiuti 2026"
+          additionalLanguage:
+            it: "Tassa Rifiuti 2026"
+      properties:
+        defaultValue:
+          type: string
+          description: The default text when match is not found or no “additionalLanguage” attribute is used.
+          minLength: 1
+          maxLength: 90
+          examples:
+            - "Tassa Rifiuti 2026"
+        additionalLanguage:
+          type: object
+          description: Map of supported translations using standard IETF BCP keys. Allowed languages include it, en, de-IT, fr-IT, sl-IT.
+          maxProperties: 5
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 90
+
+    LocalizedDescription140:
+      type: object
+      description: Multi-language management for descriptions. Limit 140 chars for Installment description.
+      required:
+        - defaultValue
+      examples:
+        - defaultValue: "Rata 1 Acconto Verbale n. 345 Divieto di Sosta"
+          additionalLanguage:
+            it: "Rata 1 Acconto Verbale n. 345 Divieto di Sosta"
+      properties:
+        defaultValue:
+          type: string
+          description: The default text when match is not found or no “additionalLanguage” attribute is used.
+          minLength: 1
+          maxLength: 140
+          examples:
+            - "Rata 1 Acconto Verbale n. 345 Divieto di Sosta"
+        additionalLanguage:
+          type: object
+          description: Map of supported translations using standard IETF BCP keys. Allowed languages include it, en, de-IT, fr-IT, sl-IT.
+          maxProperties: 5
+          additionalProperties:
+            type: string
+            minLength: 1
+            maxLength: 140
+
+  responses:
+    ErrorResponse400:
+      description: Default app exception for status 400
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            BadRequestExample:
+              value:
+                httpStatusCode: 400
+                httpStatusDescription: Bad Request
+                appErrorCode: ODP-101
+                timestamp: 1724425035
+                dateTime: "2024-08-23T14:57:15.635528"
+                errorMessage: PAA_SINTASSI Errore di sintassi del modello nella richiesta
+    ErrorResponse404:
+      description: Default app exception for status 404
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            NotFoundExample:
+              value:
+                httpStatusCode: 404
+                httpStatusDescription: Not Found
+                appErrorCode: ODP-107
+                timestamp: 1724425035
+                dateTime: "2024-08-23T14:57:15.635528"
+                errorMessage: PAA_PAGAMENTO_SCONOSCIUTO Errore per pagamento sconosciuto
+    ErrorResponse409:
+      description: Default app exception for status 409
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            ConflictExample:
+              value:
+                httpStatusCode: 409
+                httpStatusDescription: Conflict
+                appErrorCode: ODP-108
+                timestamp: 1724425035
+                dateTime: "2024-08-23T14:57:15.635528"
+                errorMessage: PAA_PAGAMENTO_DUPLICATO Errore per pagamento duplicato
+    ErrorResponse422:
+      description: Default app exception for status 422
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            UnprocessableEntityExample:
+              value:
+                httpStatusCode: 422
+                httpStatusDescription: Unprocessable Entity
+                appErrorCode: ODP-110
+                timestamp: 1724425035
+                dateTime: "2024-08-23T14:57:15.635528"
+                errorMessage: PAA_PAGAMENTO_SCADUTO Errore per pagamento scaduto
+    ErrorResponse500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            InternalServerErrorExample:
+              value:
+                httpStatusCode: 500
+                httpStatusDescription: Internal Server Error
+                appErrorCode: ODP-103
+                timestamp: 1724425035
+                dateTime: "2024-08-23T14:57:15.635528"
+                errorMessage: PAA_SYSTEM_ERROR Errore generico
