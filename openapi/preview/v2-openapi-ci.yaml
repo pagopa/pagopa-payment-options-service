@@ -31,7 +31,7 @@ paths:
     get:
       tags:
         - Payment Options
-      summary: PA Get Payment Options
+      summary: Get Payment Options
       description: Search for all payment options for a debt position, using a Notice Number (NAV) and the Creditor Institution tax code as input.
       parameters:
         - in: query
@@ -67,8 +67,8 @@ paths:
   /debt-positions/{debt-position-id}/payment-options/{payment-option-id}/installments/{notice-number}:
     put:
       tags:
-        - Downpayment
-      summary: PA Setup Downpayment
+        - DownPayment
+      summary: Setup DownPayment
       description: Update the downpayment amount. The balance will be updated accordingly.
       parameters:
         - in: path
@@ -105,6 +105,8 @@ paths:
                   type: integer
                   format: int64
                   description: Amount (in euro cents) of the down-payment.
+                  examples:
+                    - 8150
       responses:
         '200':
           description: OK. It returns only the DownPayment Payment Option, with the new amounts for the down-payment and the balance applied.
@@ -169,7 +171,6 @@ components:
         - companyName
         - subject
         - status
-        - standin
       examples:
         - iupd: "550e8400-e29b-41d4-a716-446655440000"
           organizationFiscalCode: "12345678910"
@@ -180,7 +181,6 @@ components:
             additionalLanguage:
               it: "Tassa Rifiuti 2026"
           status: "DP_UNPAID_PAYABLE"
-          standin: false
           paymentOptions:
             - paymentOptionId: "opt-12345"
               index: 1
@@ -193,8 +193,8 @@ components:
               nominalDueDate: "2029-06-10T12:00:00+02:00"
               validFrom: "2026-06-10T12:00:00+02:00"
               installments:
-                - nav: 123
-                  iuv: 123
+                - nav: 323000000000000001
+                  iuv: 23000000000000001
                   index: 1
                   description:
                     defaultValue: "Immobile Via Placeholder"
@@ -246,11 +246,6 @@ components:
             - DP_REVOKED
           examples:
             - "DP_UNPAID_PAYABLE"
-        standin:
-          type: boolean
-          description: Creditor Institution station in standin mode.
-          examples:
-            - false
         paymentOptions:
           type: array
           description: Set of alternative options available for the payment.
@@ -281,11 +276,34 @@ components:
           numberOfInstallments: 2
           nominalDueDate: "2026-12-31T23:59:59+02:00"
           validFrom: "2026-01-01T00:00:00+02:00"
-          amount: 100000
+          amount: 10000
           handlingCost:
             - type: "DOWN_PAYMENT_COST"
               amount: 150
           status: "PO_UNPAID_PAYABLE"
+          installments:
+            - nav: 323000000000000001
+              iuv: 23000000000000001
+              index: 1
+              description:
+                defaultValue: "Acconto Immobile Via Placeholder"
+              dueDate: "2029-06-10T12:00:00+02:00"
+              validFrom: "2026-06-10T12:00:00+02:00"
+              status: "POI_UNPAID_PAYABLE"
+              allCCP: false
+              type: "DOWNPAYMENT"
+              amount: 8150
+            - nav: 323000000000000002
+              iuv: 23000000000000002
+              index: 2
+              description:
+                defaultValue: "Saldo Immobile Via Placeholder"
+              dueDate: "2029-06-10T12:00:00+02:00"
+              validFrom: "2026-06-10T12:00:00+02:00"
+              status: "POI_UNPAID_PAYABLE"
+              allCCP: false
+              type: "BALANCE"
+              amount: 2000
       properties:
         paymentOptionId:
           type: string
@@ -396,7 +414,7 @@ components:
         propertyName: type
         mapping:
           INSTALLMENT: '#/components/schemas/StandardInstallment'
-          DOWNPAYMENT: '#/components/schemas/DownpaymentInstallment'
+          DOWNPAYMENT: '#/components/schemas/DownPaymentInstallment'
           BALANCE: '#/components/schemas/BalanceInstallment'
       properties:
         nav:
@@ -480,8 +498,8 @@ components:
               examples:
                 - 5000
 
-    DownpaymentInstallment:
-      description: Downpayment Installment without a predefined amount, but defined within a range.
+    DownPaymentInstallment:
+      description: DownPayment Installment without a predefined amount, but defined within a range.
       allOf:
         - $ref: '#/components/schemas/Installment'
         - type: object
@@ -518,7 +536,7 @@ components:
             amount:
               type: integer
               format: int64
-              description: Amount of the Downpayment paid. Mandatory only after payment.
+              description: Amount of the downpayment paid. Mandatory only after payment.
               examples:
                 - 50000
 
@@ -566,7 +584,7 @@ components:
             - "Tassa Rifiuti 2026"
         additionalLanguage:
           type: object
-          description: Map of supported translations using standard IETF BCP keys. Allowed languages include it, en, de-IT, fr-IT, sl-IT.
+          description: Map of supported translations using standard IETF BCP keys. Allowed languages include it, en, de, fr, sl.
           maxProperties: 5
           additionalProperties:
             type: string
@@ -592,7 +610,7 @@ components:
             - "Rata 1 Acconto Verbale n. 345 Divieto di Sosta"
         additionalLanguage:
           type: object
-          description: Map of supported translations using standard IETF BCP keys. Allowed languages include it, en, de-IT, fr-IT, sl-IT.
+          description: Map of supported translations using standard IETF BCP keys. Allowed languages include it, en, de, fr, sl.
           maxProperties: 5
           additionalProperties:
             type: string
