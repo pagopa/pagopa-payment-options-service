@@ -99,7 +99,7 @@ paths:
           $ref: '#/components/responses/ErrorResponse502'
 
   /debt-positions/{debt-position-id}/payment-options/{payment-option-id}/installments/{notice-number}:
-    put:
+    patch:
       tags:
         - DownPayment
       summary: Create DownPayment Intent

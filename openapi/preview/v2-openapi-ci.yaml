@@ -65,7 +65,7 @@ paths:
           $ref: '#/components/responses/ErrorResponse500'
 
   /debt-positions/{debt-position-id}/payment-options/{payment-option-id}/installments/{notice-number}:
-    put:
+    patch:
       tags:
         - DownPayment
       summary: Setup DownPayment
