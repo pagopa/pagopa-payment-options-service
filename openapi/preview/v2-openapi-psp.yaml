@@ -8,30 +8,31 @@ info:
     <details><summary>Details</summary>
     **NAME** | **HTTP STATUS CODE** | **DESCRIPTION**
     - | - | -
-    **ODP-001** | *Bad Request* | ODP-SINTASSI. Errore riportato in caso di errore di sintassi nel contenuto della richiesta verso ODP.
-    **ODP-002** | *Not Found* | ODP_PSP_SCONOSCIUTO. Errore riportato in caso non sia presente fra i dati ottenuti da config-cache un psp coincidente con l’id fornito in input.
-    **ODP-003** | *Bad Request* | ODP_PSP_DISABILITATO. Errore riportato in caso il psp coincidente con l’id fornito in input risulti disabilitato.
-    **ODP-004** | *Not Found* | ODP_INTERMEDIARIO_PSP_SCONOSCIUTO. Errore riportato in caso il broker psp coincidente con i dati forniti in input non sia presente nei dati ottenuti da config-cache.
-    **ODP-005** | *Bad Request* | ODP_INTERMEDIARIO_PSP_DISABILITATO. Errore riportato in caso il broker psp coincidente con l’id fornito in input risulti disabilitato.
-    **ODP-006** | *Unauthorized* | ODP_AUTENTICAZIONE. Errore di autenticazione rispetto ai dati forniti.
-    **ODP-007** | *Forbidden* | ODP_AUTORIZZAZIONE. Errore di autorizzazione rispetto ai dati forniti.
-    **ODP-008** | *Bad Request* | ODP_SEMANTICA. Errore fornito in caso della presenza di casi d’invalidità semantica nei dati del flusso di verifica.
-    **ODP-009** | *Not Found* | ODP_STAZIONE_INT_PA_SCONOSCIUTA. Errore fornito in caso di assenza associazione stazione e PA.
-    **ODP-010** | *Bad Request* | ODP_STAZIONE_INT_PA_DISABILITATA. Errore riportato in caso la stazione coincidente con l’id fornito in input risulti disabilitato.
-    **ODP-011** | *Service Unavailable* | ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE. Errore fornito in caso d’irraggiungibilità della stazione.
-    **ODP-012** | *Bad Request* | ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO. Errore riportato in caso di servizio non attivo.
-    **ODP-013** | *Internal Server Error* | ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione.
-    **ODP-016** | *Bad Request* | ODP_PSP_NAV_NOT_NMU. Errore fornito nel caso in cui il nav non sia valido per il flusso OdP.
-    **ODP-017** | *Bad Request* | ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA. Errore fornito nel caso in cui la stazione non sia abilitata per l’utilizzo del servizio OdP.
-    **ODP-018** | *Internal Server Error* | ODP_SYSTEM_ERROR. Codice d’errore generico.
-    **ODP-019** | *Bad Request* | ODP_INTERMEDIARIO_PA_DISABILITATO. Errore fornito in caso di intermediario non abilitato.
-    **ODP-020** | *Not Found* | ODP_INTERMEDIARIO_PA_SCONOSCIUTO. Errore fornito in caso di intermediario assente.
-    **ODP-021** | *Bad Request* | ODP_DOMINIO_DISABILITATO. Errore fornito in caso di PA non abilitata.
-    **ODP-022** | *Not Found* | ODP_DOMINIO_SCONOSCIUTO. Errore fornito in caso di PA assente.
-    **ODP-023** | *Bad Gateway* | ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PA.
-    **ODP-025** | *Conflict* | ODP_DOWNPAYMENT_IN_CORSO. Errore restituito quando è già in corso la valorizzazione dell’acconto per la posizione debitoria indicata.
-    **ODP-026** | *Unauthorized* | ODP_TOKEN_NON_AUTORIZZATO. Errore restituito quando il token non ha i permessi per operare sulla posizione debitoria.
-    
+    **ODP-001** | *400 Bad Request* | ODP-SINTASSI. Errore riportato in caso di errore di sintassi nel contenuto della richiesta verso ODP.
+    **ODP-002** | *404 Not Found* | ODP_PSP_SCONOSCIUTO. Errore riportato in caso non sia presente fra i dati ottenuti da config-cache un psp coincidente con l’id fornito in input.
+    **ODP-003** | *400 Bad Request* | ODP_PSP_DISABILITATO. Errore riportato in caso il psp coincidente con l’id fornito in input risulti disabilitato.
+    **ODP-004** | *404 Not Found* | ODP_INTERMEDIARIO_PSP_SCONOSCIUTO. Errore riportato in caso il broker psp coincidente con i dati forniti in input non sia presente nei dati ottenuti da config-cache.
+    **ODP-005** | *400 Bad Request* | ODP_INTERMEDIARIO_PSP_DISABILITATO. Errore riportato in caso il broker psp coincidente con l’id fornito in input risulti disabilitato.
+    **ODP-006** | *401 Unauthorized* | ODP_AUTENTICAZIONE. Errore di autenticazione rispetto ai dati forniti.
+    **ODP-007** | *403 Forbidden* | ODP_AUTORIZZAZIONE. Errore di autorizzazione rispetto ai dati forniti.
+    **ODP-008** | *400 Bad Request* | ODP_SEMANTICA. Errore fornito in caso della presenza di casi d’invalidità semantica nei dati del flusso di verifica.
+    **ODP-009** | *404 Not Found* | ODP_STAZIONE_INT_PA_SCONOSCIUTA. Errore fornito in caso di assenza associazione stazione e PA.
+    **ODP-010** | *400 Bad Request* | ODP_STAZIONE_INT_PA_DISABILITATA. Errore riportato in caso la stazione coincidente con l’id fornito in input risulti disabilitato.
+    **ODP-011** | *503 Service Unavailable* | ODP_STAZIONE_INT_PA_IRRAGGIUNGIBILE. Errore fornito in caso d’irraggiungibilità della stazione.
+    **ODP-012** | *400 Bad Request* | ODP_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO. Errore riportato in caso di servizio non attivo.
+    **ODP-013** | *500 Internal Server Error* | ODP_STAZIONE_INT_PA_TIMEOUT. Errore fornito in caso di timeout della stazione.
+    **ODP-016** | *400 Bad Request* | ODP_PSP_NAV_NOT_NMU. Errore fornito nel caso in cui il nav non sia valido per il flusso OdP.
+    **ODP-017** | *400 Bad Request* | ODP_STAZIONE_INT_VERIFICA_ODP_DISABILITATA. Errore fornito nel caso in cui la stazione non sia abilitata per l’utilizzo del servizio OdP.
+    **ODP-018** | *500 Internal Server Error* | ODP_SYSTEM_ERROR. Codice d’errore generico.
+    **ODP-019** | *400 Bad Request* | ODP_INTERMEDIARIO_PA_DISABILITATO. Errore fornito in caso di intermediario non abilitato.
+    **ODP-020** | *404 Not Found* | ODP_INTERMEDIARIO_PA_SCONOSCIUTO. Errore fornito in caso di intermediario assente.
+    **ODP-021** | *400 Bad Request* | ODP_DOMINIO_DISABILITATO. Errore fornito in caso di PA non abilitata.
+    **ODP-022** | *404 Not Found* | ODP_DOMINIO_SCONOSCIUTO. Errore fornito in caso di PA assente.
+    **ODP-023** | *502 Bad Gateway* | ODP_ERRORE_EMESSO_DA_PAA. Errore restituito in caso di errori da PA.
+    **ODP-024** | *422 Unprocessable Entity* | ODP_INVALID_CI_RESPONSE. Errore restituito quando la risposta fornita dalla PA non è conforme alle specifiche.
+    **ODP-025** | *409 Conflict* | ODP_DOWNPAYMENT_IN_CORSO. Errore restituito quando è già in corso la valorizzazione dell’acconto per la posizione debitoria indicata.
+    **ODP-026** | *401 Unauthorized* | ODP_TOKEN_SCADUTO. Errore restituito quando il token JWT è scaduto, malformato o mancante (sessione terminata).
+    **ODP-027** | *403 Forbidden* | ODP_TOKEN_NON_AUTORIZZATO. Errore restituito quando il token JWT non ha i permessi per operare sulla posizione debitoria.
     </details>
   termsOfService: https://www.pagopa.gov.it/
   version: 0.0.1
