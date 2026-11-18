@@ -105,7 +105,7 @@ microservice-chart:
     VERIFY_RE_EVT_HOST: 'pagopa-p-itn-payopt-evh.servicebus.windows.net:9093'
     VERIFY_RE_EVT_TOPIC: 'pagopa-payopt-evh'
     #JAVA_TOOL_OPTIONS: "-XX:MaxHeapSize=1780m -XX:MinHeapSize=64m"
-    JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=60 -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp"
+    JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=25 -XX:MaxRAMPercentage=60 -XX:MaxGCPauseMillis=200 -XX:+ParallelRefProcEnabled -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:-UseBASE64Intrinsics"
     GPD_REST_ENDPOINT: 'https://api.platform.pagopa.it/gpd/api/v1'
   envSecret:
     # required
@@ -150,5 +150,5 @@ microservice-chart:
       repository: ghcr.io/pagopa/pagopa-payment-options-service
       tag: "0.0.0"
       pullPolicy: Always
-    envConfig: {}
+    envConfig: {JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"}
     envSecret: {}
